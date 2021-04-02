@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TaskCollector.Contract.Model;
 
 namespace TaskCollector.Service
 {
@@ -17,6 +18,11 @@ namespace TaskCollector.Service
         {
             _serviceProvider = serviceProvider;
             _mapper = _serviceProvider.GetRequiredService<IMapper>();
+        }
+
+        public Task<Client> GetClient(Guid id, CancellationToken token)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IEnumerable<Contract.Model.User>> GetUsers(Contract.Model.UserFilter filter, CancellationToken token)

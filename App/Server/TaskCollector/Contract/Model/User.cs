@@ -8,4 +8,9 @@ namespace TaskCollector.Contract.Model
     {
 
     }
+
+    public class Client : Entity
+    {
+
+    }
 }
