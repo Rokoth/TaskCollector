@@ -1,10 +1,18 @@
 ﻿using System;
 using System.Linq.Expressions;
+using TaskCollector.Db.Attributes;
 
 namespace TaskCollector.Db.Model
 {
-    public class Entity
+    public abstract class Entity
     {
+        [PrimaryKey]
+        [ColumnName("id")]
+        public Guid Id { get; set; }
+        [ColumnName("version_date")]
+        public DateTimeOffset VersionDate { get; set; }
+        [ColumnName("is_deleted")]
+        public bool IsDeleted { get; set; }
     }
 
     public class UserFilter : Filter<User>

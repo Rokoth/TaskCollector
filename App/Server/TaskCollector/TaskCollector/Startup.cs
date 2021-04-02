@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -52,6 +53,45 @@ namespace TaskCollector
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+    }
+
+    public static class CustomExtensionMethods
+    {
+        public static IServiceCollection ConfigureAutoMapper(this IServiceCollection services)
+        {
+            var mappingConfig = new MapperConfiguration(mc => mc.AddProfile(new MappingProfile()));
+
+            var mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+            return services;
+        }
+    }
+
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            //CreateMap<TreeCreator, Tree>()
+            //    .ForMember(s => s.Id, s => s.MapFrom(c => Helper.GenerateGuid(new string[] { c.Name })))
+            //    .ForMember(s => s.VersionDate, s => s.MapFrom(c => DateTimeOffset.Now));
+
+            //CreateMap<TreeUpdater, Tree>()
+            //    .ForMember(s => s.Id, s => s.MapFrom(c => Helper.GenerateGuid(new string[] { c.Name })))
+            //    .ForMember(s => s.VersionDate, s => s.MapFrom(c => DateTimeOffset.Now));
+
+            //CreateMap<Tree, TreeModel>();
+
+            //CreateMap<TreeItem, TreeItemModel>();
+
+            //CreateMap<FormulaCreator, Formula>();
+
+            //CreateMap<FormulaUpdater, Formula>();
+
+            //CreateMap<Formula, FormulaModel>();
+            //CreateMap<TreeHistory, TreeHistoryModel>();
+            //CreateMap<TreeItemHistory, TreeItemHistoryModel>();
+            //CreateMap<FormulaHistory, FormulaHistoryModel>();
         }
     }
 }

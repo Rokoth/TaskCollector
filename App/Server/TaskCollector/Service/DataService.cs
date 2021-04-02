@@ -47,5 +47,23 @@ namespace TaskCollector.Service
             }
         }
 
+        public async Task<Contract.Model.User> GetUser(Guid id, CancellationToken token)
+        {
+            try
+            {
+                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.User>>();
+                var result = await repo.GetAsync(id, token);
+                return _mapper.Map<Contract.Model.User>(result);
+            }
+            catch (DataServiceException)
+            {
+                throw;
+            }
+            catch (Db.Repository.RepositoryException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+
     }
 }
