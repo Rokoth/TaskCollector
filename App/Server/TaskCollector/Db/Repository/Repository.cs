@@ -24,20 +24,28 @@ namespace TaskCollector.Db.Repository
             _logger = _serviceProvider.GetRequiredService<ILogger<Repository<T>>>();
         }
 
-        public async Task<IEnumerable<T>> GetAsync(Filter<T> filter, CancellationToken token)
+        public async Task<Contract.Model.PagedResult<T>> GetAsync(Filter<T> filter, CancellationToken token)
         {
             try
             {
                 var context = _serviceProvider.GetRequiredService<DbPgContext>();
-                var all = await context.Set<T>().Where(filter.Selector)
-                    .Skip(filter.Size * filter.Page).Take(filter.Size).ToListAsync();
-                return all;
+                var all = context.Set<T>().Where(filter.Selector);
+                var result = await all.Skip(filter.Size * filter.Page).Take(filter.Size).ToListAsync();
+                return new Contract.Model.PagedResult<T>() { 
+                   AllCount = await all.CountAsync(),
+                   Data = result
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Ошибка в методе GetAsync Repository: {ex.Message} {ex.StackTrace}");
                 throw new RepositoryException($"Ошибка в методе GetAsync Repository: {ex.Message}");
             }
+        }
+
+        public Task<T> GetAsync(Guid id, CancellationToken token)
+        {
+            throw new NotImplementedException();
         }
     }
 }

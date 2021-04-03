@@ -11,18 +11,18 @@ using TaskCollector.Service;
 
 namespace TaskCollector.Controllers
 {
-    public class ClientController : Controller
+    public class MessageController : Controller
     {
         private IServiceProvider _serviceProvider;
-        private IDataService _dataService;                
+        private IDataService _dataService;
 
-        public ClientController(IServiceProvider serviceProvider)
+        public MessageController(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _dataService = _serviceProvider.GetRequiredService<IDataService>();            
+            _dataService = _serviceProvider.GetRequiredService<IDataService>();
         }
 
-        // GET: ClientController
+        // GET: MessageController
         public ActionResult Index()
         {
             return View();
@@ -33,9 +33,8 @@ namespace TaskCollector.Controllers
             try
             {
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetClientsAsync(new ClientFilter(size, page, sort, name), source.Token);
-                Response.Headers.Add("x-pages", result.AllCount.ToString());
-                return PartialView(result.Data);
+                var result = await _dataService.GetMessagesAsync(new MessageFilter(size, page, sort, name) , source.Token);
+                return PartialView(result);
             }
             catch (Exception ex)
             {
@@ -43,28 +42,19 @@ namespace TaskCollector.Controllers
             }
         }
 
-        // GET: ClientController/Details/5
-        public async Task<ActionResult> Details(Guid id)
+        // GET: MessageController/Details/5
+        public ActionResult Details(int id)
         {
-            try
-            {
-                var cancellationTokenSource = new CancellationTokenSource(30000);
-                Client result = await _dataService.GetClientAsync(id, cancellationTokenSource.Token);
-                return View(result);
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Index", "Error", new { Message = ex.Message});
-            }
+            return View();
         }
 
-        // GET: ClientController/Create
+        // GET: MessageController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: ClientController/Create
+        // POST: MessageController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -79,13 +69,13 @@ namespace TaskCollector.Controllers
             }
         }
 
-        // GET: ClientController/Edit/5
+        // GET: MessageController/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // POST: ClientController/Edit/5
+        // POST: MessageController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
@@ -100,13 +90,13 @@ namespace TaskCollector.Controllers
             }
         }
 
-        // GET: ClientController/Delete/5
+        // GET: MessageController/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: ClientController/Delete/5
+        // POST: MessageController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)

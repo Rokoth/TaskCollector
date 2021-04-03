@@ -9,7 +9,7 @@ namespace TaskCollector.Db.Interface
 {
     public interface IRepository<T> where T : Entity
     {
-        Task<IEnumerable<T>> GetAsync(Filter<T> filter, CancellationToken token);
+        Task<Contract.Model.PagedResult<T>> GetAsync(Filter<T> filter, CancellationToken token);
         Task<T> GetAsync(Guid id, CancellationToken token);
     }
 }

@@ -20,22 +20,20 @@ namespace TaskCollector.Service
             _mapper = _serviceProvider.GetRequiredService<IMapper>();
         }
 
-        public Task<Client> GetClient(Guid id, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IEnumerable<Contract.Model.User>> GetUsers(Contract.Model.UserFilter filter, CancellationToken token)
+        public async Task<PagedResult<Contract.Model.User>> GetUsersAsync(Contract.Model.UserFilter filter, CancellationToken token)
         {
             try
             {
                 var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.User>>();
-                IEnumerable<Db.Model.User> result = await repo.GetAsync(new Db.Model.UserFilter { 
+                PagedResult<Db.Model.User> result = await repo.GetAsync(new Db.Model.UserFilter { 
                    Size = filter.Size,
                    Page = filter.Page,
                    Selector = s=>s.Name.ToLower().Contains(filter.Name.ToLower())
                 }, token);
-                return result.Select(s=>_mapper.Map<Contract.Model.User>(s));
+                return new PagedResult<User>() { 
+                    AllCount = result.AllCount,
+                    Data = result.Data.Select(s => _mapper.Map<Contract.Model.User>(s))
+                };
             }
             catch (DataServiceException)
             {
@@ -47,7 +45,7 @@ namespace TaskCollector.Service
             }
         }
 
-        public async Task<Contract.Model.User> GetUser(Guid id, CancellationToken token)
+        public async Task<Contract.Model.User> GetUserAsync(Guid id, CancellationToken token)
         {
             try
             {
@@ -65,5 +63,19 @@ namespace TaskCollector.Service
             }
         }
 
+        public Task<PagedResult<Message>> GetMessagesAsync(MessageFilter messageFilter, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedResult<Client>> GetClientsAsync(ClientFilter filter, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Client> GetClientAsync(Guid id, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

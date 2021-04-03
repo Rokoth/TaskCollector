@@ -13,9 +13,11 @@
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
 
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
 
     <Copyright>2021 Dmitriy Rokoth</Copyright>
+
+    <Description>Юнит-тесты</Description>
   </PropertyGroup>
 
   <ItemGroup>

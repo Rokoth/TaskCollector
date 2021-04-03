@@ -1,26 +1,48 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+///Copyright 2021 Dmitriy Rokoth
+///Licensed under the Apache License, Version 2.0
 
-namespace TaskCollector
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using System;
+using System.IO;
+using Topshelf;
+
+namespace TaskCollector.TaskCollectorHost
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-        }
+            Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
+            var loggerConfig = new LoggerConfiguration()
+               .WriteTo.Console()
+               .WriteTo.File("Logs\\log-startup.txt")
+               .MinimumLevel.Verbose();
+
+            using var logger = loggerConfig.CreateLogger();
+            logger.Information($"Service starts with arguments: {string.Join(", ", args)}");
+
+            var exitCode = HostFactory.Run(x =>
+            {
+                x.Service<Starter>(s =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    s.ConstructUsing(_ => new Starter(logger, args));
+                    s.WhenStarted(starter => starter.Start());
+                    s.WhenStopped(starter => starter.Stop());
                 });
+
+                x.RunAsLocalService();
+                x.EnableServiceRecovery(r => r.RestartService(TimeSpan.FromSeconds(10)));
+                x.SetDescription($"Branch Selector Service, 2021 (ñ)");
+                x.SetDisplayName($"Branch Selector Service");
+                x.SetServiceName($"BranchSelectorService");
+                x.StartAutomatically();
+            });
+            logger.Information($"Service stops with exit code: {exitCode}");
+        }
+       
     }
 }

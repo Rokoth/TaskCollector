@@ -14,6 +14,7 @@ using TaskCollector.Db.Context;
 using TaskCollector.Db.Interface;
 using TaskCollector.Db.Repository;
 using TaskCollector.Db.Model;
+using TaskCollector.TaskCollectorHost;
 
 namespace TaskCollector.UnitTests
 {

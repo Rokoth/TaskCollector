@@ -63,8 +63,8 @@ namespace TaskCollector.UnitTests
                 Selector = s=>s.Name.Contains("user_select")
             }, CancellationToken.None);
 
-            Assert.Equal(10, data.Count());
-            foreach (var item in data)
+            Assert.Equal(10, data.Data.Count());
+            foreach (var item in data.Data)
             {
                 Assert.Contains("user_select", item.Name);
             }

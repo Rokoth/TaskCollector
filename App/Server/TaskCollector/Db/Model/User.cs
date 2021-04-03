@@ -38,7 +38,12 @@ namespace TaskCollector.Db.Model
 
     public class Settings : Entity
     {
-        [ColumnName("name")]
-        public string Name { get; set; }
+        [ColumnName("param_name")]
+        public string ParamName { get; set; }
+
+        [ColumnName("param_value")]
+        public string ParamValue { get; set; }
+
+        
     }
 }

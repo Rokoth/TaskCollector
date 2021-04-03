@@ -8,8 +8,14 @@ namespace TaskCollector.Service
 {
     public interface IDataService
     {
+        Task<PagedResult<User>> GetUsersAsync(UserFilter filter, CancellationToken token);
+        Task<PagedResult<Client>> GetClientsAsync(ClientFilter filter, CancellationToken token);        
+        Task<PagedResult<Message>> GetMessagesAsync(MessageFilter messageFilter, CancellationToken token);
 
-        Task<IEnumerable<Contract.Model.User>> GetUsers(Contract.Model.UserFilter filter, CancellationToken token);
-        Task<Client> GetClient(Guid id, CancellationToken token);
+        Task<User> GetUserAsync(Guid id, CancellationToken token);
+        Task<Client> GetClientAsync(Guid id, CancellationToken token);
+        
     }
+
+   
 }
