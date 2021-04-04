@@ -63,9 +63,31 @@ namespace TaskCollector.Service
             }
         }
 
-        public Task<PagedResult<Message>> GetMessagesAsync(MessageFilter messageFilter, CancellationToken token)
+        public async Task<PagedResult<Message>> GetMessagesAsync(MessageFilter filter, CancellationToken token)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Message>>();
+                PagedResult<Db.Model.Message> result = await repo.GetAsync(new Db.Model.MessageFilter
+                {
+                    Size = filter.Size,
+                    Page = filter.Page,
+                    Selector = s => s.Name.ToLower().Contains(filter.Name.ToLower())
+                }, token);
+                return new PagedResult<Message>()
+                {
+                    AllCount = result.AllCount,
+                    Data = result.Data.Select(s => _mapper.Map<Contract.Model.Message>(s))
+                };
+            }
+            catch (DataServiceException)
+            {
+                throw;
+            }
+            catch (Db.Repository.RepositoryException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
         }
 
         public Task<PagedResult<Client>> GetClientsAsync(ClientFilter filter, CancellationToken token)

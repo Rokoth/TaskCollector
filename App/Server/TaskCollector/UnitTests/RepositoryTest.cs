@@ -69,5 +69,31 @@ namespace TaskCollector.UnitTests
                 Assert.Contains("user_select", item.Name);
             }
         }
+
+        [Fact]
+        public async Task GetItemTest()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+            var id = Guid.NewGuid();
+            context.Users.Add(new Db.Model.User()
+            {
+                Name = $"user_select_{id}",
+                Id = id,
+                Description = $"user_description_{id}",
+                IsDeleted = false,
+                Login = $"user_login_{id}",
+                Password = Encoding.UTF8.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}"))),
+                VersionDate = DateTimeOffset.Now
+            });
+
+            await context.SaveChangesAsync();
+
+            var repo = _serviceProvider.GetRequiredService<IRepository<User>>();
+            var data = await repo.GetAsync(id, CancellationToken.None);
+
+            Assert.NotNull(data);
+            Assert.Equal(id, data.Id);
+        }
+
     }
 }

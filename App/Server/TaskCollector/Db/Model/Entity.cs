@@ -20,6 +20,11 @@ namespace TaskCollector.Db.Model
         
     }
 
+    public class MessageFilter : Filter<Message>
+    {
+
+    }
+
     public abstract class Filter<T> where T : Entity
     {
         public int Page;

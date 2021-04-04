@@ -29,7 +29,7 @@ namespace TaskCollector.Db.Repository
             try
             {
                 var context = _serviceProvider.GetRequiredService<DbPgContext>();
-                var all = context.Set<T>().Where(filter.Selector);
+                var all = context.Set<T>().Where(filter.Selector);                
                 var result = await all.Skip(filter.Size * filter.Page).Take(filter.Size).ToListAsync();
                 return new Contract.Model.PagedResult<T>() { 
                    AllCount = await all.CountAsync(),
@@ -43,9 +43,19 @@ namespace TaskCollector.Db.Repository
             }
         }
 
-        public Task<T> GetAsync(Guid id, CancellationToken token)
+        public async Task<T> GetAsync(Guid id, CancellationToken token)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var context = _serviceProvider.GetRequiredService<DbPgContext>();
+                var item = await context.Set<T>().Where(s=>s.Id == id).FirstOrDefaultAsync();                
+                return item;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Ошибка в методе GetAsync Repository: {ex.Message} {ex.StackTrace}");
+                throw new RepositoryException($"Ошибка в методе GetAsync Repository: {ex.Message}");
+            }
         }
     }
 }
