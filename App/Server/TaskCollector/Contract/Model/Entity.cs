@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TaskCollector.Contract.Model
 {
     public class Entity
     {
+        public Guid Id { get; set; }
     }
 
     public class MessageFilter : Filter<Message>

@@ -51,21 +51,28 @@ namespace TaskCollector.Controllers
         // GET: MessageController/Create
         public ActionResult Create()
         {
-            return View();
+            //Fill default fields
+            var message = new MessageCreator()
+            {
+
+            };
+            return View(message);
         }
 
         // POST: MessageController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(MessageCreator message)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                Message result = await _dataService.AddMessage(message, source.Token);
+                return RedirectToAction(nameof(Details), new { id = result.Id});
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                return RedirectToAction("Index", "Error", new { Message = ex.Message});
             }
         }
 

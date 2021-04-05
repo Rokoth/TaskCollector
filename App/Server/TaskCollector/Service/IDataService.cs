@@ -14,7 +14,7 @@ namespace TaskCollector.Service
 
         Task<User> GetUserAsync(Guid id, CancellationToken token);
         Task<Client> GetClientAsync(Guid id, CancellationToken token);
-        
+        Task<Message> AddMessage(MessageCreator message, CancellationToken token);
     }
 
    

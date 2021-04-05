@@ -21,3 +21,16 @@ create table if not exists client(
 	, version_date  timestamptz   not null
 	, is_deleted    boolean       not null default false	
 );
+
+create table if not exists "message"(
+	  id               uuid         not null primary key
+	, "level"          smallint     not null
+	, title            varchar(100) not null
+	, "description"    varchar      not null
+	, feedback_contact varchar      not null
+	, add_fields       json         null
+	, client_id        uuid         not null
+	, created_date     timestamptz  not null
+	, version_date     timestamptz  not null
+	, is_deleted       boolean      not null default false
+);
