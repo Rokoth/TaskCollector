@@ -99,5 +99,10 @@ namespace TaskCollector.Service
         {
             throw new NotImplementedException();
         }
+
+        public Task<Message> AddMessage(MessageCreator message, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

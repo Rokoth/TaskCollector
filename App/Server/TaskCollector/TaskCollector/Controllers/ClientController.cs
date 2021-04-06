@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿///Copyright 2021 Dmitriy Rokoth
+///Licensed under the Apache License, Version 2.0
+///
+///ref 1
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Contract.Model;
