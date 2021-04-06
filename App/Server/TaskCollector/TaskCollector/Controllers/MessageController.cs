@@ -43,9 +43,18 @@ namespace TaskCollector.Controllers
         }
 
         // GET: MessageController/Details/5
-        public ActionResult Details(int id)
+        public async Task<ActionResult> Details(Guid id)
         {
-            return View();
+            try
+            {
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                Message result = await _dataService.GetMessageAsync(id, cancellationTokenSource.Token);
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
         }
 
         // GET: MessageController/Create
