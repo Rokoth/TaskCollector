@@ -100,7 +100,17 @@ namespace TaskCollector.Service
             throw new NotImplementedException();
         }
 
-        public Task<Message> AddMessage(MessageCreator message, CancellationToken token)
+        public Task<Message> AddMessageAsync(MessageCreator message, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Message> GetMessageAsync(Guid id, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Message> UpdateMessageAsync(MessageUpdater message, CancellationToken token)
         {
             throw new NotImplementedException();
         }

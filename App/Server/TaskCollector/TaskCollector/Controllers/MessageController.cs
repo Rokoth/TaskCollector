@@ -66,7 +66,7 @@ namespace TaskCollector.Controllers
             //Fill default fields
             var message = new MessageCreator()
             {
-
+                
             };
             return View(message);
         }
@@ -79,7 +79,7 @@ namespace TaskCollector.Controllers
             try
             {
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                Message result = await _dataService.AddMessage(message, source.Token);
+                Message result = await _dataService.AddMessageAsync(message, source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id});
             }
             catch(Exception ex)
@@ -89,23 +89,39 @@ namespace TaskCollector.Controllers
         }
 
         // GET: MessageController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            return View();
+            try
+            {
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                var item = await _dataService.GetMessageAsync(id, source.Token);
+                //Fill fields from item
+                var message = new MessageUpdater()
+                {
+
+                };
+                return View(message);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
         }
 
         // POST: MessageController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(Guid id, MessageUpdater message)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                Message result = await _dataService.UpdateMessageAsync(message, source.Token);
+                return RedirectToAction(nameof(Details), new { id = result.Id });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
 
