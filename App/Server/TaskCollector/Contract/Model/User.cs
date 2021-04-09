@@ -18,7 +18,7 @@ namespace TaskCollector.Contract.Model
 
     public class Client : Entity
     {
-
+        public string MapRules { get; set; }
     }
 
     public class Message : Entity
@@ -28,7 +28,7 @@ namespace TaskCollector.Contract.Model
 
     public class MessageCreator
     {
-
+        public Guid ClientId { get; set; }
     }
 
     public class MessageUpdater

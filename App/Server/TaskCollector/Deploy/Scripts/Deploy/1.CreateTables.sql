@@ -34,3 +34,14 @@ create table if not exists "message"(
 	, version_date     timestamptz  not null
 	, is_deleted       boolean      not null default false
 );
+
+create table if not exists "message_status"(
+	  id            uuid        not null primary key
+	, message_id    uuid        not null
+	, status_id     smallint    not null
+	, "description" varchar     not null
+	, "user_id"     uuid        not null
+	, status_date   timestamptz not null
+	, version_date  timestamptz not null
+	, is_deleted    boolean     not null default false
+);
