@@ -6,7 +6,7 @@ add constraint fk_client_user_id
 		on delete no action on update no action;
 
 
---client
+--message
 alter table "message" 
 add constraint fk_message_client_id 
 	foreign key(client_id) 
