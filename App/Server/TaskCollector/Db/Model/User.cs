@@ -22,6 +22,15 @@ namespace TaskCollector.Db.Model
     {
         [ColumnName("name")]
         public string Name { get; set; }
+        [ColumnName("description")]
+        public string Description { get; set; }
+        [ColumnName("login")]
+        public string Login { get; set; }
+        [ColumnName("password")]
+        public string Password { get; set; }
+        [ColumnType("json")]
+        [ColumnName("mapping_rules")]
+        public string MappingRules { get; set; }
     }
 
     public class Message : Entity

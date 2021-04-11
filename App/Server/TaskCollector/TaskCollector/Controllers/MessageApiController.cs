@@ -39,17 +39,28 @@ namespace TaskCollector.Controllers
                 var clientId = Guid.Parse(userClaim);
 
                 var client = await dataService.GetClientAsync(clientId, source.Token);
-                var creator = new MessageCreator();
-                creator.ClientId = clientId;
+                var creator = new MessageCreator
+                {
+                    ClientId = clientId
+                };
                 var mapRules = JObject.Parse(client.MapRules);
+                var addFields = new Dictionary<string, object>();
+                var creatorFields = typeof(MessageCreator).GetProperties();
                 foreach (var item in message)
                 {
-                    if (item.Key == "ClientId") continue;
-                      
+                    if (item.Key.Equals("ClientId", StringComparison.InvariantCultureIgnoreCase)) continue;
+                    var creatorField = creatorFields.FirstOrDefault(s => s.Name.Equals(item.Key, StringComparison.InvariantCultureIgnoreCase));
+                    if (creatorField != null)
+                    {
+                        typeof(MessageCreator).GetProperty(creatorField.Name, System.Reflection.BindingFlags.IgnoreCase).SetValue(creator, item.Value);
+                        continue;
+                    }
+                    addFields.Add(item.Key, item.Value);
                 }
-
-                return Ok();
-            }
+                creator.AddFields = JObject.FromObject(addFields).ToString();
+                var result = await dataService.AddMessageAsync(creator, source.Token);
+                return Ok(result);
+            }            
             catch (Exception ex)
             {
                 return BadRequest($"Ошибка при обработке сообщения: {ex.Message}");
