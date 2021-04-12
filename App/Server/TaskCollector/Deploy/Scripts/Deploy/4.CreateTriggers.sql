@@ -1,4 +1,5 @@
-﻿CREATE OR REPLACE FUNCTION history_trigger()
+﻿--history_trigger
+CREATE OR REPLACE FUNCTION history_trigger()
   RETURNS trigger AS
 $BODY$
 declare
@@ -60,3 +61,50 @@ $BODY$
   ON message_status
   FOR EACH ROW
   EXECUTE PROCEDURE history_trigger();
+
+--allow_delete
+CREATE OR REPLACE FUNCTION public.before_modify_table()
+  RETURNS trigger AS
+$BODY$
+declare
+  allow_delete varchar;  
+begin  
+  if ( tg_op ilike('%delete%')) then    
+    select current_setting( 'allow.delete' ) into allow_delete;      
+    if (allow_delete <> 'true') then
+      raise exception 'Удаление из таблицы %.% запрещено', tg_table_schema, tg_table_name;
+    end if;    
+    return old;
+  end if;  
+  return new;
+exception
+  when others then 
+    raise exception 'Удаление из таблицы %.% запрещено', tg_table_schema, tg_table_name;
+end;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+CREATE TRIGGER tr_onmodify_user
+  AFTER INSERT OR UPDATE OR DELETE
+  ON "user"
+  FOR EACH ROW
+  EXECUTE PROCEDURE before_modify_table();
+
+  CREATE TRIGGER tr_onmodify_client
+  AFTER INSERT OR UPDATE OR DELETE
+  ON client
+  FOR EACH ROW
+  EXECUTE PROCEDURE before_modify_table();
+
+  CREATE TRIGGER tr_onmodify_message
+  AFTER INSERT OR UPDATE OR DELETE
+  ON "message"
+  FOR EACH ROW
+  EXECUTE PROCEDURE before_modify_table();
+
+    CREATE TRIGGER tr_onmodify_message_status
+  AFTER INSERT OR UPDATE OR DELETE
+  ON message_status
+  FOR EACH ROW
+  EXECUTE PROCEDURE before_modify_table();

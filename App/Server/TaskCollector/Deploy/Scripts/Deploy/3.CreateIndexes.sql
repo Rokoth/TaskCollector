@@ -27,3 +27,14 @@ create index idx_message_client_id
 
 create index idx_message_created_date
     on "message"(created_date);
+
+--message_status
+create index idx_message_status_message_id
+    on message_status(message_id);
+
+create index idx_message_status_status_id
+    on message_status(status_id);
+
+create index idx_message_status_user_id
+    on message_status("user_id");
+
