@@ -26,6 +26,11 @@ namespace TaskCollector.Contract.Model
         
     }
 
+    public class MessageStatus : Entity
+    {
+
+    }
+
     public class MessageCreator
     {
         public Guid ClientId { get; set; }

@@ -5,7 +5,7 @@ namespace TaskCollector.Contract.Model
 {
     public class Entity
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; }
     }
 
     public class MessageFilter : Filter<Message>
@@ -14,7 +14,18 @@ namespace TaskCollector.Contract.Model
         {
             Name = name;
         }
-        public string Name { get; set; }
+        public string Name { get; }
+    }
+
+    public class MessageStatusFilter : Filter<MessageStatus>
+    {
+        public MessageStatusFilter(Guid messageId, int size, int page, string sort, string name) : base(size, page, sort)
+        {
+            Name = name;
+            MessageId = messageId;
+        }
+        public string Name { get; }
+        public Guid MessageId { get; }
     }
 
     public class UserFilter : Filter<User>
@@ -23,7 +34,7 @@ namespace TaskCollector.Contract.Model
         {
             Name = name;
         }
-        public string Name { get; set; }
+        public string Name { get; }
     }
 
     public class ClientFilter : Filter<Client>
@@ -32,7 +43,7 @@ namespace TaskCollector.Contract.Model
         {
             Name = name;
         }
-        public string Name { get; set; }
+        public string Name { get; }
     }
 
     public abstract class Filter<T> where T : Entity
@@ -43,14 +54,14 @@ namespace TaskCollector.Contract.Model
             Page = page;
             Sort = sort;
         }
-        public int Size { get; set; }
-        public int Page { get; set; }
-        public string Sort { get; set; }
+        public int Size { get; }
+        public int Page { get; }
+        public string Sort { get; }
     }
 
     public class PagedResult<T>
     {
-        public IEnumerable<T> Data { get; set; }
-        public int AllCount { get; set; }
+        public IEnumerable<T> Data { get; }
+        public int AllCount { get; }
     }
 }
