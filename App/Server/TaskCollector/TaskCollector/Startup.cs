@@ -4,6 +4,7 @@
 ///ref 1
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,25 @@ namespace TaskCollector.TaskCollectorHost
                 var connectionString = Configuration.GetConnectionString("MainConnection");
                 opt.UseNpgsql(connectionString);
             });
+            services.AddDbContextPool<UserIdentityContext>((opt) =>
+            {
+                opt.EnableSensitiveDataLogging();
+                var connectionString = Configuration.GetConnectionString("MainConnection");
+                opt.UseNpgsql(connectionString);
+            });
+            services.AddDbContextPool<ClientIdentityContext>((opt) =>
+            {
+                opt.EnableSensitiveDataLogging();
+                var connectionString = Configuration.GetConnectionString("MainConnection");
+                opt.UseNpgsql(connectionString);
+            });
+
+            services.AddIdentity<Db.Model.UserIdentity, IdentityRole>()
+                .AddEntityFrameworkStores<UserIdentityContext>();
+
+            services.AddIdentity<Db.Model.ClientIdentity, IdentityRole>()
+                .AddEntityFrameworkStores<ClientIdentityContext>();
+
             services.AddScoped<IRepository<Db.Model.User>, Repository<Db.Model.User>>();
             services.AddScoped<IRepository<Db.Model.Client>, Repository<Db.Model.Client>>();
             services.AddScoped<IRepository<Db.Model.Message>, Repository<Db.Model.Message>>();
@@ -67,6 +87,7 @@ namespace TaskCollector.TaskCollectorHost
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();
+            app.UseAuthentication();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

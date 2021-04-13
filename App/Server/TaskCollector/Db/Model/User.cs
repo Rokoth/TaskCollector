@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TaskCollector.Db.Attributes;
@@ -54,5 +56,18 @@ namespace TaskCollector.Db.Model
         public string ParamValue { get; set; }
 
         
+    }
+
+
+    public class ClientIdentity : IdentityUser
+    {
+        public string Login { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class UserIdentity : IdentityUser
+    {
+        public string Login { get; set; }
+        public string Password { get; set; }
     }
 }

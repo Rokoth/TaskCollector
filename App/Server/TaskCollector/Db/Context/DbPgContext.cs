@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using System;
 using System.Reflection;
 using TaskCollector.Db.Attributes;
@@ -7,6 +9,23 @@ using TaskCollector.Db.Model;
 
 namespace TaskCollector.Db.Context
 {
+    public class UserIdentityContext : IdentityDbContext<UserIdentity>
+    {
+        public UserIdentityContext(DbContextOptions<UserIdentityContext> options)
+            : base(options)
+        {
+        }
+    }
+
+    public class ClientIdentityContext : IdentityDbContext<ClientIdentity>
+    {
+        public ClientIdentityContext(DbContextOptions<ClientIdentityContext> options)
+            : base(options)
+        {
+        }
+    }
+
+
     public class DbPgContext : DbContext
     {
         public DbSet<User> Users { get; set; }
