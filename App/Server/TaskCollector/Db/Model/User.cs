@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Text;
 using TaskCollector.Db.Attributes;
@@ -35,12 +34,6 @@ namespace TaskCollector.Db.Model
         public string MappingRules { get; set; }
     }
 
-    public class Message : Entity
-    {
-        [ColumnName("name")]
-        public string Name { get; set; }
-    }
-
     public class MessageStatus : Entity
     {
         [ColumnName("name")]
@@ -53,9 +46,7 @@ namespace TaskCollector.Db.Model
         public string ParamName { get; set; }
 
         [ColumnName("param_value")]
-        public string ParamValue { get; set; }
-
-        
+        public string ParamValue { get; set; }        
     }
 
 
