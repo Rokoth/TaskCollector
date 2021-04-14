@@ -15,6 +15,8 @@ namespace TaskCollector.Db.Context
             : base(options)
         {
         }
+
+        
     }
 
     public class ClientIdentityContext : IdentityDbContext<ClientIdentity>

@@ -64,21 +64,28 @@ namespace TaskCollector.Controllers
         // GET: UserController/Create
         public ActionResult Create()
         {
-            return View();
+            //Fill default fields
+            var user = new UserCreator()
+            {
+                
+            };
+            return View(user);
         }
 
         // POST: UserController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult> Create(UserCreator creator)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                User result = await _dataService.AddUserAsync(creator, source.Token);
+                return RedirectToAction(nameof(Details), new { id = result.Id });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
 
