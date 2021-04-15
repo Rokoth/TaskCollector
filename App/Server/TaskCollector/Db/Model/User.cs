@@ -40,15 +40,6 @@ namespace TaskCollector.Db.Model
         public string Name { get; set; }
     }
 
-    public class Settings : Entity
-    {
-        [ColumnName("param_name")]
-        public string ParamName { get; set; }
-
-        [ColumnName("param_value")]
-        public string ParamValue { get; set; }        
-    }
-
 
     public class ClientIdentity : IdentityUser
     {

@@ -30,10 +30,7 @@ namespace TaskCollector.Service
                    Page = filter.Page,
                    Selector = s=>s.Name.ToLower().Contains(filter.Name.ToLower())
                 }, token);
-                return new PagedResult<User>() { 
-                    AllCount = result.AllCount,
-                    Data = result.Data.Select(s => _mapper.Map<Contract.Model.User>(s))
-                };
+                return new PagedResult<User>(result.Data.Select(s => _mapper.Map<Contract.Model.User>(s)), result.AllCount);
             }
             catch (DataServiceException)
             {
@@ -72,13 +69,9 @@ namespace TaskCollector.Service
                 {
                     Size = filter.Size,
                     Page = filter.Page,
-                    Selector = s => s.Name.ToLower().Contains(filter.Name.ToLower())
+                    Selector = s => s.Title.ToLower().Contains(filter.Title.ToLower())
                 }, token);
-                return new PagedResult<Message>()
-                {
-                    AllCount = result.AllCount,
-                    Data = result.Data.Select(s => _mapper.Map<Contract.Model.Message>(s))
-                };
+                return new PagedResult<Message>(result.Data.Select(s => _mapper.Map<Contract.Model.Message>(s)), result.AllCount);
             }
             catch (DataServiceException)
             {
@@ -111,6 +104,16 @@ namespace TaskCollector.Service
         }
 
         public Task<Message> UpdateMessageAsync(MessageUpdater message, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<MessageStatus> GetMessageStatusesAsync(MessageStatusFilter messageStatusFilter, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<User> AddUserAsync(UserCreator creator, CancellationToken token)
         {
             throw new NotImplementedException();
         }

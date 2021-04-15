@@ -7,19 +7,43 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using TaskCollector.Db.Context;
+using TaskCollector.Deploy;
 
 namespace TaskCollector.TaskCollectorHost
 {
     public class ConfigDbProvider : ConfigurationProvider
     {
         private readonly Action<DbContextOptionsBuilder> _options;
+        private readonly IDeployService _deployService;
 
-        public ConfigDbProvider(Action<DbContextOptionsBuilder> options)
+        public ConfigDbProvider(Action<DbContextOptionsBuilder> options, 
+            IDeployService deployService)
         {
             _options = options;
+            _deployService = deployService;
         }
 
         public override void Load()
+        {
+            try
+            {
+                LoadInternal();
+            }
+            catch
+            {
+                try
+                {
+                    _deployService.Deploy().Wait();
+                    LoadInternal();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+        }
+
+        private void LoadInternal()
         {
             var builder = new DbContextOptionsBuilder<DbPgContext>();
             _options(builder);

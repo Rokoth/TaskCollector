@@ -10,11 +10,11 @@ namespace TaskCollector.Contract.Model
 
     public class MessageFilter : Filter<Message>
     {
-        public MessageFilter(int size, int page, string sort, string name) : base(size, page, sort)
+        public MessageFilter(int size, int page, string sort, string title) : base(size, page, sort)
         {
-            Name = name;
+            Title = title;
         }
-        public string Name { get; }
+        public string Title { get; }
     }
 
     public class MessageStatusFilter : Filter<MessageStatus>
@@ -61,6 +61,11 @@ namespace TaskCollector.Contract.Model
 
     public class PagedResult<T>
     {
+        public PagedResult(IEnumerable<T> data, int allCount)
+        {
+            Data = data;
+            AllCount = allCount;
+        }
         public IEnumerable<T> Data { get; }
         public int AllCount { get; }
     }

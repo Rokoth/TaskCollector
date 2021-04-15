@@ -15,12 +15,18 @@ namespace TaskCollector.Deploy
     public class DeployService : IDeployService
     {
         private readonly ILogger<DeployService> _logger;
-        private readonly IOptions<CommonOptions> _options;
+        private string _connectionString;
 
         public DeployService(IServiceProvider serviceProvider)
         {
             _logger = serviceProvider.GetRequiredService<ILogger<DeployService>>();
-            _options = serviceProvider.GetRequiredService<IOptions<CommonOptions>>();
+            var _options = serviceProvider.GetRequiredService<IOptions<CommonOptions>>();
+            _connectionString = _options.Value.ConnectionString;
+        }
+
+        public DeployService(string connectionString)
+        {
+            _connectionString = connectionString;
         }
 
         public async Task Deploy(int? num = null)
@@ -28,13 +34,13 @@ namespace TaskCollector.Deploy
             var deployLog = string.Empty;
             try
             {
-                CheckDbForExists(_options.Value.ConnectionString);
+                CheckDbForExists(_connectionString);
 
                 DeploySettings deploySettings = new DeploySettings()
                 {
                     BeginNum = num,
                     CheckSqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "Check"),
-                    ConnectionString = _options.Value.ConnectionString,
+                    ConnectionString = _connectionString,
                     DeploySqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "Deploy"),
                     UpdateSqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "Update")
                 };
@@ -42,20 +48,20 @@ namespace TaskCollector.Deploy
                 deployer.OnError += (sender, message) =>
                 {
                     deployLog += message + "\r\n";
-                    _logger.LogError(message);
+                    _logger?.LogError(message);
                 };
                 deployer.OnDebug += (sender, message) =>
                 {
-                    _logger.LogDebug(message);
+                    _logger?.LogDebug(message);
                 };
                 deployer.OnMessage += (sender, message) =>
                 {
-                    _logger.LogInformation(message);
+                    _logger?.LogInformation(message);
                 };
                 deployer.OnWarning += (sender, message) =>
                 {
                     deployLog += message + "\r\n";
-                    _logger.LogWarning(message);
+                    _logger?.LogWarning(message);
                 };
 
 

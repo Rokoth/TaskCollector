@@ -31,10 +31,7 @@ namespace TaskCollector.Db.Repository
                 var context = _serviceProvider.GetRequiredService<DbPgContext>();
                 var all = context.Set<T>().Where(filter.Selector);                
                 var result = await all.Skip(filter.Size * filter.Page).Take(filter.Size).ToListAsync();
-                return new Contract.Model.PagedResult<T>() { 
-                   AllCount = await all.CountAsync(),
-                   Data = result
-                };
+                return new Contract.Model.PagedResult<T>(result, await all.CountAsync());
             }
             catch (Exception ex)
             {

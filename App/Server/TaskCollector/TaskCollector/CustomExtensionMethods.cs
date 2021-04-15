@@ -15,14 +15,14 @@ namespace TaskCollector.TaskCollectorHost
         {
             var configuration = builder.Build();
             var connectionString = configuration.GetConnectionString("MainConnection");
-            builder.AddConfigDbProvider(options => options.UseNpgsql(connectionString));
+            builder.AddConfigDbProvider(options => options.UseNpgsql(connectionString), connectionString);
             return builder;
         }
 
         public static IConfigurationBuilder AddConfigDbProvider(
-            this IConfigurationBuilder configuration, Action<DbContextOptionsBuilder> setup)
+            this IConfigurationBuilder configuration, Action<DbContextOptionsBuilder> setup, string connectionString)
         {
-            configuration.Add(new ConfigDbSource(setup));
+            configuration.Add(new ConfigDbSource(setup, connectionString));
             return configuration;
         }
 
