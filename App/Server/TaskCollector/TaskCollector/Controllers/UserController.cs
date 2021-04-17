@@ -90,23 +90,42 @@ namespace TaskCollector.Controllers
         }
 
         // GET: UserController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            return View();
+            try
+            {
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                User result = await _dataService.GetUserAsync(id, source.Token);
+                var updater = new UserUpdater()
+                {
+                    Description = result.Description,
+                    Id = result.Id,
+                    Login = result.Login,
+                    Name = result.Name,
+                    PasswordChanged = false
+                };
+                return View(updater);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
         }
 
         // POST: UserController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<ActionResult> Edit(Guid id, UserUpdater updater)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                User result = await _dataService.UpdateUserAsync(updater, source.Token);
+                return RedirectToAction(nameof(Details), new { id = result.Id });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
 
