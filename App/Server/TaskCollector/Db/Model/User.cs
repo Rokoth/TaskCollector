@@ -16,7 +16,7 @@ namespace TaskCollector.Db.Model
         [ColumnName("login")]
         public string Login { get; set; }
         [ColumnName("password")]
-        public string Password { get; set; }        
+        public byte[] Password { get; set; }        
     }
 
     public class Client : Entity
@@ -28,7 +28,7 @@ namespace TaskCollector.Db.Model
         [ColumnName("login")]
         public string Login { get; set; }
         [ColumnName("password")]
-        public string Password { get; set; }
+        public byte[] Password { get; set; }
         [ColumnType("json")]
         [ColumnName("mapping_rules")]
         public string MappingRules { get; set; }

@@ -1,57 +1,23 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace TaskCollector.Contract.Model
 {
-    public class User: Entity
+    public class User : Entity
     {
-
-    }
-
-    public class UserCreator {
+        [Display(Name = "Имя")]
+        [Required(ErrorMessage = "Поле должно быть установлено")]
+        [Remote("CheckName", "User", ErrorMessage = "Имя уже используется")]
         public string Name { get; set; }
+
+        [Display(Name = "Описание")]       
         public string Description { get; set; }
-        public string Login { get; set; }
-        public string Password { get; set; }
+
+        [Display(Name = "Логин")]
+        [Required(ErrorMessage = "Поле должно быть установлено")]
+        [Remote("CheckLogin", "User", ErrorMessage = "Логин уже используется")]
+        public string Login { get; set; }        
     }
-
-    public class Client : Entity
-    {
-        public string MapRules { get; set; }
-    }
-
-    public class Message : Entity
-    {
-        
-    }
-
-    public class MessageStatus : Entity
-    {
-
-    }
-
-    public class MessageCreator
-    {
-        public Guid ClientId { get; set; }
-        public string AddFields { get; set; }
-    }
-
-    public class MessageUpdater
-    {
-
-    }
-
-    public class ClientIdentity
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class UserIdentity
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
-    }
-
 }

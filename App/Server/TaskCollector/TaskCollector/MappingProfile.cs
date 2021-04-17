@@ -14,7 +14,7 @@ namespace TaskCollector.TaskCollectorHost
             //    .ForMember(s => s.Id, s => s.MapFrom(c => Helper.GenerateGuid(new string[] { c.Name })))
             //    .ForMember(s => s.VersionDate, s => s.MapFrom(c => DateTimeOffset.Now));
 
-            //CreateMap<Tree, TreeModel>();
+            CreateMap<Db.Model.User, Contract.Model.User>();
 
             //CreateMap<TreeItem, TreeItemModel>();
 

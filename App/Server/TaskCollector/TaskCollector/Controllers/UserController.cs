@@ -111,23 +111,34 @@ namespace TaskCollector.Controllers
         }
 
         // GET: UserController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(Guid id)
         {
-            return View();
+            try
+            {
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                User result = await _dataService.GetUserAsync(id, source.Token);
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
         }
 
         // POST: UserController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(Guid id, User model)
         {
             try
             {
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                User result = await _dataService.DeleteUserAsync(id, source.Token);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
     }

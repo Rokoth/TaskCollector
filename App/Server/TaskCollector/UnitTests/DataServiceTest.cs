@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -7,28 +8,31 @@ using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Db.Context;
 using TaskCollector.Db.Interface;
-using TaskCollector.Db.Model;
+using TaskCollector.Service;
 using Xunit;
 
 namespace TaskCollector.UnitTests
 {
-    public class RepositoryTest : IClassFixture<CustomFixture>
+    public class DataServiceTest : IClassFixture<CustomFixture>
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public RepositoryTest(CustomFixture fixture)
+        public DataServiceTest(CustomFixture fixture)
         {
             _serviceProvider = fixture.ServiceProvider;
         }
 
         [Fact]
-        public async Task GetTest()
+        public async Task GetUsersTest()
         {
             var context = _serviceProvider.GetRequiredService<DbPgContext>();
+
+            List<Db.Model.User> users = new List<Db.Model.User>();
+            
             for (int i = 0; i < 10; i++)
             {
                 var id = Guid.NewGuid();
-                context.Users.Add(new Db.Model.User() { 
+                users.Add(new Db.Model.User() { 
                    Name = $"user_select_{id}",
                    Id = id,
                    Description = $"user_description_{id}",
@@ -42,7 +46,7 @@ namespace TaskCollector.UnitTests
             for (int i = 0; i < 10; i++)
             {
                 var id = Guid.NewGuid();
-                context.Users.Add(new Db.Model.User()
+                users.Add(new Db.Model.User()
                 {
                     Name = $"user_not_select_{id}",
                     Id = id,
@@ -54,14 +58,16 @@ namespace TaskCollector.UnitTests
                 });
             }
 
+
+            foreach (var user in users)
+            {
+                context.Users.Add(user);
+            }
             await context.SaveChangesAsync();
 
-            var repo = _serviceProvider.GetRequiredService<IRepository<User>>();
-            var data = await repo.GetAsync(new UserFilter() { 
-                Page = 0, 
-                Size = 10, 
-                Selector = s=>s.Name.Contains("user_select")
-            }, CancellationToken.None);
+            var dataService = _serviceProvider.GetRequiredService<IDataService>();
+            var data = await dataService.GetUsersAsync(
+                new Contract.Model.UserFilter(10, 0, null, "user_select"), CancellationToken.None);
 
             Assert.Equal(10, data.Data.Count());
             foreach (var item in data.Data)
@@ -70,31 +76,7 @@ namespace TaskCollector.UnitTests
             }
         }
 
-        [Fact]
-        public async Task GetItemTest()
-        {
-            var context = _serviceProvider.GetRequiredService<DbPgContext>();
-            var id = Guid.NewGuid();
-            context.Users.Add(new Db.Model.User()
-            {
-                Name = $"user_select_{id}",
-                Id = id,
-                Description = $"user_description_{id}",
-                IsDeleted = false,
-                Login = $"user_login_{id}",
-                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
-                VersionDate = DateTimeOffset.Now
-            });
-
-            await context.SaveChangesAsync();
-
-            var repo = _serviceProvider.GetRequiredService<IRepository<User>>();
-            var data = await repo.GetAsync(id, CancellationToken.None);
-
-            Assert.NotNull(data);
-            Assert.Equal(id, data.Id);
-        }
-
+        
         
 
     }
