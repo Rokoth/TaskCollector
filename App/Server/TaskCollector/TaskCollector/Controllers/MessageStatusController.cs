@@ -46,20 +46,20 @@ namespace TaskCollector.Controllers
             }
         }
 
-        // GET: MessageController/Details/5
-        //public async Task<ActionResult> Details(Guid id)
-        //{
-        //    try
-        //    {
-        //        var cancellationTokenSource = new CancellationTokenSource(30000);
-        //        Message result = await _dataService.GetMessageStatusAsync(id, cancellationTokenSource.Token);
-        //        return View(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return RedirectToAction("Index", "Error", new { Message = ex.Message });
-        //    }
-        //}
+        ///GET: MessageController/Details/5
+        public async Task<ActionResult> Details(Guid id)
+        {
+            try
+            {
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                Message result = await _dataService.GetMessageStatusAsync(id, cancellationTokenSource.Token);
+                return View(result);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
+        }
 
         // GET: MessageController/Create
         //public ActionResult Create()
@@ -67,7 +67,7 @@ namespace TaskCollector.Controllers
         //    //Fill default fields
         //    var message = new MessageCreator()
         //    {
-                
+
         //    };
         //    return View(message);
         //}

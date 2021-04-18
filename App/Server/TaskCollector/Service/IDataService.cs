@@ -22,6 +22,7 @@ namespace TaskCollector.Service
         Task<User> DeleteUserAsync(Guid id, CancellationToken token);
         Task<User> UpdateUserAsync(UserUpdater updater, CancellationToken token);
         Task<Message> DeleteMessageAsync(Guid id, CancellationToken token);
+        Task<Message> GetMessageStatusAsync(Guid id, CancellationToken token);
     }
 
    
