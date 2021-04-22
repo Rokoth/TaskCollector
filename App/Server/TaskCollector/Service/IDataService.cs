@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Contract.Model;
@@ -21,6 +22,7 @@ namespace TaskCollector.Service
         Task<User> AddUserAsync(UserCreator creator, CancellationToken token);
         Task<User> DeleteUserAsync(Guid id, CancellationToken token);
         Task<User> UpdateUserAsync(UserUpdater updater, CancellationToken token);
+        Task<ClaimsIdentity> Auth(ClientIdentity login, CancellationToken token);
         Task<Message> DeleteMessageAsync(Guid id, CancellationToken token);
         Task<Message> GetMessageStatusAsync(Guid id, CancellationToken token);
     }

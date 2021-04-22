@@ -3,15 +3,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-
+using TaskCollector.Common;
 using TaskCollector.Service;
 
 namespace TaskCollector.Controllers
@@ -37,8 +39,30 @@ namespace TaskCollector.Controllers
                 var source = new CancellationTokenSource(30000);
                 var dataService = _serviceProvider.GetRequiredService<IDataService>();
 
-                
-                return Ok();
+                ClaimsIdentity identity = await dataService.Auth(login, source.Token);
+                if (identity == null)
+                {
+                    return BadRequest(new { errorText = "Invalid username or password." });
+                }
+
+                var now = DateTime.UtcNow;
+                // создаем JWT-токен
+                var jwt = new JwtSecurityToken(
+                        issuer: AuthOptions.ISSUER,
+                        audience: AuthOptions.AUDIENCE,
+                        notBefore: now,
+                        claims: identity.Claims,
+                        expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+                var response = new
+                {
+                    access_token = encodedJwt,
+                    username = identity.Name
+                };
+
+                return Ok(response);
             }            
             catch (Exception ex)
             {
@@ -54,7 +78,7 @@ namespace TaskCollector.Controllers
             {               
                 if (!User.Identity.IsAuthenticated)
                     throw new AuthenticationException();
-               
+
                 return Ok();
             }
             catch (Exception ex)
