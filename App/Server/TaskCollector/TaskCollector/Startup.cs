@@ -3,6 +3,8 @@
 //////
 ///ref 1
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +13,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Linq;
 using TaskCollector.Common;
 using TaskCollector.Db.Context;
 using TaskCollector.Db.Interface;
@@ -40,12 +44,49 @@ namespace TaskCollector.TaskCollectorHost
                 var connectionString = Configuration.GetConnectionString("MainConnection");
                 opt.UseNpgsql(connectionString);
             });
-            
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options=> {
-                    options.LoginPath = new PathString("/Account/Login");                    
+
+            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            //    .AddCookie(options=> {
+            //        options.LoginPath = new PathString("/Account/Login");                    
+            //    });
+            services.AddCors();
+            services.AddAuthentication()           
+            .AddJwtBearer("token", options =>
+            {
+                options.RequireHttpsMetadata = false;                
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // укзывает, будет ли валидироваться издатель при валидации токена
+                    ValidateIssuer = true,
+                    // строка, представляющая издателя
+                    ValidIssuer = AuthOptions.ISSUER,
+
+                    // будет ли валидироваться потребитель токена
+                    ValidateAudience = true,
+                    // установка потребителя токена
+                    ValidAudience = AuthOptions.AUDIENCE,
+                    // будет ли валидироваться время существования
+                    ValidateLifetime = true,
+
+                    // установка ключа безопасности
+                    IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                    // валидация ключа безопасности
+                    ValidateIssuerSigningKey = true,
+                };
+            }).AddCookie("cookie", options=> {
+                options.LoginPath = new PathString("/Account/Login");                
+            });
+
+            services
+                .AddAuthorization(options =>
+                {
+                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .AddAuthenticationSchemes("token", "cookie")
+                        .Build();
                 });
-                       
+
             services.AddScoped<IRepository<Db.Model.User>, Repository<Db.Model.User>>();
             services.AddScoped<IRepository<Db.Model.Client>, Repository<Db.Model.Client>>();
             services.AddScoped<IRepository<Db.Model.Message>, Repository<Db.Model.Message>>();
@@ -78,11 +119,11 @@ namespace TaskCollector.TaskCollectorHost
             app.UseRouting();
             app.UseAuthorization();
             app.UseAuthentication();
-            var cookiePolicyOptions = new CookiePolicyOptions
-            {
-                MinimumSameSitePolicy = SameSiteMode.Strict,                
-            };
-            app.UseCookiePolicy(cookiePolicyOptions);
+            //var cookiePolicyOptions = new CookiePolicyOptions
+            //{
+            //    MinimumSameSitePolicy = SameSiteMode.Strict,                
+            //};
+            //app.UseCookiePolicy(cookiePolicyOptions);
            
             app.UseSwagger();
             app.UseSwaggerUI(c =>

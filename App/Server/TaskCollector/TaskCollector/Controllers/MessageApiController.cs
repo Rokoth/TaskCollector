@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
@@ -25,6 +26,7 @@ namespace TaskCollector.Controllers
         }
 
         [HttpPost("send")]
+        [Authorize]
         public async Task<IActionResult> Send([FromBody] Dictionary<string, object> message)
         {
             try
@@ -33,7 +35,9 @@ namespace TaskCollector.Controllers
                 var dataService = _serviceProvider.GetRequiredService<IDataService>();
 
                 if (!User.Identity.IsAuthenticated)
-                    throw new AuthenticationException();
+                {
+                    return Unauthorized($"{Request.Scheme}://{Request.Host.Value}/api/v1/client/auth");
+                }
 
                 string userClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 var clientId = Guid.Parse(userClaim);
@@ -58,7 +62,7 @@ namespace TaskCollector.Controllers
                     addFields.Add(item.Key, item.Value);
                 }
                 creator.AddFields = JObject.FromObject(addFields).ToString();
-                var result = await dataService.AddMessageAsync(creator, source.Token);
+                var result = await dataService.AddMessageAsync(creator, source.Token);                
                 return Ok(result);
             }            
             catch (Exception ex)

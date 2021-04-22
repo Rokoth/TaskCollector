@@ -3,6 +3,7 @@
 ///
 ///ref 1
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,11 +27,13 @@ namespace TaskCollector.Controllers
         }
 
         // GET: UserController
+        [Authorize]
         public ActionResult Index()
         {
             return View();
         }
 
+        [Authorize]
         public async Task<ActionResult> ListPaged(int page = 0, int size = 10, string sort = null, string name = null)
         {
             try
@@ -47,6 +50,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: UserController/Details/5
+        [Authorize]
         public async Task<ActionResult> Details(Guid id)
         {
             try
@@ -62,6 +66,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: UserController/Create
+        [Authorize]
         public ActionResult Create()
         {
             //Fill default fields
@@ -75,6 +80,7 @@ namespace TaskCollector.Controllers
         // POST: UserController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<ActionResult> Create(UserCreator creator)
         {
             try
@@ -90,6 +96,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: UserController/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(Guid id)
         {
             try
@@ -115,6 +122,7 @@ namespace TaskCollector.Controllers
         // POST: UserController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<ActionResult> Edit(Guid id, UserUpdater updater)
         {
             try
@@ -130,6 +138,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: UserController/Delete/5
+        [Authorize]
         public async Task<ActionResult> Delete(Guid id)
         {
             try
@@ -147,6 +156,7 @@ namespace TaskCollector.Controllers
         // POST: UserController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<ActionResult> Delete(Guid id, User model)
         {
             try

@@ -3,6 +3,7 @@
 ///
 ///ref 1
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,11 +27,13 @@ namespace TaskCollector.Controllers
         }
 
         // GET: MessageController
+        [Authorize]
         public ActionResult Index()
         {
             return View();
         }
 
+        [Authorize]
         public async Task<ActionResult> ListPaged(Guid messageId, int page = 0, int size = 10, string sort = null, string name = null)
         {
             try
@@ -47,6 +50,7 @@ namespace TaskCollector.Controllers
         }
 
         ///GET: MessageController/Details/5
+        [Authorize]
         public async Task<ActionResult> Details(Guid id)
         {
             try
@@ -62,6 +66,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: MessageController/Create
+        //[Authorize]
         //public ActionResult Create()
         //{
         //    //Fill default fields
@@ -75,6 +80,7 @@ namespace TaskCollector.Controllers
         // POST: MessageController/Create
         //[HttpPost]
         //[ValidateAntiForgeryToken]
+        //[Authorize]
         //public async Task<ActionResult> Create(MessageCreator message)
         //{
         //    try
@@ -90,6 +96,7 @@ namespace TaskCollector.Controllers
         //}
 
         // GET: MessageController/Edit/5
+        //[Authorize]
         //public async Task<IActionResult> Edit(Guid id)
         //{
         //    try
@@ -110,6 +117,7 @@ namespace TaskCollector.Controllers
         //}
 
         // POST: MessageController/Edit/5
+        //[Authorize]
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public async Task<IActionResult> Edit(Guid id, MessageUpdater message)
@@ -127,6 +135,7 @@ namespace TaskCollector.Controllers
         //}
 
         // GET: MessageController/Delete/5
+        [Authorize]
         public ActionResult Delete(int id)
         {
             return View();
@@ -135,6 +144,7 @@ namespace TaskCollector.Controllers
         // POST: MessageController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try

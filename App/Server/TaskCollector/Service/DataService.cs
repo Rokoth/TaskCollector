@@ -25,10 +25,11 @@ namespace TaskCollector.Service
             try
             {
                 var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.User>>();
-                PagedResult<Db.Model.User> result = await repo.GetAsync(new Db.Model.UserFilter { 
-                   Size = filter.Size,
-                   Page = filter.Page,
-                   Selector = s=>s.Name.ToLower().Contains(filter.Name.ToLower())
+                PagedResult<Db.Model.User> result = await repo.GetAsync(new Db.Model.Filter<Db.Model.User> { 
+                    Size = filter.Size,
+                    Page = filter.Page,
+                    Sort = filter.Sort,
+                    Selector = s=>s.Name.ToLower().Contains(filter.Name.ToLower())
                 }, token);
                 return new PagedResult<User>(result.Data.Select(s => _mapper.Map<Contract.Model.User>(s)), result.AllCount);
             }
@@ -65,10 +66,11 @@ namespace TaskCollector.Service
             try
             {
                 var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Message>>();
-                PagedResult<Db.Model.Message> result = await repo.GetAsync(new Db.Model.MessageFilter
+                PagedResult<Db.Model.Message> result = await repo.GetAsync(new Db.Model.Filter<Db.Model.Message>
                 {
                     Size = filter.Size,
                     Page = filter.Page,
+                    Sort = filter.Sort,
                     Selector = s => s.Title.ToLower().Contains(filter.Title.ToLower())
                 }, token);
                 return new PagedResult<Message>(result.Data.Select(s => _mapper.Map<Contract.Model.Message>(s)), result.AllCount);
@@ -114,6 +116,26 @@ namespace TaskCollector.Service
         }
 
         public Task<User> AddUserAsync(UserCreator creator, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<User> DeleteUserAsync(Guid id, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<User> UpdateUserAsync(UserUpdater updater, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Message> DeleteMessageAsync(Guid id, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Message> GetMessageStatusAsync(Guid id, CancellationToken token)
         {
             throw new NotImplementedException();
         }

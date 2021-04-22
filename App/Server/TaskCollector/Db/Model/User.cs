@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TaskCollector.Db.Attributes;
@@ -32,6 +33,8 @@ namespace TaskCollector.Db.Model
         [ColumnType("json")]
         [ColumnName("mapping_rules")]
         public string MappingRules { get; set; }
+        [ColumnName("user")]
+        public Guid UserId { get; set; }
     }
 
     public class MessageStatus : Entity

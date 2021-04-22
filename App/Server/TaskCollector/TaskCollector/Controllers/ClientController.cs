@@ -2,6 +2,7 @@
 ///Licensed under the Apache License, Version 2.0
 ///
 ///ref 1
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,11 +26,13 @@ namespace TaskCollector.Controllers
         }
 
         // GET: ClientController
+        [Authorize]
         public ActionResult Index()
         {
             return View();
         }
 
+        [Authorize]
         public async Task<ActionResult> ListPaged(int page = 0, int size = 10, string sort = null, string name = null)
         {
             try
@@ -46,6 +49,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: ClientController/Details/5
+        [Authorize]
         public async Task<ActionResult> Details(Guid id)
         {
             try
@@ -61,6 +65,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: ClientController/Create
+        [Authorize]
         public ActionResult Create()
         {
             return View();
@@ -69,6 +74,7 @@ namespace TaskCollector.Controllers
         // POST: ClientController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Create(IFormCollection collection)
         {
             try
@@ -82,6 +88,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: ClientController/Edit/5
+        [Authorize]
         public ActionResult Edit(int id)
         {
             return View();
@@ -90,6 +97,7 @@ namespace TaskCollector.Controllers
         // POST: ClientController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Edit(int id, IFormCollection collection)
         {
             try
@@ -103,6 +111,7 @@ namespace TaskCollector.Controllers
         }
 
         // GET: ClientController/Delete/5
+        [Authorize]
         public ActionResult Delete(int id)
         {
             return View();
@@ -111,6 +120,7 @@ namespace TaskCollector.Controllers
         // POST: ClientController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try

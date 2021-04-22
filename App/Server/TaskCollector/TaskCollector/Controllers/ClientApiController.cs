@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,12 +21,12 @@ namespace TaskCollector.Controllers
     public class ClientApiController : ControllerBase
     {
         private IServiceProvider _serviceProvider;
-        private readonly SignInManager<Db.Model.ClientIdentity> _signInManager;
+        
 
         public ClientApiController(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _signInManager = serviceProvider.GetRequiredService<SignInManager<Db.Model.ClientIdentity>>();
+           
         }
 
         [HttpPost("auth")]
@@ -46,13 +47,14 @@ namespace TaskCollector.Controllers
         }
 
         [HttpPost("logout")]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             try
             {               
                 if (!User.Identity.IsAuthenticated)
                     throw new AuthenticationException();
-                await _signInManager.SignOutAsync();
+               
                 return Ok();
             }
             catch (Exception ex)

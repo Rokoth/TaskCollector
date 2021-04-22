@@ -30,9 +30,24 @@ create table if not exists client(
 	, "login"       varchar(100)  not null
 	, "password"    bytea         not null
 	, map_rules     jsonb         null
-	, user_id       uuid          not null
+	, "user"        uuid          not null
 	, version_date  timestamptz   not null
 	, is_deleted    boolean       not null default false	
+);
+
+create table if not exists h_client(
+	  h_id          bigserial     not null primary key  
+	, id            uuid          null 
+	, "name"        varchar(100)  null
+	, "description" varchar(1000) null
+	, "login"       varchar(100)  null
+	, "password"    bytea         null
+	, map_rules     jsonb         null
+	, "user"        uuid          null
+	, version_date  timestamptz   null
+	, is_deleted    boolean       null	
+	, change_date   timestamptz   not null default now()
+	, "user_id"     varchar       null
 );
 
 create table if not exists "message"(

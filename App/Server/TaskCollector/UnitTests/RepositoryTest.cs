@@ -57,7 +57,7 @@ namespace TaskCollector.UnitTests
             await context.SaveChangesAsync();
 
             var repo = _serviceProvider.GetRequiredService<IRepository<User>>();
-            var data = await repo.GetAsync(new UserFilter() { 
+            var data = await repo.GetAsync(new Filter<User>() { 
                 Page = 0, 
                 Size = 10, 
                 Selector = s=>s.Name.Contains("user_select")
