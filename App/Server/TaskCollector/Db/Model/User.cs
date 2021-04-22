@@ -20,6 +20,7 @@ namespace TaskCollector.Db.Model
         public byte[] Password { get; set; }        
     }
 
+    [TableName("client")]
     public class Client : Entity
     {
         [ColumnName("name")]
@@ -31,9 +32,9 @@ namespace TaskCollector.Db.Model
         [ColumnName("password")]
         public byte[] Password { get; set; }
         [ColumnType("json")]
-        [ColumnName("mapping_rules")]
+        [ColumnName("map_rules")]
         public string MappingRules { get; set; }
-        [ColumnName("user")]
+        [ColumnName("userid")]
         public Guid UserId { get; set; }
     }
 

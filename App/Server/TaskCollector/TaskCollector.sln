@@ -5,17 +5,19 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskCollector", "TaskCollector\TaskCollector.csproj", "{24E50D77-4E82-4542-B167-7800E234F730}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deploy", "Deploy\Deploy.csproj", "{F45CD4F6-00F2-459B-B411-FCDDEA0C57C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deploy", "Deploy\Deploy.csproj", "{F45CD4F6-00F2-459B-B411-FCDDEA0C57C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{A96FA4FF-D816-4EFB-A61F-FC5ABC9B8DD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.csproj", "{A96FA4FF-D816-4EFB-A61F-FC5ABC9B8DD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contract", "Contract\Contract.csproj", "{6F7E460C-88EC-44F0-BE90-E67B98DC5469}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contract", "Contract\Contract.csproj", "{6F7E460C-88EC-44F0-BE90-E67B98DC5469}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Db", "Db\Db.csproj", "{30FB47F6-6C59-464E-A2F4-079D9D1F3915}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Db", "Db\Db.csproj", "{30FB47F6-6C59-464E-A2F4-079D9D1F3915}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{84DFAE7A-3C0F-4190-B7C0-5E44B1AF3377}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{84DFAE7A-3C0F-4190-B7C0-5E44B1AF3377}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{09FB7A6E-4F8E-4535-8881-98D5DCCA48DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{09FB7A6E-4F8E-4535-8881-98D5DCCA48DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{ACF42C81-C57B-4698-BC6F-2D0F12C84B10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{09FB7A6E-4F8E-4535-8881-98D5DCCA48DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09FB7A6E-4F8E-4535-8881-98D5DCCA48DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09FB7A6E-4F8E-4535-8881-98D5DCCA48DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACF42C81-C57B-4698-BC6F-2D0F12C84B10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACF42C81-C57B-4698-BC6F-2D0F12C84B10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACF42C81-C57B-4698-BC6F-2D0F12C84B10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACF42C81-C57B-4698-BC6F-2D0F12C84B10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
