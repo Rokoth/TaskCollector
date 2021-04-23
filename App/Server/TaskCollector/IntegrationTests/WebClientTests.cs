@@ -37,6 +37,31 @@ namespace TaskCollector.IntegrationTests
             }
         }
 
+        [Fact]
+        public async Task Scenario2Test()
+        {
+            var projPath = $"TestRun{DateTime.Now:yyyyMMddhhmmss}";
+            try
+            {
+                BuildProject(projPath);
+                var mainProcess = RunProject(projPath);
+
+
+
+                await Task.Delay(60000);
+                StopProject(mainProcess);
+            }
+            catch (Exception ex)
+            {
+                _output.WriteLine($"Exception while run test: {ex.Message} {ex.StackTrace}");
+            }
+            finally
+            {
+                _output.WriteLine($"Delete directory: {projPath}");
+                Directory.Delete(projPath, true);
+            }
+        }
+
         private Process RunProject(string projPath)
         {
             _output.WriteLine($"Run project");

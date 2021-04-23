@@ -74,6 +74,20 @@ create table if not exists "message_status"(
 	, is_deleted    boolean     not null default false
 );
 
+create table if not exists "h_message_status"(
+      h_id          bigserial   not null primary key  
+	, id            uuid        null
+	, message_id    uuid        null
+	, status_id     smallint    null
+	, "description" varchar     null
+	, "user_id"     uuid        null
+	, status_date   timestamptz null
+	, version_date  timestamptz null
+	, is_deleted    boolean     null
+	, change_date   timestamptz not null default now()
+	, "user_id"     varchar     null
+);
+
 create table if not exists settings(	 
 	  id            int           not null primary key
 	, param_name    varchar(100)  not null
