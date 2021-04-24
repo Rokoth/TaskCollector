@@ -13,7 +13,7 @@ create index idx_client_name
     on client("name");
 
 create index idx_client_user_id
-    on client("user_id");
+    on client(userid);
 
 --message
 create index idx_message_level
@@ -36,5 +36,5 @@ create index idx_message_status_status_id
     on message_status(status_id);
 
 create index idx_message_status_user_id
-    on message_status("user_id");
+    on message_status(userid);
 

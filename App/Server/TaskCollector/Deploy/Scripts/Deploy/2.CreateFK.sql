@@ -1,7 +1,7 @@
 ﻿--client
 alter table client 
 add constraint fk_client_user_id 
-	foreign key("user_id") 
+	foreign key(userid) 
 		references "user"(id) 
 		on delete no action on update no action;
 
@@ -17,7 +17,7 @@ add constraint fk_message_client_id
 --message_status
 alter table message_status 
 add constraint fk_message_status_user_id 
-	foreign key("user_id") 
+	foreign key(userid) 
 		references "user"(id) 
 		on delete no action on update no action;
 

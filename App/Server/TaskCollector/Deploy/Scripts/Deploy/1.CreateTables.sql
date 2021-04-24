@@ -63,12 +63,28 @@ create table if not exists "message"(
 	, is_deleted       boolean      not null default false
 );
 
+create table if not exists "h_message"(
+      h_id             bigserial    not null primary key  
+	, id               uuid         null
+	, "level"          smallint     null
+	, title            varchar(100) null
+	, "description"    varchar      null
+	, feedback_contact varchar      null
+	, add_fields       json         null
+	, client_id        uuid         null
+	, created_date     timestamptz  null
+	, version_date     timestamptz  null
+	, is_deleted       boolean      null
+	, change_date   timestamptz     not null default now()
+	, "user_id"     varchar         null
+);
+
 create table if not exists "message_status"(
 	  id            uuid        not null primary key
 	, message_id    uuid        not null
 	, status_id     smallint    not null
 	, "description" varchar     not null
-	, "user_id"     uuid        not null
+	, userid        uuid        not null
 	, status_date   timestamptz not null
 	, version_date  timestamptz not null
 	, is_deleted    boolean     not null default false
@@ -80,7 +96,7 @@ create table if not exists "h_message_status"(
 	, message_id    uuid        null
 	, status_id     smallint    null
 	, "description" varchar     null
-	, "user_id"     uuid        null
+	, userid        uuid        null
 	, status_date   timestamptz null
 	, version_date  timestamptz null
 	, is_deleted    boolean     null

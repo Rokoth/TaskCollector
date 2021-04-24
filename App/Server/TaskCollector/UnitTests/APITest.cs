@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,9 +62,10 @@ namespace TaskCollector.UnitTests
                Login = $"client_{client_id}",
                Password = $"client_password_{client_id}"
             });
-
-            Assert.NotNull(result);
-            Assert.Equal(client_id.ToString(), clientController.User.Identity.Name);
+            var response = result as OkObjectResult;
+            Assert.NotNull(response);
+            JObject value = JObject.FromObject(response.Value);
+            Assert.Equal(client_id.ToString(), value["username"].ToString());
         }
 
         [Fact]
