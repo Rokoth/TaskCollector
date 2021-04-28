@@ -83,7 +83,7 @@ namespace TaskCollector.TaskCollectorHost
                         .ReadFrom.Configuration(hostingContext.Configuration)
                         .CreateLogger();
                     logging.AddSerilog(Log.Logger);
-                })
+                })                
                 .UseKestrel();
 
             return builder;

@@ -50,6 +50,7 @@ namespace TaskCollector.TaskCollectorHost
             //        options.LoginPath = new PathString("/Account/Login");                    
             //    });
             services.AddCors();
+            services.AddLogging();
             services.AddAuthentication()           
             .AddJwtBearer("token", options =>
             {
