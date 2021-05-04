@@ -37,7 +37,7 @@ namespace TaskCollector.Controllers
             try
             {
                 var source = new CancellationTokenSource(30000);
-                var dataService = _serviceProvider.GetRequiredService<IDataService>();
+                var dataService = _serviceProvider.GetRequiredService<IAuthService>();
 
                 var identity = await dataService.Auth(login, source.Token);
                 if (identity == null)

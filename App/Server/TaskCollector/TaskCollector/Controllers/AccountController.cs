@@ -37,11 +37,11 @@ namespace TaskCollector.Controllers
                 if (ModelState.IsValid)
                 {
                     var source = new CancellationTokenSource(30000);
-                    var dataService = _serviceProvider.GetRequiredService<IDataService>();
+                    var dataService = _serviceProvider.GetRequiredService<IAuthService>();
                     var identity = await dataService.Auth(userIdentity, source.Token);
                     if (identity == null)
                     {                       
-                        return RedirectToAction("Index", "Error", new { Message = "Invalid username or password." });
+                        return RedirectToAction("Index", "Error", new { Message = "Неверный логин или пароль" });
                     }                    
                     // установка аутентификационных куки
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));

@@ -1,229 +1,156 @@
-﻿using AutoMapper;
+﻿//Copyright 2021 Dmitriy Rokoth
+//Licensed under the Apache License, Version 2.0
+
+//ref 1
+using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TaskCollector.Contract.Model;
 
 namespace TaskCollector.Service
 {
-    public class DataService: IDataService
+    /// <summary>
+    /// Data get, manipulation and prepare service
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="Tdto"></typeparam>
+    /// <typeparam name="TFilter"></typeparam>
+    /// <typeparam name="TCreator"></typeparam>
+    /// <typeparam name="TUpdater"></typeparam>
+    public abstract class DataService<TEntity, Tdto, TFilter, TCreator, TUpdater> :
+        IGetDataService<Tdto, TFilter>,
+        IAddDataService<Tdto, TCreator>,
+        IUpdateDataService<Tdto, TUpdater>, 
+        IDeleteDataService<Tdto> 
+        where TEntity : Db.Model.Entity
+        where Tdto : Contract.Model.Entity
+        where TFilter : Contract.Model.Filter<Tdto>
     {
-        private IServiceProvider _serviceProvider;
-        private IMapper _mapper;
+        protected IServiceProvider _serviceProvider;
+        protected IMapper _mapper;
+
+        /// <summary>
+        /// function for modify client filter to db filter
+        /// </summary>
+        protected abstract Func<TEntity, TFilter, bool> GetFilter { get; }
+
+        /// <summary>
+        /// function for enrichment data
+        /// </summary>
+        protected abstract Func<Tdto, Tdto> EnrichFunc { get; }
+
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="serviceProvider"></param>
         public DataService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _mapper = _serviceProvider.GetRequiredService<IMapper>();
         }
 
-        public async Task<PagedResult<Contract.Model.User>> GetUsersAsync(Contract.Model.UserFilter filter, CancellationToken token)
+        /// <summary>
+        /// Get items method
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public async Task<Contract.Model.PagedResult<Tdto>> GetAsync(TFilter filter, CancellationToken token)
         {
-            try
-            {
-                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.User>>();
-                PagedResult<Db.Model.User> result = await repo.GetAsync(new Db.Model.Filter<Db.Model.User> { 
-                    Size = filter.Size,
-                    Page = filter.Page,
-                    Sort = filter.Sort,
-                    Selector = s=>s.Name.ToLower().Contains(filter.Name.ToLower())
-                }, token);
-                return new PagedResult<User>(result.Data.Select(s => _mapper.Map<Contract.Model.User>(s)), result.AllCount);
-            }
-            catch (DataServiceException)
-            {
-                throw;
-            }
-            catch (Db.Repository.RepositoryException ex)
-            {
-                throw new DataServiceException(ex.Message);
-            }
-        }
-
-        public async Task<Contract.Model.User> GetUserAsync(Guid id, CancellationToken token)
-        {
-            try
-            {
-                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.User>>();
-                var result = await repo.GetAsync(id, token);
-                return _mapper.Map<Contract.Model.User>(result);
-            }
-            catch (DataServiceException)
-            {
-                throw;
-            }
-            catch (Db.Repository.RepositoryException ex)
-            {
-                throw new DataServiceException(ex.Message);
-            }
-        }
-
-        public async Task<PagedResult<Message>> GetMessagesAsync(MessageFilter filter, CancellationToken token)
-        {
-            try
-            {
-                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Message>>();
-                PagedResult<Db.Model.Message> result = await repo.GetAsync(new Db.Model.Filter<Db.Model.Message>
+            return await ExecuteAsync(async (repo) =>
+            {                
+                var result = await repo.GetAsync(new Db.Model.Filter<TEntity>
                 {
                     Size = filter.Size,
                     Page = filter.Page,
                     Sort = filter.Sort,
-                    Selector = s => s.Title.ToLower().Contains(filter.Title.ToLower())
+                    Selector = s => GetFilter(s, filter)
                 }, token);
-                return new PagedResult<Message>(result.Data.Select(s => _mapper.Map<Contract.Model.Message>(s)), result.AllCount);
-            }
-            catch (DataServiceException)
-            {
-                throw;
-            }
-            catch (Db.Repository.RepositoryException ex)
-            {
-                throw new DataServiceException(ex.Message);
-            }
-        }
-
-        public async Task<PagedResult<Client>> GetClientsAsync(ClientFilter filter, CancellationToken token)
-        {
-            try
-            {
-                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Client>>();
-                PagedResult<Db.Model.Client> result = await repo.GetAsync(new Db.Model.Filter<Db.Model.Client>
+                var prepare = result.Data.Select(s => _mapper.Map<Tdto>(s));
+                if (EnrichFunc != null)
                 {
-                    Size = filter.Size,
-                    Page = filter.Page,
-                    Sort = filter.Sort,
-                    Selector = s =>
-                           (string.IsNullOrEmpty(filter.Name) || s.Name.ToLower().Contains(filter.Name.ToLower())) 
-                        && (string.IsNullOrEmpty(filter.Login) || s.Login.ToLower().Contains(filter.Login.ToLower()))
-                        && (filter.UserId == s.UserId) 
-                }, token);
-                return new PagedResult<Client>(result.Data.Select(s => _mapper.Map<Contract.Model.Client>(s)), result.AllCount);
-            }
-            catch (DataServiceException)
-            {
-                throw;
-            }
-            catch (Db.Repository.RepositoryException ex)
-            {
-                throw new DataServiceException(ex.Message);
-            }
+                    prepare = prepare.Select(s => EnrichFunc(s));
+                }
+                return new Contract.Model.PagedResult<Tdto>(prepare, result.AllCount);
+            });            
         }
 
-        public async Task<Client> GetClientAsync(Guid id, CancellationToken token)
+        /// <summary>
+        /// get item method
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public async Task<Tdto> GetAsync(Guid id, CancellationToken token)
         {
-            try
-            {
-                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Client>>();
+            return await ExecuteAsync(async (repo) =>
+            {                
                 var result = await repo.GetAsync(id, token);
-                return _mapper.Map<Contract.Model.Client>(result);
-            }
-            catch (DataServiceException)
-            {
-                throw;
-            }
-            catch (Db.Repository.RepositoryException ex)
-            {
-                throw new DataServiceException(ex.Message);
-            }
-        }
-
-        public Task<Message> AddMessageAsync(MessageCreator message, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Message> GetMessageAsync(Guid id, CancellationToken token)
-        {
-            try
-            {
-                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Message>>();
-                var result = await repo.GetAsync(id, token);
-                return _mapper.Map<Contract.Model.Message>(result);
-            }
-            catch (DataServiceException)
-            {
-                throw;
-            }
-            catch (Db.Repository.RepositoryException ex)
-            {
-                throw new DataServiceException(ex.Message);
-            }
-        }
-
-        public Task<Message> UpdateMessageAsync(MessageUpdater message, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<MessageStatus> GetMessageStatusesAsync(MessageStatusFilter messageStatusFilter, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<User> AddUserAsync(UserCreator creator, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<User> DeleteUserAsync(Guid id, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<User> UpdateUserAsync(UserUpdater updater, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Message> DeleteMessageAsync(Guid id, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<MessageStatus> GetMessageStatusAsync(Guid id, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<ClaimsIdentity> Auth(ClientIdentity login, CancellationToken token)
-        {
-            var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Client>>();
-            var password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(login.Password));
-            var client = (await repo.GetAsync(new Db.Model.Filter<Db.Model.Client>() { 
-              Page = 0,
-              Size = 10,
-              Selector = s=>s.Login == login.Login && s.Password == password
-            }, token)).Data.FirstOrDefault();
-            if (client != null)
-            {
-                var claims = new List<Claim>
+                var prepare = _mapper.Map<Tdto>(result);
+                if (EnrichFunc != null)
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, client.Id.ToString()),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, "Client")
-                };
-                ClaimsIdentity claimsIdentity =
-                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                    ClaimsIdentity.DefaultRoleClaimType);
-                return claimsIdentity;
+                    prepare = EnrichFunc(prepare);
+                }
+                return prepare;
+            });           
+        }
+
+        /// <summary>
+        /// add item method
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public Task<Tdto> AddAsync(TCreator entity, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// update item method
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public Task<Tdto> UpdateAsync(TUpdater entity, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// delete item method
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public Task<Tdto> DeleteAsync(Guid id, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// execution wrapper
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="execute"></param>
+        /// <returns></returns>
+        protected async Task<T> ExecuteAsync<T>(Func<Db.Interface.IRepository<TEntity>, Task<T>> execute)
+        {            
+            try
+            {
+                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<TEntity>>();
+                return await execute(repo);
             }
-
-            // если пользователя не найдено
-            return null;
-        }
-
-        public Task<ClaimsIdentity> Auth(UserIdentity login, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<MessageStatus> UpdateMessageStatusAsync(MessageStatusUpdater message, CancellationToken token)
-        {
-            throw new NotImplementedException();
-        }
+            catch (DataServiceException)
+            {
+                throw;
+            }
+            catch (Db.Repository.RepositoryException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }        
     }
 }

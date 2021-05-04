@@ -1,4 +1,6 @@
-﻿namespace TaskCollector.Contract.Model
+﻿using System;
+
+namespace TaskCollector.Contract.Model
 {
     public class ClientCreator
     {
@@ -7,6 +9,11 @@
         public string Login { get; set; }
         public string Password { get; set; }
         public string MapRules { get; set; }
+    }
+
+    public class ClientUpdater: ClientCreator
+    {
+        public Guid Id { get; set; }      
     }
 
 }

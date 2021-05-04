@@ -17,13 +17,11 @@ namespace TaskCollector.Controllers
 {
     public class MessageController : Controller
     {
-        private IServiceProvider _serviceProvider;
-        private IDataService _dataService;
+        private IServiceProvider _serviceProvider;       
 
         public MessageController(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _dataService = _serviceProvider.GetRequiredService<IDataService>();
         }
 
         // GET: MessageController
@@ -38,8 +36,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Message, MessageFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetMessagesAsync(new MessageFilter(size, page, sort, name) , source.Token);
+                var result = await _dataService.GetAsync(new MessageFilter(size, page, sort, name) , source.Token);
                 return PartialView(result);
             }
             catch (Exception ex)
@@ -54,8 +53,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Message, MessageFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                Message result = await _dataService.GetMessageAsync(id, cancellationTokenSource.Token);
+                Message result = await _dataService.GetAsync(id, cancellationTokenSource.Token);
                 return View(result);
             }
             catch (Exception ex)
@@ -84,8 +84,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IAddDataService<Message, MessageCreator>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                Message result = await _dataService.AddMessageAsync(message, source.Token);
+                Message result = await _dataService.AddAsync(message, source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id});
             }
             catch(Exception ex)
@@ -100,8 +101,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Message, MessageFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var item = await _dataService.GetMessageAsync(id, source.Token);
+                var item = await _dataService.GetAsync(id, source.Token);
                 //Fill fields from item
                 var message = new MessageUpdater()
                 {
@@ -123,8 +125,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IUpdateDataService<Message, MessageUpdater>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                Message result = await _dataService.UpdateMessageAsync(message, source.Token);
+                Message result = await _dataService.UpdateAsync(message, source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)
@@ -139,8 +142,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Message, MessageFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var item = await _dataService.GetMessageAsync(id, source.Token);                
+                var item = await _dataService.GetAsync(id, source.Token);                
                 return View(item);
             }
             catch (Exception ex)
@@ -157,8 +161,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IDeleteDataService<Message>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                Message result = await _dataService.DeleteMessageAsync(id, source.Token);
+                Message result = await _dataService.DeleteAsync(id, source.Token);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

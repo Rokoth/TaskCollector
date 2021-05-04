@@ -43,7 +43,7 @@ namespace TaskCollector.IntegrationTests
             RootConnectionString = Regex.Replace(config.GetConnectionString("MainConnection"), "Database=.*?;", $"Database=postgres;");
             serviceCollection.Configure<CommonOptions>(config);
             serviceCollection.AddLogging(configure => configure.AddSerilog());
-            serviceCollection.AddScoped<IDataService, DataService>();
+            serviceCollection.AddDataServices();
             serviceCollection.AddScoped<IDeployService, DeployService>();
             
             serviceCollection.AddDbContext<DbPgContext>(opt => opt.UseNpgsql(ConnectionString));

@@ -17,13 +17,11 @@ namespace TaskCollector.Controllers
 {
     public class MessageStatusController : Controller
     {
-        private IServiceProvider _serviceProvider;
-        private IDataService _dataService;
+        private IServiceProvider _serviceProvider;        
 
         public MessageStatusController(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
-            _dataService = _serviceProvider.GetRequiredService<IDataService>();
+            _serviceProvider = serviceProvider;            
         }
 
         // GET: MessageController
@@ -38,8 +36,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetMessageStatusesAsync(
+                var result = await _dataService.GetAsync(
                     new MessageStatusFilter(messageId, size, page, sort, name) , source.Token);
                 return PartialView(result);
             }
@@ -55,8 +54,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                var result = await _dataService.GetMessageStatusAsync(id, cancellationTokenSource.Token);
+                var result = await _dataService.GetAsync(id, cancellationTokenSource.Token);
                 return View(result);
             }
             catch (Exception ex)
@@ -101,8 +101,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var item = await _dataService.GetMessageStatusAsync(id, source.Token);
+                var item = await _dataService.GetAsync(id, source.Token);
                 //Fill fields from item
                 var message = new MessageStatusUpdater()
                 {
@@ -124,8 +125,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IUpdateDataService<MessageStatus, MessageStatusUpdater>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                MessageStatus result = await _dataService.UpdateMessageStatusAsync(messageStatus, source.Token);
+                MessageStatus result = await _dataService.UpdateAsync(messageStatus, source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)

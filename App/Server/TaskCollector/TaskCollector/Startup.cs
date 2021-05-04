@@ -96,7 +96,7 @@ namespace TaskCollector.TaskCollectorHost
             //services.AddScoped<IRepositoryHistory<Db.Model.ClientHistory>, RepositoryHistory<Db.Model.ClientHistory>>();
             //services.AddScoped<IRepositoryHistory<Db.Model.MessageHistory>, RepositoryHistory<Db.Model.MessageHistory>>();
             //services.AddScoped<IRepositoryHistory<Db.Model.MessageStatusHistory>, RepositoryHistory<Db.Model.MessageStatusHistory>>();
-            services.AddScoped<IDataService, DataService>();
+            services.AddDataServices();
             services.AddScoped<IDeployService, DeployService>();
             //services.AddScoped<INotifyService, NotifyService>();
             services.ConfigureAutoMapper();

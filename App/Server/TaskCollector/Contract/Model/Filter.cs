@@ -1,8 +1,8 @@
 ﻿namespace TaskCollector.Contract.Model
 {
-    public abstract class Filter<T> where T : Entity
+    public abstract class Filter<T> : IFilter<T> where T : Entity
     {
-        public Filter(int size, int page, string sort) 
+        public Filter(int size, int page, string sort)
         {
             Size = size;
             Page = page;

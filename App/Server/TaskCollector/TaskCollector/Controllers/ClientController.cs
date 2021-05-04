@@ -16,13 +16,11 @@ namespace TaskCollector.Controllers
 {
     public class ClientController : Controller
     {
-        private IServiceProvider _serviceProvider;
-        private IDataService _dataService;                
+        private IServiceProvider _serviceProvider;                   
 
         public ClientController(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
-            _dataService = _serviceProvider.GetRequiredService<IDataService>();            
+            _serviceProvider = serviceProvider;                   
         }
 
         // GET: ClientController
@@ -37,8 +35,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetClientsAsync(new ClientFilter(size, page, sort, name, login, userId), source.Token);
+                var result = await _dataService.GetAsync(new ClientFilter(size, page, sort, name, login, userId), source.Token);
                 Response.Headers.Add("x-pages", result.AllCount.ToString());
                 return PartialView(result.Data);
             }
@@ -54,8 +53,9 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                Client result = await _dataService.GetClientAsync(id, cancellationTokenSource.Token);
+                Client result = await _dataService.GetAsync(id, cancellationTokenSource.Token);
                 return View(result);
             }
             catch (Exception ex)
