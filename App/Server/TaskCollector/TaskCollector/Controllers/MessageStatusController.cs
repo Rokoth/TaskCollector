@@ -56,7 +56,7 @@ namespace TaskCollector.Controllers
             try
             {
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                Message result = await _dataService.GetMessageStatusAsync(id, cancellationTokenSource.Token);
+                var result = await _dataService.GetMessageStatusAsync(id, cancellationTokenSource.Token);
                 return View(result);
             }
             catch (Exception ex)
@@ -95,44 +95,44 @@ namespace TaskCollector.Controllers
         //    }
         //}
 
-        // GET: MessageController/Edit/5
-        //[Authorize]
-        //public async Task<IActionResult> Edit(Guid id)
-        //{
-        //    try
-        //    {
-        //        CancellationTokenSource source = new CancellationTokenSource(30000);
-        //        var item = await _dataService.GetMessageStatusAsync(id, source.Token);
-        //        //Fill fields from item
-        //        var message = new MessageUpdater()
-        //        {
+        //GET: MessageController/Edit/5
+        [Authorize]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            try
+            {
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                var item = await _dataService.GetMessageStatusAsync(id, source.Token);
+                //Fill fields from item
+                var message = new MessageStatusUpdater()
+                {
 
-        //        };
-        //        return View(message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return RedirectToAction("Index", "Error", new { Message = ex.Message });
-        //    }
-        //}
+                };
+                return View(message);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
+        }
 
-        // POST: MessageController/Edit/5
-        //[Authorize]
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(Guid id, MessageUpdater message)
-        //{
-        //    try
-        //    {
-        //        CancellationTokenSource source = new CancellationTokenSource(30000);
-        //        Message result = await _dataService.UpdateMessageStatusAsync(message, source.Token);
-        //        return RedirectToAction(nameof(Details), new { id = result.Id });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return RedirectToAction("Index", "Error", new { Message = ex.Message });
-        //    }
-        //}
+        //POST: MessageController/Edit/5
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Guid id, MessageStatusUpdater messageStatus)
+        {
+            try
+            {
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                MessageStatus result = await _dataService.UpdateMessageStatusAsync(messageStatus, source.Token);
+                return RedirectToAction(nameof(Details), new { id = result.Id });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
+        }
 
         // GET: MessageController/Delete/5
         [Authorize]

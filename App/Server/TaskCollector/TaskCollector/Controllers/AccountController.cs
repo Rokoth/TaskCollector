@@ -1,16 +1,26 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Contract.Model;
+using TaskCollector.Service;
 
 namespace TaskCollector.Controllers
 {
     public class AccountController : Controller
     {
-       
+        private IServiceProvider _serviceProvider;
+        public AccountController(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
         // GET: AccountController/Create
         public ActionResult Login()
         {
@@ -20,11 +30,23 @@ namespace TaskCollector.Controllers
         // POST: AccountController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(UserIdentity userIdentity)
+        public async Task<IActionResult> Login(UserIdentity userIdentity, string returnUrl)
         {
             try
             {
-                return Ok();
+                if (ModelState.IsValid)
+                {
+                    var source = new CancellationTokenSource(30000);
+                    var dataService = _serviceProvider.GetRequiredService<IDataService>();
+                    var identity = await dataService.Auth(userIdentity, source.Token);
+                    if (identity == null)
+                    {                       
+                        return RedirectToAction("Index", "Error", new { Message = "Invalid username or password." });
+                    }                    
+                    // установка аутентификационных куки
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+                }
+                return Redirect(returnUrl);
             }
             catch(Exception ex)
             {
@@ -35,11 +57,15 @@ namespace TaskCollector.Controllers
         // POST: AccountController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             try
             {
-                return Ok();
+                if (User.Identity.IsAuthenticated)
+                {
+                    await HttpContext.SignOutAsync();
+                }
+                return RedirectToAction("Index", "Home");
             }
             catch(Exception ex)
             {

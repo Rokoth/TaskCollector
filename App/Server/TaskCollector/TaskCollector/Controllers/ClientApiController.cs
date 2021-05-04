@@ -39,7 +39,7 @@ namespace TaskCollector.Controllers
                 var source = new CancellationTokenSource(30000);
                 var dataService = _serviceProvider.GetRequiredService<IDataService>();
 
-                ClaimsIdentity identity = await dataService.Auth(login, source.Token);
+                var identity = await dataService.Auth(login, source.Token);
                 if (identity == null)
                 {
                     return BadRequest(new { errorText = "Invalid username or password." });
@@ -68,23 +68,6 @@ namespace TaskCollector.Controllers
             {
                 return BadRequest($"Ошибка при обработке запроса: {ex.Message}");
             }
-        }
-
-        [HttpPost("logout")]
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            try
-            {               
-                if (!User.Identity.IsAuthenticated)
-                    throw new AuthenticationException();
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Ошибка при обработке запроса: {ex.Message}");
-            }
-        }
+        }        
     }
 }

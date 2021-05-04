@@ -5,4 +5,9 @@
 
     }
 
+    public class MessageStatusUpdater
+    {
+
+    }
+
 }

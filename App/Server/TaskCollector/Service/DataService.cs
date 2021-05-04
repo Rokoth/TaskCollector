@@ -114,9 +114,22 @@ namespace TaskCollector.Service
             }
         }
 
-        public Task<Client> GetClientAsync(Guid id, CancellationToken token)
+        public async Task<Client> GetClientAsync(Guid id, CancellationToken token)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Client>>();
+                var result = await repo.GetAsync(id, token);
+                return _mapper.Map<Contract.Model.Client>(result);
+            }
+            catch (DataServiceException)
+            {
+                throw;
+            }
+            catch (Db.Repository.RepositoryException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
         }
 
         public Task<Message> AddMessageAsync(MessageCreator message, CancellationToken token)
@@ -124,9 +137,22 @@ namespace TaskCollector.Service
             throw new NotImplementedException();
         }
 
-        public Task<Message> GetMessageAsync(Guid id, CancellationToken token)
+        public async Task<Message> GetMessageAsync(Guid id, CancellationToken token)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Message>>();
+                var result = await repo.GetAsync(id, token);
+                return _mapper.Map<Contract.Model.Message>(result);
+            }
+            catch (DataServiceException)
+            {
+                throw;
+            }
+            catch (Db.Repository.RepositoryException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
         }
 
         public Task<Message> UpdateMessageAsync(MessageUpdater message, CancellationToken token)
@@ -159,7 +185,7 @@ namespace TaskCollector.Service
             throw new NotImplementedException();
         }
 
-        public Task<Message> GetMessageStatusAsync(Guid id, CancellationToken token)
+        public Task<MessageStatus> GetMessageStatusAsync(Guid id, CancellationToken token)
         {
             throw new NotImplementedException();
         }
@@ -188,6 +214,16 @@ namespace TaskCollector.Service
 
             // если пользователя не найдено
             return null;
+        }
+
+        public Task<ClaimsIdentity> Auth(UserIdentity login, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<MessageStatus> UpdateMessageStatusAsync(MessageStatusUpdater message, CancellationToken token)
+        {
+            throw new NotImplementedException();
         }
     }
 }
