@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using TaskCollector.Contract.Model;
 using TaskCollector.Models;
 
 namespace TaskCollector.Controllers
@@ -22,9 +23,13 @@ namespace TaskCollector.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index([FromRoute]string message)
+        public IActionResult Index([FromQuery]string message, [FromQuery] string source = null)
         {
-            return View(message);
+            return View(new ErrorMessage()
+            { 
+               Message = message,
+               Source = source
+            });
         }        
     }
 }

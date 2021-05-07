@@ -3,7 +3,7 @@ using TaskCollector.Db.Attributes;
 
 namespace TaskCollector.Db.Model
 {
-    public abstract class EntityHistory
+    public abstract class EntityHistory : IEntity
     {
         [PrimaryKey]
         [ColumnName("h_id")]

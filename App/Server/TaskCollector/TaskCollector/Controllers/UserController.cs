@@ -48,6 +48,30 @@ namespace TaskCollector.Controllers
             }
         }
 
+        // GET: UserController
+        [Authorize]
+        public ActionResult History()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public async Task<ActionResult> HistoryListPaged(int page = 0, int size = 10, string sort = null, string name = null, Guid? id = null)
+        {
+            try
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<UserHistory, UserHistoryFilter>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                var result = await _dataService.GetAsync(new UserHistoryFilter(size, page, sort, name, id), source.Token);
+                Response.Headers.Add("x-pages", result.AllCount.ToString());
+                return PartialView(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
+        }
+
         // GET: UserController/Details/5
         [Authorize]
         public async Task<ActionResult> Details(Guid id)

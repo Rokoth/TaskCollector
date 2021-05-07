@@ -1,6 +1,6 @@
 ﻿namespace TaskCollector.Contract.Model
 {
-    public class ClientIdentity
+    public class ClientIdentity : IIdentity
     {
         public string Login { get; set; }
         public string Password { get; set; }

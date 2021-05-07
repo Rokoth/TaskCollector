@@ -2,7 +2,7 @@
 
 namespace TaskCollector.Contract.Model
 {
-    public class UserIdentity
+    public class UserIdentity : IIdentity
     {
         [Display(Name = "Логин")]
         public string Login { get; set; }

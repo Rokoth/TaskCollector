@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,24 +18,22 @@ namespace TaskCollector.Service
     /// <typeparam name="TEntity"></typeparam>
     /// <typeparam name="Tdto"></typeparam>
     /// <typeparam name="TFilter"></typeparam>
-    /// <typeparam name="TCreator"></typeparam>
-    /// <typeparam name="TUpdater"></typeparam>
-    public abstract class DataService<TEntity, Tdto, TFilter, TCreator, TUpdater> :
-        IGetDataService<Tdto, TFilter>,
-        IAddDataService<Tdto, TCreator>,
-        IUpdateDataService<Tdto, TUpdater>, 
-        IDeleteDataService<Tdto> 
-        where TEntity : Db.Model.Entity
+    public abstract class DataGetService<TEntity, Tdto, TFilter> :
+        IGetDataService<Tdto, TFilter>        
+        where TEntity : Db.Model.IEntity
         where Tdto : Contract.Model.Entity
         where TFilter : Contract.Model.Filter<Tdto>
     {
         protected IServiceProvider _serviceProvider;
         protected IMapper _mapper;
 
+        protected abstract string defaultSort { get; }
+
         /// <summary>
         /// function for modify client filter to db filter
         /// </summary>
-        protected abstract Func<TEntity, TFilter, bool> GetFilter { get; }
+        protected abstract Expression<Func<TEntity, bool>> GetFilter(TFilter filter);
+        
 
         /// <summary>
         /// function for enrichment data
@@ -45,7 +44,7 @@ namespace TaskCollector.Service
         /// ctor
         /// </summary>
         /// <param name="serviceProvider"></param>
-        public DataService(IServiceProvider serviceProvider)
+        public DataGetService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _mapper = _serviceProvider.GetRequiredService<IMapper>();
@@ -60,13 +59,21 @@ namespace TaskCollector.Service
         public async Task<Contract.Model.PagedResult<Tdto>> GetAsync(TFilter filter, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
-            {                
+            {
+                //Expression<Func<TEntity, bool>> expr = s => GetFilter(s, filter);
+                //var func = expr.Compile(true);
+
+                string sort = filter.Sort;
+                if (string.IsNullOrEmpty(sort))
+                {
+                    sort = defaultSort;
+                }
                 var result = await repo.GetAsync(new Db.Model.Filter<TEntity>
                 {
                     Size = filter.Size,
                     Page = filter.Page,
-                    Sort = filter.Sort,
-                    Selector = s => GetFilter(s, filter)
+                    Sort = sort,
+                    Selector = GetFilter(filter)
                 }, token);
                 var prepare = result.Data.Select(s => _mapper.Map<Tdto>(s));
                 if (EnrichFunc != null)
@@ -74,7 +81,7 @@ namespace TaskCollector.Service
                     prepare = prepare.Select(s => EnrichFunc(s));
                 }
                 return new Contract.Model.PagedResult<Tdto>(prepare, result.AllCount);
-            });            
+            });
         }
 
         /// <summary>
@@ -86,7 +93,7 @@ namespace TaskCollector.Service
         public async Task<Tdto> GetAsync(Guid id, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
-            {                
+            {
                 var result = await repo.GetAsync(id, token);
                 var prepare = _mapper.Map<Tdto>(result);
                 if (EnrichFunc != null)
@@ -94,7 +101,68 @@ namespace TaskCollector.Service
                     prepare = EnrichFunc(prepare);
                 }
                 return prepare;
-            });           
+            });
+        }
+
+        /// <summary>
+        /// execution wrapper
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="execute"></param>
+        /// <returns></returns>
+        protected async Task<T> ExecuteAsync<T>(Func<Db.Interface.IRepository<TEntity>, Task<T>> execute)
+        {
+            try
+            {
+                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<TEntity>>();
+                return await execute(repo);
+            }
+            catch (DataServiceException)
+            {
+                throw;
+            }
+            catch (Db.Repository.RepositoryException ex)
+            {
+                throw new DataServiceException(ex.Message);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Data get, manipulation and prepare service
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="Tdto"></typeparam>
+    /// <typeparam name="TFilter"></typeparam>
+    /// <typeparam name="TCreator"></typeparam>
+    /// <typeparam name="TUpdater"></typeparam>
+    public abstract class DataService<TEntity, Tdto, TFilter, TCreator, TUpdater> :
+        DataGetService<TEntity, Tdto, TFilter>,
+        IGetDataService<Tdto, TFilter>,
+        IAddDataService<Tdto, TCreator>,
+        IUpdateDataService<Tdto, TUpdater>, 
+        IDeleteDataService<Tdto> 
+        where TEntity : Db.Model.Entity
+        where Tdto : Contract.Model.Entity
+        where TFilter : Contract.Model.Filter<Tdto>
+    {
+       
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        public DataService(IServiceProvider serviceProvider): base(serviceProvider)
+        {
+          
+        }
+
+        protected virtual TEntity MapToEntityAdd(TCreator creator)
+        {
+            var result = _mapper.Map<TEntity>(creator);
+            result.Id = Guid.NewGuid();
+            result.IsDeleted = false;
+            result.VersionDate = DateTimeOffset.Now;
+            return result;
         }
 
         /// <summary>
@@ -103,9 +171,19 @@ namespace TaskCollector.Service
         /// <param name="entity"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Task<Tdto> AddAsync(TCreator entity, CancellationToken token)
+        public async Task<Tdto> AddAsync(TCreator creator, CancellationToken token)
         {
-            throw new NotImplementedException();
+            return await ExecuteAsync(async (repo) =>
+            {
+                var entity = MapToEntityAdd(creator);
+                var result = await repo.AddAsync(entity, true, token);
+                var prepare = _mapper.Map<Tdto>(result);
+                if (EnrichFunc != null)
+                {
+                    prepare = EnrichFunc(prepare);
+                }
+                return prepare;
+            });
         }
 
         /// <summary>
@@ -128,29 +206,6 @@ namespace TaskCollector.Service
         public Task<Tdto> DeleteAsync(Guid id, CancellationToken token)
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// execution wrapper
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="execute"></param>
-        /// <returns></returns>
-        protected async Task<T> ExecuteAsync<T>(Func<Db.Interface.IRepository<TEntity>, Task<T>> execute)
-        {            
-            try
-            {
-                var repo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<TEntity>>();
-                return await execute(repo);
-            }
-            catch (DataServiceException)
-            {
-                throw;
-            }
-            catch (Db.Repository.RepositoryException ex)
-            {
-                throw new DataServiceException(ex.Message);
-            }
-        }        
+        }       
     }
 }

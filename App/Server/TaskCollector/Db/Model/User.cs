@@ -8,7 +8,7 @@ using TaskCollector.Db.Attributes;
 namespace TaskCollector.Db.Model
 {
     [TableName("user")]
-    public class User : Entity
+    public class User : Entity, IIdentity
     {
         [ColumnName("name")]
         public string Name { get; set; }
@@ -20,8 +20,27 @@ namespace TaskCollector.Db.Model
         public byte[] Password { get; set; }        
     }
 
+    [TableName("h_user")]
+    public class UserHistory : EntityHistory
+    {
+        [ColumnName("name")]
+        public string Name { get; set; }
+        [ColumnName("description")]
+        public string Description { get; set; }
+        [ColumnName("login")]
+        public string Login { get; set; }
+        [ColumnName("password")]
+        public byte[] Password { get; set; }
+    }
+
+    public interface IIdentity
+    {       
+        string Login { get; set; }         
+        byte[] Password { get; set; }
+    }
+
     [TableName("client")]
-    public class Client : Entity
+    public class Client : Entity, IIdentity
     {
         [ColumnName("name")]
         public string Name { get; set; }
@@ -42,18 +61,5 @@ namespace TaskCollector.Db.Model
     {
         [ColumnName("name")]
         public string Name { get; set; }
-    }
-
-
-    public class ClientIdentity : IdentityUser
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
-    }
-
-    public class UserIdentity : IdentityUser
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
     }
 }

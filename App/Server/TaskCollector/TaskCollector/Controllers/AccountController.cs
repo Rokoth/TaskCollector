@@ -46,7 +46,8 @@ namespace TaskCollector.Controllers
                     // установка аутентификационных куки
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
                 }
-                return Redirect(returnUrl);
+                if(returnUrl!=null) return Redirect(returnUrl);
+                return RedirectToAction("Index", "Home");
             }
             catch(Exception ex)
             {

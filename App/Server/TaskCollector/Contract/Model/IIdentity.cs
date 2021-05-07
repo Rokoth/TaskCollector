@@ -1,9 +1,8 @@
-﻿using System;
-
-namespace TaskCollector.Contract.Model
+﻿namespace TaskCollector.Contract.Model
 {
     public interface IIdentity
     {
-        Guid Id { get; set; }
+        string Login { get; set; }
+        string Password { get; set; }
     }
 }

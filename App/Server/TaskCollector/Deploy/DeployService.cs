@@ -1,4 +1,8 @@
-﻿using TaskCollector.Common;
+﻿//Copyright 2021 Dmitriy Rokoth
+//Licensed under the Apache License, Version 2.0
+//
+//ref2
+using TaskCollector.Common;
 using TaskCollector.Deploy.Common;
 using Deployer;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,11 +16,18 @@ using System.Text.RegularExpressions;
 
 namespace TaskCollector.Deploy
 {
+    /// <summary>
+    /// Wrapper for deploy lib
+    /// </summary>
     public class DeployService : IDeployService
     {
         private readonly ILogger<DeployService> _logger;
-        private string _connectionString;
+        private readonly string _connectionString;
 
+        /// <summary>
+        /// ctor from container
+        /// </summary>
+        /// <param name="serviceProvider"></param>
         public DeployService(IServiceProvider serviceProvider)
         {
             _logger = serviceProvider.GetRequiredService<ILogger<DeployService>>();
@@ -24,11 +35,20 @@ namespace TaskCollector.Deploy
             _connectionString = _options.Value.ConnectionString;
         }
 
+        /// <summary>
+        /// ctor with connectionString
+        /// </summary>
+        /// <param name="connectionString"></param>
         public DeployService(string connectionString)
         {
             _connectionString = connectionString;
         }
 
+        /// <summary>
+        /// Deploy method
+        /// </summary>
+        /// <param name="num">last update num</param>
+        /// <returns></returns>
         public async Task Deploy(int? num = null)
         {
             var deployLog = string.Empty;
@@ -39,8 +59,8 @@ namespace TaskCollector.Deploy
                 DeploySettings deploySettings = new DeploySettings()
                 {
                     BeginNum = num,
-                    CheckSqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "Check"),
                     ConnectionString = _connectionString,
+                    CheckSqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "Check"),                    
                     DeploySqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "Deploy"),
                     UpdateSqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Scripts", "Update")
                 };
@@ -64,8 +84,6 @@ namespace TaskCollector.Deploy
                     _logger?.LogWarning(message);
                 };
 
-
-
                 if (!await deployer.Deploy())
                 {
                     throw new DeployException($"DB was not deploy, log: {deployLog}");
@@ -77,7 +95,7 @@ namespace TaskCollector.Deploy
             }
             catch (Exception ex)
             {
-                throw new DeployException($"" +
+                throw new DeployException(
                     $"Error while Deploy DB.\r\n" +
                     $"Message: {ex.Message}\r\n" +
                     $"StackTrace: {ex.StackTrace}\r\n" +
@@ -85,6 +103,10 @@ namespace TaskCollector.Deploy
             }
         }
 
+        /// <summary>
+        /// todo: move to deploy lib
+        /// </summary>
+        /// <param name="connectionString"></param>
         private void CheckDbForExists(string connectionString)
         {
             try

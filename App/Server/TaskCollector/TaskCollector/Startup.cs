@@ -52,7 +52,7 @@ namespace TaskCollector.TaskCollectorHost
             services.AddCors();
             services.AddLogging();
             services.AddAuthentication()           
-            .AddJwtBearer("token", options =>
+            .AddJwtBearer("Token", options =>
             {
                 options.RequireHttpsMetadata = false;                
                 options.SaveToken = true;
@@ -75,7 +75,7 @@ namespace TaskCollector.TaskCollectorHost
                     // валидация ключа безопасности
                     ValidateIssuerSigningKey = true,
                 };
-            }).AddCookie("cookie", options=> {
+            }).AddCookie("Cookies", options=> {
                 options.LoginPath = new PathString("/Account/Login");                
             });
 
@@ -84,7 +84,7 @@ namespace TaskCollector.TaskCollectorHost
                 {
                     options.DefaultPolicy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()
-                        .AddAuthenticationSchemes("token", "cookie")
+                        .AddAuthenticationSchemes("Token", "Cookies")
                         .Build();
                 });
 

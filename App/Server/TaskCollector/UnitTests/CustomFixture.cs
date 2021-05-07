@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿//Copyright 2021 Dmitriy Rokoth
+//Licensed under the Apache License, Version 2.0
+//
+//ref2
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -15,6 +19,7 @@ using TaskCollector.Db.Interface;
 using TaskCollector.Db.Repository;
 using TaskCollector.Db.Model;
 using TaskCollector.TaskCollectorHost;
+using Microsoft.Extensions.Logging;
 
 namespace TaskCollector.UnitTests
 {
@@ -62,6 +67,7 @@ namespace TaskCollector.UnitTests
 
         public void Dispose()
         {
+            var logger = ServiceProvider.GetRequiredService<ILogger<CustomFixture>>();
             try
             {
                 using NpgsqlConnection _connPg = new NpgsqlConnection(RootConnectionString);
@@ -75,9 +81,9 @@ namespace TaskCollector.UnitTests
                 var cmd2 = new NpgsqlCommand(script2, _connPg);
                 cmd2.ExecuteNonQuery();
             }
-            catch
+            catch(Exception ex)
             {
-
+                logger.LogError($"Error on dispose: {ex.Message}; StackTrace: {ex.StackTrace}");
             }
         }
     }

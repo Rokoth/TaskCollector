@@ -13,7 +13,8 @@ namespace TaskCollector.Contract.Model
 
     public class ClientUpdater: ClientCreator
     {
-        public Guid Id { get; set; }      
+        public Guid Id { get; set; }
+        public bool PasswordChanged { get; set; }
     }
 
 }

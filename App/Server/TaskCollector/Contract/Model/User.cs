@@ -20,4 +20,16 @@ namespace TaskCollector.Contract.Model
         [Remote("CheckLogin", "User", ErrorMessage = "Логин уже используется")]
         public string Login { get; set; }        
     }
+
+    public class UserHistory : EntityHistory
+    {
+        [Display(Name = "Имя")]        
+        public string Name { get; set; }
+
+        [Display(Name = "Описание")]
+        public string Description { get; set; }
+
+        [Display(Name = "Логин")]
+        public string Login { get; set; }
+    }
 }

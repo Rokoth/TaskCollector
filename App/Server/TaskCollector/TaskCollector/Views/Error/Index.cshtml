@@ -1,11 +1,11 @@
-﻿@model string
+﻿@model TaskCollector.Contract.Model.ErrorMessage
 @{
     ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
 
-<div>Ошибка при вызове метода: @Html.DisplayFor(model => model)</div>
+<div>Ошибка при вызове метода @Html.DisplayFor(model => model.Source): @Html.DisplayFor(model => model.Message)</div>
 
 <div>
     <a asp-action="Index" asp-controller="Home" class="btn btn-primary">Вернуться на главную</a>

@@ -95,7 +95,31 @@ namespace TaskCollector.UnitTests
             Assert.Equal(id, data.Id);
         }
 
-        
+        [Fact]
+        public async Task AddTest()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+            var id = Guid.NewGuid();
+
+            var repo = _serviceProvider.GetRequiredService<IRepository<User>>();
+            var user = new Db.Model.User()
+            {
+                Name = $"user_select_{id}",
+                Id = id,
+                Description = $"user_description_{id}",
+                IsDeleted = false,
+                Login = $"user_login_{id}",
+                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
+                VersionDate = DateTimeOffset.Now
+            };
+            var result = await repo.AddAsync(user, true, CancellationToken.None);
+            Assert.NotNull(result);
+            Assert.Equal(user.Name, result.Name);
+            
+            var actual = context.Users.FirstOrDefault();
+            Assert.NotNull(actual);
+            Assert.Equal(user.Name, actual.Name);
+        }
 
     }
 }
