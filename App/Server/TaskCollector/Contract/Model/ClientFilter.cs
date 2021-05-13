@@ -20,7 +20,7 @@ namespace TaskCollector.Contract.Model
         /// <param name="name">client name</param>
         /// <param name="login">client login</param>
         /// <param name="userId">Id of user (required)</param>
-        public ClientFilter(int size, int page, string sort, string name, string login, Guid userId) : base(size, page, sort)
+        public ClientFilter(int size, int page, string sort, string name, string login, Guid? userId) : base(size, page, sort)
         {
             Name = name;
             Login = login;
@@ -28,6 +28,6 @@ namespace TaskCollector.Contract.Model
         }
         public string Name { get; }
         public string Login { get; }
-        public Guid UserId { get; }
+        public Guid? UserId { get; }
     }
 }

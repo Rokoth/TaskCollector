@@ -39,7 +39,8 @@ namespace TaskCollector.Controllers
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
                 var result = await _dataService.GetAsync(new UserFilter(size, page, sort, name), source.Token);
-                Response.Headers.Add("x-pages", result.AllCount.ToString());
+                var pages = result.AllCount % size == 0 ? result.AllCount / 10 : result.AllCount / 10 + 1;
+                Response.Headers.Add("x-pages", pages.ToString());
                 return PartialView(result.Data);
             }
             catch (Exception ex)

@@ -37,9 +37,9 @@ namespace TaskCollector.TaskCollectorHost
 
                 x.RunAsLocalService();
                 x.EnableServiceRecovery(r => r.RestartService(TimeSpan.FromSeconds(10)));
-                x.SetDescription($"Branch Selector Service, 2021 (ñ)");
-                x.SetDisplayName($"Branch Selector Service");
-                x.SetServiceName($"BranchSelectorService");
+                x.SetDescription($"Task Collector Service, 2021 (ñ)");
+                x.SetDisplayName($"Task Collector Service");
+                x.SetServiceName($"Task CollectorService");
                 x.StartAutomatically();
             });
             logger.Information($"Service stops with exit code: {exitCode}");

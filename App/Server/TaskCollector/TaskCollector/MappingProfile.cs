@@ -19,6 +19,11 @@ namespace TaskCollector.TaskCollectorHost
             CreateMap<Contract.Model.UserCreator, Db.Model.User>()
                 .ForMember(s=>s.Password, s=>s.Ignore());
 
+            CreateMap<Db.Model.Client, Contract.Model.Client>();
+
+            CreateMap<Contract.Model.ClientCreator, Db.Model.Client>()
+                .ForMember(s => s.Password, s => s.Ignore());
+
             //CreateMap<TreeItem, TreeItemModel>();
 
             //CreateMap<FormulaCreator, Formula>();

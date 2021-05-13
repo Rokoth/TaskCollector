@@ -1,3 +1,7 @@
+//Copyright 2021 Dmitriy Rokoth
+//Licensed under the Apache License, Version 2.0
+//
+//ref2
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -7,7 +11,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Db.Context;
-using TaskCollector.Db.Interface;
 using TaskCollector.Service;
 using Xunit;
 
@@ -22,47 +25,19 @@ namespace TaskCollector.UnitTests
             _serviceProvider = fixture.ServiceProvider;
         }
 
+        /// <summary>
+        /// GetUsers positive test
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task GetUsersTest()
         {
             var context = _serviceProvider.GetRequiredService<DbPgContext>();
 
             List<Db.Model.User> users = new List<Db.Model.User>();
-            
-            for (int i = 0; i < 10; i++)
-            {
-                var id = Guid.NewGuid();
-                users.Add(new Db.Model.User() { 
-                   Name = $"user_select_{id}",
-                   Id = id,
-                   Description = $"user_description_{id}",
-                   IsDeleted = false,
-                   Login = $"user_login_{id}",
-                   Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
-                   VersionDate = DateTimeOffset.Now
-                });
-            }
-
-            for (int i = 0; i < 10; i++)
-            {
-                var id = Guid.NewGuid();
-                users.Add(new Db.Model.User()
-                {
-                    Name = $"user_not_select_{id}",
-                    Id = id,
-                    Description = $"user_description_{id}",
-                    IsDeleted = false,
-                    Login = $"user_login_{id}",
-                    Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
-                    VersionDate = DateTimeOffset.Now
-                });
-            }
-
-
-            foreach (var user in users)
-            {
-                context.Users.Add(user);
-            }
+            AddUsers(users, 10, "user_select_{0}");
+            AddUsers(users, 10, "user_not_select_{0}");
+            foreach (var user in users) context.Users.Add(user);
             await context.SaveChangesAsync();
 
             var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.User, Contract.Model.UserFilter>>();
@@ -76,8 +51,27 @@ namespace TaskCollector.UnitTests
             }
         }
 
-        
-        
+        private void AddUsers(List<Db.Model.User> users, int count, string nameMask)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                AddUser(users, nameMask, "user_description_{0}", "user_login_{0}", "user_password_{0}");
+            }
+        }
 
+        private void AddUser(List<Db.Model.User> users, string nameMask, string descriptionMask, string loginMask, string passwordMask)
+        {
+            var id = Guid.NewGuid();
+            users.Add(new Db.Model.User()
+            {
+                Name = string.Format(nameMask, id),
+                Id = id,
+                Description = string.Format(descriptionMask, id),
+                IsDeleted = false,
+                Login = string.Format(loginMask, id),
+                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(string.Format(passwordMask, id))),
+                VersionDate = DateTimeOffset.Now
+            });
+        }
     }
 }

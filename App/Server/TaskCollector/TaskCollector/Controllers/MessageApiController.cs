@@ -26,7 +26,7 @@ namespace TaskCollector.Controllers
         }
 
         [HttpPost("send")]
-        [Authorize]
+        [Authorize("Token")]
         public async Task<IActionResult> Send([FromBody] Dictionary<string, object> message)
         {
             try

@@ -9,12 +9,18 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.JsonPatch.Operations;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TaskCollector.Common;
 using TaskCollector.Db.Context;
@@ -58,22 +64,23 @@ namespace TaskCollector.TaskCollectorHost
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    // укзывает, будет ли валидироваться издатель при валидации токена
+                    //// укзывает, будет ли валидироваться издатель при валидации токена
                     ValidateIssuer = true,
-                    // строка, представляющая издателя
+                    //// строка, представляющая издателя
                     ValidIssuer = AuthOptions.ISSUER,
 
-                    // будет ли валидироваться потребитель токена
+                    //// будет ли валидироваться потребитель токена
                     ValidateAudience = true,
-                    // установка потребителя токена
+                    //// установка потребителя токена
                     ValidAudience = AuthOptions.AUDIENCE,
-                    // будет ли валидироваться время существования
-                    ValidateLifetime = true,
+                    //// будет ли валидироваться время существования
+                    ValidateLifetime = true,                    
 
                     // установка ключа безопасности
                     IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
                     // валидация ключа безопасности
                     ValidateIssuerSigningKey = true,
+                    
                 };
             }).AddCookie("Cookies", options=> {
                 options.LoginPath = new PathString("/Account/Login");                
@@ -82,10 +89,16 @@ namespace TaskCollector.TaskCollectorHost
             services
                 .AddAuthorization(options =>
                 {
-                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    var cookiePolicy = new AuthorizationPolicyBuilder()
                         .RequireAuthenticatedUser()
-                        .AddAuthenticationSchemes("Token", "Cookies")
+                        .AddAuthenticationSchemes("Cookies")
                         .Build();
+                    options.DefaultPolicy = cookiePolicy;
+                    options.AddPolicy("Cookie", cookiePolicy);
+                    options.AddPolicy("Token", new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .AddAuthenticationSchemes("Token")
+                        .Build());                   
                 });
 
             services.AddScoped<IRepository<Db.Model.User>, Repository<Db.Model.User>>();
@@ -100,7 +113,10 @@ namespace TaskCollector.TaskCollectorHost
             services.AddScoped<IDeployService, DeployService>();
             //services.AddScoped<INotifyService, NotifyService>();
             services.ConfigureAutoMapper();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(s=>
+            {
+                s.OperationFilter<AddRequiredHeaderParameter>();
+            });
         }
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -130,6 +146,7 @@ namespace TaskCollector.TaskCollectorHost
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                
             });
 
             app.UseEndpoints(endpoints =>
@@ -137,6 +154,28 @@ namespace TaskCollector.TaskCollectorHost
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+        }
+    }
+
+    public class AddRequiredHeaderParameter : IOperationFilter
+    {
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        {
+            if (operation.Parameters == null)
+                operation.Parameters = new List<OpenApiParameter>();
+
+            operation.Parameters.Add(new OpenApiParameter
+            {
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Description = "access token",
+                Required = true,
+                Schema = new OpenApiSchema
+                {
+                    Type = "string",
+                    Default = new OpenApiString("Bearer ")
+                }
             });
         }
     }
