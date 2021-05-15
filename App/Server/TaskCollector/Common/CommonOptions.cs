@@ -4,6 +4,7 @@
 //ref2
 
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
 using System.Text;
 
 namespace TaskCollector.Common
@@ -17,6 +18,18 @@ namespace TaskCollector.Common
         /// Строка полключения к базе данных
         /// </summary>
         public string ConnectionString { get; set; }        
+    }
+
+    public class NotifyOptions
+    { 
+       public List<NotifyRule> NotifyRules { get; set; }
+    }
+
+    public class NotifyRule
+    { 
+        public string Name { get; set; }
+        public int FirstTimeNotify { get; set; }
+        public int RepeatInterval { get; set; }
     }
 
     public class AuthOptions

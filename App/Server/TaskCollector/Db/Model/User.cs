@@ -55,11 +55,5 @@ namespace TaskCollector.Db.Model
         public string MappingRules { get; set; }
         [ColumnName("userid")]
         public Guid UserId { get; set; }
-    }
-
-    public class MessageStatus : Entity
-    {
-        [ColumnName("name")]
-        public string Name { get; set; }
-    }
+    }        
 }

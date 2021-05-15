@@ -22,4 +22,16 @@ namespace TaskCollector.Db.Model
         public string AddFields { get; set; }
 
     }
+
+    public class MessageStatus : Entity
+    {
+        public Guid MessageId { get; set; }
+        public Contract.Model.MessageStatusEnum StatusId { get; set; }
+        public Guid UserId { get; set; }
+        public string Description { get; set; }
+        public bool IsLast { get; set; }
+        public DateTimeOffset StatusDate { get; set; }
+        public DateTimeOffset? NextNotifyDate { get; set; }
+
+    }
 }
