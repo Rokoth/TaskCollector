@@ -50,4 +50,39 @@ namespace TaskCollector.Contract.Model
         [Display(Name = "Пользователь")]
         public User User { get; set; }
     }
+
+    public class ClientHistory : EntityHistory
+    {
+        /// <summary>
+        /// Наименование
+        /// </summary>
+        [Display(Name = "Имя")]        
+        public string Name { get; set; }
+        /// <summary>
+        /// Описание
+        /// </summary>
+        [Display(Name = "Описание")]
+        public string Description { get; set; }
+        /// <summary>
+        /// Логин
+        /// </summary>
+        [Display(Name = "Логин")]
+       public string Login { get; set; }
+
+        /// <summary>
+        /// Правила маппинга сообщения
+        /// </summary>
+        [Display(Name = "Правила маппинга сообщений")]
+        public string MapRules { get; set; }
+        /// <summary>
+        /// Идентификатор пользователя
+        /// </summary>
+        [Display(Name = "Идентификатор пользователя")]
+        public Guid UserId { get; set; }
+        /// <summary>
+        /// Пользователь
+        /// </summary>
+        [Display(Name = "Пользователь")]
+        public User User { get; set; }
+    }
 }

@@ -5,6 +5,7 @@
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -33,12 +34,23 @@ namespace TaskCollector.Service
         /// function for modify client filter to db filter
         /// </summary>
         protected abstract Expression<Func<TEntity, bool>> GetFilter(TFilter filter);
-        
+
 
         /// <summary>
-        /// function for enrichment data
+        /// function for enrichment data item
         /// </summary>
-        protected abstract Func<Tdto, Tdto> EnrichFunc { get; }
+        protected virtual async Task<Tdto> Enrich(Tdto entity, CancellationToken token)
+        {
+            return entity;
+        }
+
+        /// <summary>
+        /// function for enrichment data item
+        /// </summary>
+        protected virtual async Task<IEnumerable<Tdto>> Enrich(IEnumerable<Tdto> entities, CancellationToken token)
+        {
+            return entities;
+        }
 
         /// <summary>
         /// ctor
@@ -76,10 +88,7 @@ namespace TaskCollector.Service
                     Selector = GetFilter(filter)
                 }, token);
                 var prepare = result.Data.Select(s => _mapper.Map<Tdto>(s));
-                if (EnrichFunc != null)
-                {
-                    prepare = prepare.Select(s => EnrichFunc(s));
-                }
+                prepare = await Enrich(prepare, token);
                 return new Contract.Model.PagedResult<Tdto>(prepare, result.AllCount);
             });
         }
@@ -96,10 +105,7 @@ namespace TaskCollector.Service
             {
                 var result = await repo.GetAsync(id, token);
                 var prepare = _mapper.Map<Tdto>(result);
-                if (EnrichFunc != null)
-                {
-                    prepare = EnrichFunc(prepare);
-                }
+                prepare = await Enrich(prepare, token);
                 return prepare;
             });
         }
@@ -145,6 +151,7 @@ namespace TaskCollector.Service
         where TEntity : Db.Model.Entity
         where Tdto : Contract.Model.Entity
         where TFilter : Contract.Model.Filter<Tdto>
+        where TUpdater : Contract.Model.IEntity
     {
        
         /// <summary>
@@ -178,10 +185,7 @@ namespace TaskCollector.Service
                 var entity = MapToEntityAdd(creator);
                 var result = await repo.AddAsync(entity, true, token);
                 var prepare = _mapper.Map<Tdto>(result);
-                if (EnrichFunc != null)
-                {
-                    prepare = EnrichFunc(prepare);
-                }
+                prepare = await Enrich(prepare, token);
                 return prepare;
             });
         }
@@ -192,10 +196,20 @@ namespace TaskCollector.Service
         /// <param name="entity"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Task<Tdto> UpdateAsync(TUpdater entity, CancellationToken token)
+        public async Task<Tdto> UpdateAsync(TUpdater entity, CancellationToken token)
         {
-            throw new NotImplementedException();
+            return await ExecuteAsync(async (repo) =>
+            {
+                var entry = await repo.GetAsync(entity.Id, token);
+                entry = UpdateFillFields(entity, entry);
+                TEntity result = await repo.UpdateAsync(entry, true, token);
+                var prepare = _mapper.Map<Tdto>(result);
+                prepare = await Enrich(prepare, token);
+                return prepare;
+            });
         }
+
+        protected abstract TEntity UpdateFillFields(TUpdater entity, TEntity entry);
 
         /// <summary>
         /// delete item method

@@ -37,5 +37,6 @@ namespace TaskCollector.Db.Interface
         /// <param name="token">token</param>
         /// <returns></returns>
         Task<T> AddAsync(T entity, bool withSave, CancellationToken token);
+        Task<TEntity> UpdateAsync<TEntity>(TEntity entry, bool v, CancellationToken token) where TEntity : Entity;
     }
 }
