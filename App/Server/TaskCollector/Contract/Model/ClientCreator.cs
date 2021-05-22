@@ -44,7 +44,7 @@ namespace TaskCollector.Contract.Model
         
     }
 
-    public class ClientUpdater
+    public class ClientUpdater: IEntity
     {
         public Guid Id { get; set; }
         /// <summary>

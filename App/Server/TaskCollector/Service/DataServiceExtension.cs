@@ -29,6 +29,7 @@ namespace TaskCollector.Service
             where TService : DataService<TEntity, Tdto, TFilter, TCreator, TUpdater>
             where Tdto : Contract.Model.Entity
             where TFilter : Contract.Model.Filter<Tdto>
+            where TUpdater: Contract.Model.IEntity
         {
             services.AddScoped<IGetDataService<Tdto, TFilter>, TService>();
             services.AddScoped<IAddDataService<Tdto, TCreator>, TService>();

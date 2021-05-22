@@ -136,6 +136,7 @@ namespace TaskCollector.TaskCollectorHost
             app.UseRouting();
             app.UseAuthorization();
             app.UseAuthentication();
+            
             //var cookiePolicyOptions = new CookiePolicyOptions
             //{
             //    MinimumSameSitePolicy = SameSiteMode.Strict,                

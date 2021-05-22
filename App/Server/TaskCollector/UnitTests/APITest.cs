@@ -107,7 +107,7 @@ namespace TaskCollector.UnitTests
                 IsDeleted = false,
                 Login = $"client_{client_id}",
                 Name = $"client_{client_id}",
-                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{client_id}")),
+                Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{client_id}")),
                 VersionDate = DateTimeOffset.Now,
                 UserId = user_id
             };
@@ -123,7 +123,7 @@ namespace TaskCollector.UnitTests
                 Description = $"user_description_{user_id}",
                 IsDeleted = false,
                 Login = $"user_login_{user_id}",
-                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{user_id}")),
+                Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{user_id}")),
                 VersionDate = DateTimeOffset.Now
             };
         }

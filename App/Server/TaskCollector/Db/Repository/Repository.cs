@@ -84,6 +84,11 @@ namespace TaskCollector.Db.Repository
             }, "GetAsync");            
         }
 
+        public Task<TEntity> UpdateAsync<TEntity>(TEntity entry, bool v, CancellationToken token) where TEntity : Entity
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task<TEx> ExecuteAsync<TEx>(Func<DbPgContext, Task<TEx>> action, string method)
         {
             try

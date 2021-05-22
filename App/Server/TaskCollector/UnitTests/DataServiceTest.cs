@@ -69,7 +69,7 @@ namespace TaskCollector.UnitTests
                 Description = string.Format(descriptionMask, id),
                 IsDeleted = false,
                 Login = string.Format(loginMask, id),
-                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(string.Format(passwordMask, id))),
+                Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(string.Format(passwordMask, id))),
                 VersionDate = DateTimeOffset.Now
             });
         }

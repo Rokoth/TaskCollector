@@ -11,7 +11,7 @@ using TaskCollector.Contract.Model;
 
 namespace TaskCollector.Service
 {
-    public class NotifyService
+    public class NotifyService : INotifyService
     {
         private IServiceProvider _serviceProvider;
         private ILogger _logger;

@@ -55,5 +55,23 @@ namespace TaskCollector.Db.Model
         public string MappingRules { get; set; }
         [ColumnName("userid")]
         public Guid UserId { get; set; }
-    }        
+    }
+
+    [TableName("h_client")]
+    public class ClientHistory : EntityHistory, IIdentity
+    {
+        [ColumnName("name")]
+        public string Name { get; set; }
+        [ColumnName("description")]
+        public string Description { get; set; }
+        [ColumnName("login")]
+        public string Login { get; set; }
+        [ColumnName("password")]
+        public byte[] Password { get; set; }
+        [ColumnType("json")]
+        [ColumnName("map_rules")]
+        public string MappingRules { get; set; }
+        [ColumnName("userid")]
+        public Guid UserId { get; set; }
+    }
 }

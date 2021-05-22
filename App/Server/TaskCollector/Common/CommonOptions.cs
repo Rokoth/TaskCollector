@@ -28,8 +28,15 @@ namespace TaskCollector.Common
     public class NotifyRule
     { 
         public string Name { get; set; }
+        public List<NotifyLevel> Levels { get; set; }
+    }
+
+    public class NotifyLevel
+    {
         public int FirstTimeNotify { get; set; }
         public int RepeatInterval { get; set; }
+        public int NotificationTypeEnum { get; set; }
+        public int Order { get; set; }
     }
 
     public class AuthOptions

@@ -14,7 +14,7 @@ namespace TaskCollector.Service
         //protected override Func<Db.Model.MessageStatus, Contract.Model.MessageStatusFilter, bool> GetFilter =>
         //     (s, t) => s.Name.ToLower().Contains(t.Name.ToLower());
 
-        protected override Func<Contract.Model.MessageStatus, Contract.Model.MessageStatus> EnrichFunc => null;
+       
 
         public MessageStatusDataService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
@@ -22,6 +22,11 @@ namespace TaskCollector.Service
         }
 
         protected override Expression<Func<Db.Model.MessageStatus, bool>> GetFilter(MessageStatusFilter filter)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Db.Model.MessageStatus UpdateFillFields(MessageStatusUpdater entity, Db.Model.MessageStatus entry)
         {
             throw new NotImplementedException();
         }

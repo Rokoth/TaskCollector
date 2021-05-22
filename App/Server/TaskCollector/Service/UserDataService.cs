@@ -25,7 +25,10 @@ namespace TaskCollector.Service
             return entity;
         }
 
-        protected override Func<Contract.Model.User, Contract.Model.User> EnrichFunc => null;
+        protected override Db.Model.User UpdateFillFields(UserUpdater entity, Db.Model.User entry)
+        {
+            throw new NotImplementedException();
+        }
 
         protected override string defaultSort => "Name";
 
@@ -45,9 +48,7 @@ namespace TaskCollector.Service
         }
 
         protected override string defaultSort => "Name";
-
-        protected override Func<Contract.Model.UserHistory, Contract.Model.UserHistory> EnrichFunc => throw new NotImplementedException();
-
+               
         protected override Expression<Func<Db.Model.UserHistory, bool>> GetFilter(UserHistoryFilter filter)
         {
             throw new NotImplementedException();

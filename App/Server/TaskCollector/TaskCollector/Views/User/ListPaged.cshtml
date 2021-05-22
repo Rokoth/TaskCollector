@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<TaskCollector.Contract.Model.User>
 
-<table class="table">
+<table class="table" id="userTable">
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(s => s.Name)</th>
@@ -12,13 +12,13 @@
     <tbody>
         @foreach (var item in Model)
         {
-        <tr>
-            <td>@item.Name</td>
+        <tr id="@item.Id">
+            <td>@Html.ActionLink(item.Name, "Details", "User", new { id = item.Id }, new { @class = "btn-details" })</td>
             <td>@item.Login</td>
             <td>@item.Description</td>
             <td>
-                @Html.ActionLink("Редактировать", "Details", "User", new { id = item.Id }, new { @class = "btn btn-dark" })
-                @Html.ActionLink("Удалить", "Delete", "User", new { id = item.Id }, new { @class = "btn btn-dark" })
+                @Html.ActionLink("Редактировать", "Edit", "User", new { id = item.Id }, new { @class = "btn btn-dark btn-edit" })
+                @Html.ActionLink("Удалить", "Delete", "User", new { id = item.Id }, new { @class = "btn btn-dark btn-delete" })
             </td>
         </tr>
         }

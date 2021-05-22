@@ -3,6 +3,7 @@
 //
 //ref2
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,12 @@ namespace TaskCollector.Service
         private const string USER_ROLE_TYPE = "User";
         private const string COOKIES_AUTH_TYPE = "Cookies";
 
-        private readonly IServiceProvider _serviceProvider;        
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger _logger;
         public AuthService(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;           
+            _serviceProvider = serviceProvider;
+            _logger = serviceProvider.GetRequiredService<ILogger<AuthService>>();
         }                    
 
         /// <summary>
@@ -71,10 +74,28 @@ namespace TaskCollector.Service
                     new Claim(ClaimsIdentity.DefaultNameClaimType, client.Id.ToString()),
                     new Claim(ClaimsIdentity.DefaultRoleClaimType, roleType)
                 };
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, authType, 
-                    ClaimsIdentity.DefaultNameClaimType, 
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, authType,
+                    ClaimsIdentity.DefaultNameClaimType,
                     ClaimsIdentity.DefaultRoleClaimType);
                 return claimsIdentity;
+            }
+            else
+            {
+                _logger.LogError($"User {login.Login} : {login.Password} not found");
+                var clientTest = (await repo.GetAsync(new Db.Model.Filter<T>()
+                {
+                    Page = 0,
+                    Size = 10,
+                    Selector = s => s.Login == login.Login
+                }, token)).Data.FirstOrDefault();
+                if (clientTest != null)
+                {
+                    _logger.LogError($"User {login.Login} found. Password incorrect");
+                }
+                else
+                {
+                    _logger.LogError($"User {login.Login} not found");
+                }
             }
             // если пользователя/клиента не найдено
             return null;

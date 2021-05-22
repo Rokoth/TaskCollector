@@ -11,9 +11,6 @@ namespace TaskCollector.Service
         Contract.Model.MessageCreator,
         Contract.Model.MessageUpdater>
     {        
-        protected override Func<Contract.Model.Message, Contract.Model.Message> EnrichFunc => s => {
-            return s;
-         };
 
         public MessageDataService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
@@ -28,6 +25,11 @@ namespace TaskCollector.Service
             (filter.Levels == null || filter.Levels.Contains(s.Level)) &&
             (filter.DateFrom == null || s.CreatedDate >= filter.DateFrom) &&
             (filter.DateTo == null || s.CreatedDate <= filter.DateTo);
+        }
+
+        protected override Db.Model.Message UpdateFillFields(MessageUpdater entity, Db.Model.Message entry)
+        {
+            throw new NotImplementedException();
         }
 
         protected override string defaultSort => "Title";

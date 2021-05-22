@@ -34,7 +34,7 @@ namespace TaskCollector.UnitTests
                    Description = $"user_description_{id}",
                    IsDeleted = false,
                    Login = $"user_login_{id}",
-                   Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
+                   Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
                    VersionDate = DateTimeOffset.Now
                 });
             }
@@ -49,7 +49,7 @@ namespace TaskCollector.UnitTests
                     Description = $"user_description_{id}",
                     IsDeleted = false,
                     Login = $"user_login_{id}",
-                    Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
+                    Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
                     VersionDate = DateTimeOffset.Now
                 });
             }
@@ -82,7 +82,7 @@ namespace TaskCollector.UnitTests
                 Description = $"user_description_{id}",
                 IsDeleted = false,
                 Login = $"user_login_{id}",
-                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
+                Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
                 VersionDate = DateTimeOffset.Now
             });
 
@@ -109,7 +109,7 @@ namespace TaskCollector.UnitTests
                 Description = $"user_description_{id}",
                 IsDeleted = false,
                 Login = $"user_login_{id}",
-                Password = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
+                Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{id}")),
                 VersionDate = DateTimeOffset.Now
             };
             var result = await repo.AddAsync(user, true, CancellationToken.None);

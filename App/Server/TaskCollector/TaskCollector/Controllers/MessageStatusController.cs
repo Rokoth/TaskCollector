@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Contract.Model;
@@ -32,14 +34,14 @@ namespace TaskCollector.Controllers
         }
 
         [Authorize]
-        public async Task<ActionResult> ListPaged(Guid messageId, int page = 0, int size = 10, string sort = null, string name = null)
+        public async Task<ActionResult> ListPaged(Guid messageId, int page = 0, int size = 10, string sort = null, string name = null, IEnumerable<MessageStatusEnum> statuses = null)
         {
             try
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
                 var result = await _dataService.GetAsync(
-                    new MessageStatusFilter(messageId, size, page, sort, name) , source.Token);
+                    new MessageStatusFilter(messageId, size, page, sort, name, statuses.ToArray()) , source.Token);
                 var pages = result.AllCount % size == 0 ? result.AllCount / 10 : result.AllCount / 10 + 1;
                 Response.Headers.Add("x-pages", pages.ToString());
                 return PartialView(result.Data);
