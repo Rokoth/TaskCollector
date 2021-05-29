@@ -58,7 +58,7 @@ namespace TaskCollector.Db.Repository
         public async Task<Contract.Model.PagedResult<T>> GetAsync(Filter<T> filter, CancellationToken token)
         {
             return await ExecuteAsync(async (context) => {
-                var all = context.Set<T>().Where(filter.Selector);
+                var all = context.Set<T>().Where(filter.Selector).Where(s=>!s.IsDeleted);
                 if (!string.IsNullOrEmpty(filter.Sort))
                 {
                     all = all.OrderBy(filter.Sort);
@@ -81,7 +81,7 @@ namespace TaskCollector.Db.Repository
         {
             return await ExecuteAsync(async (context) => {               
                 return await context.Set<T>()
-                    .Where(s => s.Id == id).FirstOrDefaultAsync();                
+                    .Where(s => s.Id == id && !s.IsDeleted).FirstOrDefaultAsync();                
             }, "GetAsync");            
         }
 

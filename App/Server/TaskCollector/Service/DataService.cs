@@ -217,9 +217,16 @@ namespace TaskCollector.Service
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Task<Tdto> DeleteAsync(Guid id, CancellationToken token)
+        public async Task<Tdto> DeleteAsync(Guid id, CancellationToken token)
         {
-            throw new NotImplementedException();
+            return await ExecuteAsync(async (repo) =>
+            {
+                var entry = await repo.GetAsync(id, token);                
+                TEntity result = await repo.DeleteAsync(entry, true, token);
+                var prepare = _mapper.Map<Tdto>(result);
+                prepare = await Enrich(prepare, token);
+                return prepare;
+            });
         }       
     }
 }
