@@ -1,24 +1,32 @@
 ﻿@model IEnumerable<TaskCollector.Contract.Model.Client>
 
-<table class="table">
+<table class="table" id="clientTable">
     <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(s => s.Id)</th>
-           
+        <tr>            
+            <th>@Html.DisplayNameFor(s => s.Name)</th>
+            <th>@Html.DisplayNameFor(s => s.Login)</th>
+            <th>@Html.DisplayNameFor(s => s.Description)</th>
+            <th>@Html.DisplayNameFor(s => s.User)</th>
+            <th>@Html.DisplayNameFor(s => s.UserId)</th>
+            <th>@Html.DisplayNameFor(s => s.MapRules)</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@item.Id</td>                
-                
-                <td>
-                    @Html.ActionLink("Редактировать", "Details", "Client", new { id = item.Id }, new { @class = "btn btn-dark" })
-                    @Html.ActionLink("Удалить", "Delete", "Client", new { id = item.Id }, new { @class = "btn btn-dark" })
-                </td>
-            </tr>
+        <tr id="@item.Id">            
+            <td>@Html.ActionLink(item.Name, "Details", "Client", new { id = item.Id }, new { @class = "btn-details" })</td>
+            <td>@item.Login</td>
+            <td>@item.Description</td>
+            <td>@item.User</td>
+            <td>@item.UserId</td>
+            <td>@item.MapRules</td>
+            <td>
+                @Html.ActionLink("Редактировать", "Edit", "Client", new { id = item.Id }, new { @class = "btn btn-dark btn-edit" })
+                @Html.ActionLink("Удалить", "Delete", "Client", new { id = item.Id }, new { @class = "btn btn-dark btn-delete" })
+            </td>
+        </tr>
         }
     </tbody>
 </table>

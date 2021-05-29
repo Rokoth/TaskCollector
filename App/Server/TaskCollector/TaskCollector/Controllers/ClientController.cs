@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading;
@@ -17,11 +18,13 @@ namespace TaskCollector.Controllers
 {
     public class ClientController : Controller
     {
-        private IServiceProvider _serviceProvider;                   
+        private IServiceProvider _serviceProvider;
+        private ILogger _logger;
 
         public ClientController(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;                   
+            _serviceProvider = serviceProvider;
+            _logger = _serviceProvider.GetRequiredService<ILogger<ClientController>>();
         }
 
         // GET: ClientController
@@ -46,6 +49,7 @@ namespace TaskCollector.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Ошибка в методе ListPaged : {ex.Message} {ex.StackTrace}");
                 return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
@@ -56,13 +60,17 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var userId = Guid.Parse(User.Identity.Name);
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
                 Client result = await _dataService.GetAsync(id, cancellationTokenSource.Token);
-                return View(result);
+                if(result.UserId == userId)
+                    return View(result);
+                return RedirectToAction("Index", "Error", new { Message = "Клиент привязан к другому пользователю" });
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Ошибка в методе Details : {ex.Message} {ex.StackTrace}");
                 return RedirectToAction("Index", "Error", new { Message = ex.Message});
             }
         }
@@ -82,13 +90,16 @@ namespace TaskCollector.Controllers
         {
             try
             {
+                var userId = Guid.Parse(User.Identity.Name);
+                creator.UserId = userId;
                 var _dataService = _serviceProvider.GetRequiredService<IAddDataService<Client, ClientCreator>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
                 Client result = await _dataService.AddAsync(creator, cancellationTokenSource.Token);
-                return View(result);
+                return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Ошибка в методе Create : {ex.Message} {ex.StackTrace}");
                 return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
@@ -121,49 +132,141 @@ namespace TaskCollector.Controllers
             return Json(result);
         }
 
+        [HttpGet]
+        public async Task<JsonResult> CheckNameEdit(string name, Guid id)
+        {
+            bool result = false;
+            if (!string.IsNullOrEmpty(name))
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                var check = await _dataService.GetAsync(new ClientFilter(10, 0, null, name, null, null), cancellationTokenSource.Token);
+                result = !check.Data.Where(s=>s.Id!=id).Any();
+            }
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckLoginEdit(string login, Guid id)
+        {
+            bool result = false;
+            if (!string.IsNullOrEmpty(login))
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                var check = await _dataService.GetAsync(new ClientFilter(10, 0, null, null, login, null), cancellationTokenSource.Token);
+                result = !check.Data.Where(s => s.Id != id).Any();
+            }
+            return Json(result);
+        }
+
         // GET: ClientController/Edit/5
         [Authorize]
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            return View();
+            try
+            {
+                var userId = Guid.Parse(User.Identity.Name);
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                Client result = await _dataService.GetAsync(id, source.Token);
+                if (result.UserId == userId)
+                {
+                    var updater = new ClientUpdater()
+                    {
+                        Description = result.Description,
+                        Id = result.Id,
+                        Login = result.Login,
+                        Name = result.Name,
+                        PasswordChanged = false,
+                        UserId = result.UserId
+                    };
+                    return View(updater);
+                }
+                
+                return RedirectToAction("Index", "Error", new { Message = "Клиент привязан к другому пользователю" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Ошибка в методе Edit : {ex.Message} {ex.StackTrace}");
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
         }
 
         // POST: ClientController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(Guid id, ClientUpdater updater)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var userId = Guid.Parse(User.Identity.Name);
+                var _getDataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
+                var _dataService = _serviceProvider.GetRequiredService<IUpdateDataService<Client, ClientUpdater>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                Client check = await _getDataService.GetAsync(id, source.Token);
+                if (check.UserId == userId)
+                {
+                    Client result = await _dataService.UpdateAsync(updater, source.Token);
+                    return RedirectToAction(nameof(Details), new { id = result.Id });
+                }
+                return RedirectToAction("Index", "Error", new { Message = "Клиент привязан к другому пользователю" });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                _logger.LogError($"Ошибка в методе Edit : {ex.Message} {ex.StackTrace}");
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
 
         // GET: ClientController/Delete/5
         [Authorize]
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            return View();
+            try
+            {
+                var userId = Guid.Parse(User.Identity.Name);
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                Client result = await _dataService.GetAsync(id, source.Token);
+                if (result.UserId == userId)
+                {
+                    return View(result);
+                }
+                return RedirectToAction("Index", "Error", new { Message = "Клиент привязан к другому пользователю" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Ошибка в методе Delete : {ex.Message} {ex.StackTrace}");
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
         }
 
         // POST: ClientController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> Delete(Guid id, User model)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                var userId = Guid.Parse(User.Identity.Name);
+                var _getDataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
+                var _dataService = _serviceProvider.GetRequiredService<IDeleteDataService<Client>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                Client check = await _getDataService.GetAsync(id, source.Token);
+                if (check.UserId == userId)
+                {
+                    Client result = await _dataService.DeleteAsync(id, source.Token);
+                    return RedirectToAction(nameof(Index));
+                }
+                return RedirectToAction("Index", "Error", new { Message = "Клиент привязан к другому пользователю" });
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                _logger.LogError($"Ошибка в методе Delete : {ex.Message} {ex.StackTrace}");
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
     }

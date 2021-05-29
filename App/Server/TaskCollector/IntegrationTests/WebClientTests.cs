@@ -58,24 +58,344 @@ namespace TaskCollector.IntegrationTests
         public async Task Scenario2Test()
         {
             var projPath = $"TestRun{DateTime.Now:yyyyMMddhhmmss}";
+            Process mainProcess = null;
+            IWebDriver driver = null;
             try
             {
+                var userRepo = _serviceProvider.GetRequiredService<IRepository<User>>();
+                var clientRepo = _serviceProvider.GetRequiredService<IRepository<Client>>();
+                var userId = Guid.NewGuid();
+                var userId2 = Guid.NewGuid();
+                var user = new User()
+                {
+                    Description = $"user_description_{userId}",
+                    Id = userId,
+                    IsDeleted = false,
+                    Login = $"user_login_{userId}",
+                    Name = $"user_name_{userId}",
+                    Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{userId}")),
+                    VersionDate = DateTimeOffset.Now
+                };
+                var user2 = new User()
+                {
+                    Description = $"user_description_{userId2}",
+                    Id = userId2,
+                    IsDeleted = false,
+                    Login = $"user_login_{userId2}",
+                    Name = $"user_name_{userId2}",
+                    Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"user_password_{userId2}")),
+                    VersionDate = DateTimeOffset.Now
+                };
+                await userRepo.AddAsync(user, true, CancellationToken.None);
+                await userRepo.AddAsync(user2, true, CancellationToken.None);
+
+                List<Guid> ids = new List<Guid>();
+                for (int i = 0; i < 20; i++)
+                {
+                    var id = Guid.NewGuid();
+                    ids.Add(id);
+                    await clientRepo.AddAsync(new Client()
+                    {
+                        Description = $"client_description_{id}",
+                        Id = id,
+                        IsDeleted = false,
+                        Login = $"client_login_{id}",
+                        Name = $"client_name_select_{id}",
+                        Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
+                        VersionDate = DateTimeOffset.Now,
+                        MappingRules = "{}",
+                        UserId = userId
+                    }, true, CancellationToken.None);
+                }
+
+                for (int i = 0; i < 20; i++)
+                {
+                    var id = Guid.NewGuid();
+                    ids.Add(id);
+                    await clientRepo.AddAsync(new Client()
+                    {
+                        Description = $"client_description_{id}",
+                        Id = id,
+                        IsDeleted = false,
+                        Login = $"client_login_{id}",
+                        Name = $"client_name_not_select_{id}",
+                        Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
+                        VersionDate = DateTimeOffset.Now,
+                        MappingRules = "{}",
+                        UserId = userId
+                    }, true, CancellationToken.None);
+                }
+
+                List<Guid> user2Ids = new List<Guid>();
+                for (int i = 0; i < 5; i++)
+                {
+                    var id = Guid.NewGuid();
+                    user2Ids.Add(id);
+                    await clientRepo.AddAsync(new Client()
+                    {
+                        Description = $"client_description_{id}",
+                        Id = id,
+                        IsDeleted = false,
+                        Login = $"client_login_{id}",
+                        Name = $"client_name_select_{id}",
+                        Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
+                        VersionDate = DateTimeOffset.Now,
+                        MappingRules = "{}",
+                        UserId = userId2
+                    }, true, CancellationToken.None);
+                }
+
                 BuildProject(projPath);
-                var mainProcess = RunProject(projPath);
+                ReplaceConfig(projPath);
+                mainProcess = RunProject(projPath);
 
+                driver = new ChromeDriver();
+                driver.Manage().Window.Maximize();
+                driver.Navigate().GoToUrl("https://localhost:5721/");
+                Assert.True(driver.Url.Contains("localhost"), "Что-то не так =(");
+                               
+                Authorization(driver, userId, true);
 
+                driver.Navigate().GoToUrl("https://localhost:5721/");
+                Assert.True(driver.Url.Contains("localhost"), "Что-то не так =(");
 
-                await Task.Delay(60000);
-                StopProject(mainProcess);
+                Authorization(driver, userId, false);
+
+                var menuButton = driver.FindElement(By.Id("dropdownMenuButton"));
+                menuButton.Click();
+                var menuUserButton = driver.FindElement(By.Id("MenuClientButton"));
+                menuUserButton.Click();
+
+                Assert.True(driver.Url.Contains("Client"), "Страница пользователей не открылась");
+                await CheckPaging(driver, "clientTable", 40, 10);
+
+                var filters = new[] { "client_name_select", 
+                    "');drop table user; select * from client where true ",
+                    "');select * from client where name ilike('%client_name_not_select%') ",
+                    "') or name ilike('%client_name_not_select%') ", 
+                    "%^dsfer!@3{}ddf4_+)(>?<vl" };
+                var elemCounts = new[] { 20, 0, 0, 0, 0};
+                var filterButton = driver.FindElement(By.Id("refresh_filter_button"));
+                var filterName = driver.FindElement(By.Id("filter_name"));
+
+                for (int i = 0;i < filters.Length; i++)
+                {
+                    _output.WriteLine($"Check for filters[{i}]");
+                    filterName.SendKeys(filters[i]);
+                    try
+                    {
+                        filterButton.Click();
+                    }
+                    catch (StaleElementReferenceException)
+                    {
+                        filterButton = driver.FindElement(By.Id("refresh_filter_button"));
+                        filterButton.Click();
+                    }
+                    await Task.Delay(500);
+                    await CheckPaging(driver, "clientTable", elemCounts[i], 10);
+                    filterName.Clear();
+                    filterButton.Click();
+                    await Task.Delay(500);
+                }
+
+                await CheckPaging(driver, "clientTable", 40, 10);
+
+                var row = (await GetRows(driver, "clientTable")).First();
+                var testId = row.GetProperty("id");
+                var testUser = await clientRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
+
+                row.FindElement(By.ClassName("btn-edit")).Click();
+                await Task.Delay(500);
+                Assert.True(driver.Url.Contains("Edit"), "Страница редактирования не открылась");
+
+                var editNames = new[] { $"';truncate table user cascade;",
+                    "", "13&&^dksdf{}{}{}{}", "null", "'||(select password from user limit 1)||'"};
+
+                var isValid = new[] { true, false, true, true, true };
+                var editIsError = new[] { false, false, false, false, false };
+
+                for (int i=0; i < editNames.Length; i++)
+                {                   
+                    var testEditedUserName = editNames[i];
+                    var testEditedUserDesc = $"client_description_changed_{testId}";
+
+                    var nameElement = driver.FindElement(By.Id("Name"));
+                    nameElement.Clear();
+                    nameElement.SendKeys(testEditedUserName);
+
+                    var descriptionElement = driver.FindElement(By.Id("Description"));
+                    descriptionElement.Clear();
+                    descriptionElement.SendKeys(testEditedUserDesc);
+
+                    var saveButtonElement = driver.FindElement(By.Id("SaveButton"));
+                    saveButtonElement.Click();
+                    await Task.Delay(600);
+
+                    if (!isValid[i])
+                    {
+                        Assert.True(driver.Url.Contains("Edit"), "Произошёл переход со старницы редактирования");
+                    }
+                    else if (!editIsError[i])
+                    {
+                        Assert.True(driver.Url.Contains("Details"), "Страница детализации не открылась");
+
+                        var nameElementCheck1 = driver.FindElement(By.Id("Name"));
+                        var descriptionElementCheck1 = driver.FindElement(By.Id("Description"));
+                        Assert.Equal(testEditedUserName, nameElementCheck1.Text);
+                        Assert.Equal(testEditedUserDesc, descriptionElementCheck1.Text);
+
+                        driver.FindElement(By.Id("EditButton")).Click();
+                        await Task.Delay(500);
+                    }                    
+                    else
+                    {
+                        Assert.True(driver.Url.Contains("Error"), "Страница ошибки не открылась");
+                        menuButton.Click();
+                        menuUserButton.Click();
+                        await Task.Delay(500);
+                        row = (await GetRows(driver, "clientTable")).First();
+                        testId = row.GetProperty("id");
+                        testUser = await clientRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
+
+                        row.FindElement(By.ClassName("btn-edit")).Click();
+                        await Task.Delay(500);
+                        Assert.True(driver.Url.Contains("Edit"), "Страница редактирования не открылась");
+                    }
+                }
+
+                driver.FindElement(By.Id("BackButton")).Click();
+                await Task.Delay(500);
+
+                driver.FindElement(By.Id("BackButton")).Click();
+                await Task.Delay(500);
+
+                row = (await GetRows(driver, "clientTable")).First();
+                testId = row.GetProperty("id");
+                var testClientRepo = new Db.Repository.Repository<Client>(_serviceProvider);
+                testClientRepo.ClearChangeTracker();
+                testUser = await testClientRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
+                row.FindElement(By.ClassName("btn-details")).Click();
+                await Task.Delay(500);
+                Assert.True(driver.Url.Contains("Details"), "Страница детализации не открылась");
+                var nameElementCheck = driver.FindElement(By.Id("Name"));
+                var descriptionElementCheck = driver.FindElement(By.Id("Description"));
+                Assert.Equal(testUser.Name, nameElementCheck.Text);
+                Assert.Equal(testUser.Description, descriptionElementCheck.Text);
+
+                driver.FindElement(By.Id("BackButton")).Click();
+                await Task.Delay(500);
+
+                var addNames = new[] { $"a';truncate table user cascade;",
+                    "", "13&&^adksdf{}{}{}{}", "nulls", "'||(select password from user limit 1)||s||'"};
+
+                var isValidAdd = new[] { true, false, true, true, true };
+
+                for (int i = 0; i < addNames.Length; i++)
+                {                    
+                    driver.FindElement(By.Id("AddButton")).Click();
+                    await Task.Delay(500);
+
+                    var newId = Guid.NewGuid();
+                    driver.FindElement(By.Id("Name")).SendKeys(addNames[i]);
+                    driver.FindElement(By.Id("Login")).SendKeys($"client_login_new_{newId}");
+                    driver.FindElement(By.Id("Description")).SendKeys($"client_description_new_{newId}");
+                    driver.FindElement(By.Id("Password")).SendKeys($"client_password_new_{newId}");
+
+                    driver.FindElement(By.Id("SaveButton")).Click();
+                    await Task.Delay(600);
+
+                    if (!isValidAdd[i])
+                    {
+                        var menuButtonTest = driver.FindElement(By.Id("dropdownMenuButton"));
+                        menuButtonTest.Click();
+                        var menuUserButtonTest = driver.FindElement(By.Id("MenuClientButton"));
+                        menuUserButtonTest.Click();
+                        await Task.Delay(500);
+                    }
+                    else
+                    {
+                        Assert.True(driver.Url.Contains("Details"), "Страница детализации не открылась");
+                        nameElementCheck = driver.FindElement(By.Id("Name"));
+                        descriptionElementCheck = driver.FindElement(By.Id("Description"));
+                        Assert.Equal(addNames[i], nameElementCheck.Text);
+                        Assert.Equal($"client_description_new_{newId}", descriptionElementCheck.Text);
+
+                        var existsClient = await clientRepo.GetAsync(new Filter<Client>()
+                        {
+                            Page = 0,
+                            Selector = s => s.Name == addNames[i],
+                            Size = 10
+                        }, CancellationToken.None);
+                        var checkCount = existsClient.Data.Count();
+                        Assert.Equal(1, checkCount);
+
+                        driver.FindElement(By.Id("BackButton")).Click();
+                        await Task.Delay(500);
+                    }                    
+                }
+
+                var existsClient1 = (await clientRepo.GetAsync(new Filter<Client>()
+                {
+                    Page = 0,
+                    Selector = s => true,
+                    Size = 10
+                }, CancellationToken.None)).Data.FirstOrDefault();
+
+                driver.FindElement(By.Id("AddButton")).Click();
+                await Task.Delay(500);               
+
+                driver.FindElement(By.Id("Name")).SendKeys(existsClient1.Name);
+                driver.FindElement(By.Id("Login")).SendKeys($"client_login_new_test");
+                driver.FindElement(By.Id("Description")).SendKeys($"client_description_new_test");
+                driver.FindElement(By.Id("Password")).SendKeys($"client_password_new_test");
+
+                driver.FindElement(By.Id("SaveButton")).Click();
+                await Task.Delay(500);
+
+                Assert.False(driver.Url.Contains("Error"), "Открылась страница ошибки");
+                Assert.False(driver.Url.Contains("Details"), "Открылась страница детализации");
+
+                driver.FindElement(By.Id("Name")).Clear();
+                driver.FindElement(By.Id("Login")).Clear();
+                driver.FindElement(By.Id("Description")).Clear();
+                driver.FindElement(By.Id("Password")).Clear();
+
+                driver.FindElement(By.Id("Name")).SendKeys($"client_name_new_test");
+                driver.FindElement(By.Id("Login")).SendKeys(existsClient1.Login);
+                driver.FindElement(By.Id("Description")).SendKeys($"client_description_new_test");
+                driver.FindElement(By.Id("Password")).SendKeys($"client_password_new_test");
+
+                driver.FindElement(By.Id("SaveButton")).Click();
+                await Task.Delay(500);
+
+                Assert.False(driver.Url.Contains("Error"), "Открылась страница ошибки");
+                Assert.False(driver.Url.Contains("Details"), "Открылась страница детализации");
+
+                var menuButtonTest2 = driver.FindElement(By.Id("dropdownMenuButton"));
+                menuButtonTest2.Click();
+                var menuUserButtonTest2 = driver.FindElement(By.Id("MenuClientButton"));
+                menuUserButtonTest2.Click();
+                await Task.Delay(500);
+
+                var notExistsId = Guid.NewGuid();
+
+                driver.Navigate().GoToUrl($"https://localhost:5721/Client/Delete/{notExistsId}");
+                Assert.True(driver.Url.Contains("Error"), "Страница ошибки не открылась");
+
+                driver.Navigate().GoToUrl($"https://localhost:5721/Client/Delete/{user2Ids.FirstOrDefault()}");
+                Assert.True(driver.Url.Contains("Error"), "Страница ошибки не открылась");
             }
             catch (Exception ex)
             {
                 _output.WriteLine($"Exception while run test: {ex.Message} {ex.StackTrace}");
+                throw;
             }
             finally
             {
+                if (driver != null) driver.Quit();
+                if (mainProcess != null) StopProject(mainProcess);
                 _output.WriteLine($"Delete directory: {projPath}");
-                Directory.Delete(projPath, true);
+                //Directory.Delete(projPath, true);
             }
         }
 
@@ -131,7 +451,7 @@ namespace TaskCollector.IntegrationTests
                 Assert.True(driver.Url.Contains("localhost"), "Что-то не так =(");
 
                 var userId = ids.First();
-                Authorization(driver, userId);
+                Authorization(driver, userId, false);
 
                 var menuButton = driver.FindElement(By.Id("dropdownMenuButton"));
                 menuButton.Click();
@@ -269,26 +589,42 @@ namespace TaskCollector.IntegrationTests
             }
         }
 
-        private static void Authorization(IWebDriver driver, Guid userId)
+        private static void Authorization(IWebDriver driver, Guid userId, bool falseAuth)
         {
             var authButton = driver.FindElement(By.Id("AuthButton"));
             authButton.Click();
             var loginField = driver.FindElement(By.Id("Login"));
             loginField.SendKeys($"user_login_{userId}");
             var passwordField = driver.FindElement(By.Id("Password"));
-            passwordField.SendKeys($"user_password_{userId}");
+            if (falseAuth)
+            {
+                passwordField.SendKeys($"wrong_password");
+            }
+            else
+            {
+                passwordField.SendKeys($"user_password_{userId}");
+            }
             var enterButton = driver.FindElement(By.Id("EnterButton"));
             enterButton.Click();
-            Assert.False(driver.Url.Contains("Error"), "Авторизация неудачна");
+            if (falseAuth)
+            {
+                Assert.True(driver.Url.Contains("Error"), "Авторизация неудачна");
+            }
+            else
+            {
+                Assert.False(driver.Url.Contains("Error"), "Авторизация неудачна");
+            }
         }
-
 
         private async Task CheckPaging(IWebDriver driver, string tableId, int elementCount, int elementPerPage)
         {
-            var pagesCount = (elementCount % elementPerPage == 0) ? (elementCount / elementPerPage) : ((elementCount / elementPerPage) + 1);
-            var secondPage = Math.Min(pagesCount, 2);
-            var prevPage = Math.Max(pagesCount - 1, 1);
-            var lastPageElementsCount = (elementCount % elementPerPage == 0) ? 10 : (elementCount % elementPerPage);
+            var pagesCount = elementCount == 0? 0 : (elementCount % elementPerPage == 0) ? (elementCount / elementPerPage) : 
+                ((elementCount / elementPerPage) + 1);
+            var firstPage = elementCount == 0 ? 0 : 1;
+            var secondPage = elementCount == 0 ? 0 : Math.Min(pagesCount, 2);
+            var prevPage = elementCount == 0 ? 0 : Math.Max(pagesCount - 1, 1);
+            var lastPageElementsCount = elementCount == 0? 0 : (elementCount % elementPerPage == 0) ?
+                elementPerPage : (elementCount % elementPerPage);
 
             Func<int, int> GetElementAtPage = s => ElementsAtPage(pagesCount, s, elementPerPage, lastPageElementsCount);
 
@@ -297,14 +633,14 @@ namespace TaskCollector.IntegrationTests
             var forwardLink = driver.FindElement(By.Id("forward"));
             var endLink = driver.FindElement(By.Id("end"));
             
-            await CheckPaging(driver, tableId, beginLink, GetElementAtPage, pagesCount, 1);
-            await CheckPaging(driver, tableId, backLink, GetElementAtPage, pagesCount, 1);
+            await CheckPaging(driver, tableId, beginLink, GetElementAtPage, pagesCount, firstPage);
+            await CheckPaging(driver, tableId, backLink, GetElementAtPage, pagesCount, firstPage);
             await CheckPaging(driver, tableId, forwardLink, GetElementAtPage, pagesCount, secondPage);
-            await CheckPaging(driver, tableId, backLink, GetElementAtPage, pagesCount, 1);
+            await CheckPaging(driver, tableId, backLink, GetElementAtPage, pagesCount, firstPage);
             await CheckPaging(driver, tableId, endLink, GetElementAtPage, pagesCount, pagesCount);
             await CheckPaging(driver, tableId, forwardLink, GetElementAtPage, pagesCount, pagesCount);
             await CheckPaging(driver, tableId, backLink, GetElementAtPage, pagesCount, prevPage);
-            await CheckPaging(driver, tableId, beginLink, GetElementAtPage, pagesCount, 1);
+            await CheckPaging(driver, tableId, beginLink, GetElementAtPage, pagesCount, firstPage);
         }
 
         private async Task CheckPaging(IWebDriver driver, string tableId, IWebElement link, Func<int, int> getElementAtPage, int pagesCount, int pageNumber)
@@ -333,7 +669,7 @@ namespace TaskCollector.IntegrationTests
             {
                 try
                 {
-                    var table = await GetTable(driver, "userTable");
+                    var table = await GetTable(driver, tableName);
                     rows = table.FindElements(By.CssSelector("tbody tr"));
                 }
                 catch (StaleElementReferenceException)
@@ -430,7 +766,7 @@ namespace TaskCollector.IntegrationTests
             cmd.StandardInput.WriteLine(command);
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
-            cmd.WaitForExit();
+            cmd.WaitForExit(10000);
             _output.WriteLine(cmd.StandardOutput.ReadToEnd());
         }
     }

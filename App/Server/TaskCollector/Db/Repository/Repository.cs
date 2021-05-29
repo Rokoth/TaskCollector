@@ -42,6 +42,7 @@ namespace TaskCollector.Db.Repository
         public async Task<T> AddAsync(T entity, bool withSave, CancellationToken token)
         {
             return await ExecuteAsync(async (context) => {
+                entity.VersionDate = DateTimeOffset.Now;
                 var item = context.Set<T>().Add(entity).Entity;
                 if (withSave) await context.SaveChangesAsync();
                 return item;
@@ -84,9 +85,25 @@ namespace TaskCollector.Db.Repository
             }, "GetAsync");            
         }
 
-        public Task<TEntity> UpdateAsync<TEntity>(TEntity entry, bool v, CancellationToken token) where TEntity : Entity
+        public async Task<T> UpdateAsync(T entity, bool withSave, CancellationToken token)
         {
-            throw new NotImplementedException();
+            return await ExecuteAsync(async (context) => {
+                entity.VersionDate = DateTimeOffset.Now;
+                var item = context.Set<T>().Update(entity).Entity;
+                if (withSave) await context.SaveChangesAsync();
+                return item;
+            }, "UpdateAsync");
+        }
+
+        public async Task<T> DeleteAsync(T entity, bool withSave, CancellationToken token)
+        {
+            return await ExecuteAsync(async (context) => {
+                entity.IsDeleted = true;
+                entity.VersionDate = DateTimeOffset.Now;
+                var item = context.Set<T>().Update(entity).Entity;
+                if (withSave) await context.SaveChangesAsync();
+                return item;
+            }, "DeleteAsync");
         }
 
         private async Task<TEx> ExecuteAsync<TEx>(Func<DbPgContext, Task<TEx>> action, string method)
@@ -101,6 +118,12 @@ namespace TaskCollector.Db.Repository
                 _logger.LogError($"Ошибка в методе {method} Repository: {ex.Message} {ex.StackTrace}");
                 throw new RepositoryException($"Ошибка в методе {method} Repository: {ex.Message}");
             }
+        }
+
+        public void ClearChangeTracker()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+            context.ChangeTracker.Clear();
         }
     }
 }

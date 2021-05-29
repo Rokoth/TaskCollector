@@ -27,7 +27,14 @@ namespace TaskCollector.Service
 
         protected override Db.Model.User UpdateFillFields(UserUpdater entity, Db.Model.User entry)
         {
-            throw new NotImplementedException();
+            entry.Description = entity.Description;
+            entry.Login = entity.Login;
+            entry.Name = entity.Name;
+            if (entity.PasswordChanged)
+            {
+                entry.Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(entity.Password));
+            }
+            return entry;
         }
 
         protected override string defaultSort => "Name";

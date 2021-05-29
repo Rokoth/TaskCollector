@@ -38,5 +38,6 @@ namespace TaskCollector.Db.Interface
         /// <returns></returns>
         Task<T> AddAsync(T entity, bool withSave, CancellationToken token);
         Task<T> UpdateAsync(T entry, bool withSave, CancellationToken token);
+        Task<T> DeleteAsync(T entity, bool withSave, CancellationToken token);
     }
 }
