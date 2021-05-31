@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using TaskCollector.Contract.Model;
 
@@ -10,12 +11,7 @@ namespace TaskCollector.Service
         Contract.Model.MessageStatusFilter,
         Contract.Model.MessageStatusCreator,
         Contract.Model.MessageStatusUpdater>
-    {
-        //protected override Func<Db.Model.MessageStatus, Contract.Model.MessageStatusFilter, bool> GetFilter =>
-        //     (s, t) => s.Name.ToLower().Contains(t.Name.ToLower());
-
-       
-
+    {       
         public MessageStatusDataService(IServiceProvider serviceProvider) : base(serviceProvider)
         {
 
@@ -23,12 +19,13 @@ namespace TaskCollector.Service
 
         protected override Expression<Func<Db.Model.MessageStatus, bool>> GetFilter(MessageStatusFilter filter)
         {
-            throw new NotImplementedException();
+            return s => (filter.MessageId == null || s.MessageId == filter.MessageId) &&
+               (filter.Statuses == null || filter.Statuses.Contains(s.StatusId));
         }
 
         protected override Db.Model.MessageStatus UpdateFillFields(MessageStatusUpdater entity, Db.Model.MessageStatus entry)
-        {
-            throw new NotImplementedException();
+        {          
+            return entry;
         }
 
         protected override string defaultSort => "Name";
