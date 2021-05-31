@@ -22,6 +22,17 @@ namespace TaskCollector.Contract.Model
         public Guid? Id { get; }
     }
 
+    public class ClientHistoryFilter : Filter<ClientHistory>
+    {
+        public ClientHistoryFilter(int size, int page, string sort, string name, Guid? id) : base(size, page, sort)
+        {
+            Name = name;
+            Id = id;
+        }
+        public string Name { get; }
+        public Guid? Id { get; }
+    }
+
     public class MessageHistoryFilter : Filter<MessageHistory>
     {
         public MessageHistoryFilter(int size, int page, string sort, string title, Guid? id, Guid? clientId, DateTimeOffset? from, DateTimeOffset? to) : base(size, page, sort)
