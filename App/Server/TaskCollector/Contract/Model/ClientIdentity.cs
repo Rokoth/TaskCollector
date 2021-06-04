@@ -18,4 +18,16 @@ namespace TaskCollector.Contract.Model
         /// </summary>
         public string Password { get; set; }
     }
+
+    public class ClientIdentityResponse
+    {
+        /// <summary>
+        /// Логин
+        /// </summary>
+        public string Token { get; set; }
+        /// <summary>
+        /// Пароль
+        /// </summary>
+        public string UserName { get; set; }
+    }
 }

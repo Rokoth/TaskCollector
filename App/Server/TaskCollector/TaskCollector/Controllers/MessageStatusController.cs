@@ -69,35 +69,36 @@ namespace TaskCollector.Controllers
             }
         }
 
-        // GET: MessageController/Create
-        //[Authorize]
-        //public ActionResult Create()
-        //{
-        //    //Fill default fields
-        //    var message = new MessageCreator()
-        //    {
+        //GET: MessageController/Create
+       [Authorize]
+        public ActionResult Create()
+        {
+            //Fill default fields
+            var message = new MessageCreator()
+            {
 
-        //    };
-        //    return View(message);
-        //}
+            };
+            return View(message);
+        }
 
-        // POST: MessageController/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //[Authorize]
-        //public async Task<ActionResult> Create(MessageCreator message)
-        //{
-        //    try
-        //    {
-        //        CancellationTokenSource source = new CancellationTokenSource(30000);
-        //        Message result = await _dataService.AddMessageStatusAsync(message, source.Token);
-        //        return RedirectToAction(nameof(Details), new { id = result.Id});
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        return RedirectToAction("Index", "Error", new { Message = ex.Message});
-        //    }
-        //}
+        //POST: MessageController/Create
+       [HttpPost]
+       [ValidateAntiForgeryToken]
+       [Authorize]
+        public async Task<ActionResult> Create(MessageStatusCreator message)
+        {
+            try
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IAddDataService<MessageStatus, MessageStatusCreator>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                var result = await _dataService.AddAsync(message, source.Token);
+                return RedirectToAction(nameof(Details), new { id = result.Id });
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
+        }
 
         //GET: MessageController/Edit/5
         [Authorize]

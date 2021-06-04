@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Common;
+using TaskCollector.Contract.Model;
 using TaskCollector.Service;
 
 namespace TaskCollector.Controllers
@@ -56,10 +57,10 @@ namespace TaskCollector.Controllers
                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
                 var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-                var response = new
+                var response = new ClientIdentityResponse
                 {
-                    access_token = encodedJwt,
-                    username = identity.Name
+                    Token = encodedJwt,
+                    UserName = identity.Name
                 };
 
                 return Ok(response);
