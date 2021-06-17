@@ -22,7 +22,15 @@ namespace TaskCollector.Common
 
     public class NotifyOptions
     { 
-       public List<NotifyRule> NotifyRules { get; set; }
+        public NotifyCredentials Credentials { get; set; }
+        public List<NotifyRule> NotifyRules { get; set; }
+    }
+
+    public class NotifyCredentials
+    { 
+        public string FromEmail { get; set; }
+        public string FromName { get; set; }
+        public string FromPassword { get; set; }
     }
 
     public class NotifyRule

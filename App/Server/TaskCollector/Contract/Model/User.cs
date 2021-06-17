@@ -18,7 +18,9 @@ namespace TaskCollector.Contract.Model
         [Display(Name = "Логин")]
         [Required(ErrorMessage = "Поле должно быть установлено")]
         [Remote("CheckLogin", "User", ErrorMessage = "Логин уже используется")]
-        public string Login { get; set; }        
+        public string Login { get; set; }
+        [Display(Name = "Email")]
+        public string Email { get; set; }
     }
 
     public class UserHistory : EntityHistory

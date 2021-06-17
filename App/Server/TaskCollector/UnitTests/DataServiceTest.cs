@@ -16,6 +16,7 @@ using Xunit;
 
 namespace TaskCollector.UnitTests
 {
+
     public class DataServiceTest : IClassFixture<CustomFixture>
     {
         private readonly IServiceProvider _serviceProvider;
@@ -49,6 +50,56 @@ namespace TaskCollector.UnitTests
             {
                 Assert.Contains("user_select", item.Name);
             }
+        }
+
+        /// <summary>
+        /// GetUser positive test
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task GetUserTest()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+
+            List<Db.Model.User> users = new List<Db.Model.User>();
+            AddUsers(users, 10, "user_{0}");
+            
+            foreach (var user in users) context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var actuser = users.First();
+            var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.User, Contract.Model.UserFilter>>();
+            var data = await dataService.GetAsync(actuser.Id, CancellationToken.None);
+
+            Assert.NotNull(data);
+            Assert.Equal($"user_{actuser.Id}", data.Name);
+        }
+
+        /// <summary>
+        /// AddUser positive test
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task AddUserTest()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+
+            var id = Guid.NewGuid();
+            var user = new Contract.Model.UserCreator()
+            {
+                Name = string.Format("user_{0}", id),
+                Description = string.Format("user_description_{0}", id),                
+                Login = string.Format("user_login_{0}", id),
+                Password = string.Format("user_password_{0}", id)
+            };            
+                                    
+            var dataService = _serviceProvider.GetRequiredService<IAddDataService<Contract.Model.User, Contract.Model.UserCreator>>();
+            await dataService.AddAsync(user, CancellationToken.None);
+            var checkUser = context.Users.FirstOrDefault();
+            Assert.NotNull(checkUser);
+            Assert.Equal($"user_{id}", checkUser.Name);
+            Assert.Equal($"user_description_{id}", checkUser.Description);
+            Assert.Equal($"user_login_{id}", checkUser.Login);
         }
 
         private void AddUsers(List<Db.Model.User> users, int count, string nameMask)

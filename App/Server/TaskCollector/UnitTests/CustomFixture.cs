@@ -47,10 +47,12 @@ namespace TaskCollector.UnitTests
             ConnectionString = Regex.Replace(config.GetConnectionString("MainConnection"), "Database=.*?;", $"Database={DatabaseName};");
             RootConnectionString = Regex.Replace(config.GetConnectionString("MainConnection"), "Database=.*?;", $"Database=postgres;");
             serviceCollection.Configure<CommonOptions>(config);
+            serviceCollection.Configure<NotifyOptions>(config.GetSection("NotifyOptions"));
             serviceCollection.AddLogging(configure => configure.AddSerilog());
             serviceCollection.AddDataServices();
             serviceCollection.AddScoped<IDeployService, DeployService>();
-            
+            serviceCollection.AddScoped<INotifyService, NotifyService>();
+
             serviceCollection.AddDbContext<DbPgContext>(opt => opt.UseNpgsql(ConnectionString));
             serviceCollection.AddScoped<IRepository<User>, Repository<User>>();
             serviceCollection.AddScoped<IRepository<Client>, Repository<Client>>();

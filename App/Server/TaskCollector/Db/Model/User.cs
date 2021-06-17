@@ -17,7 +17,9 @@ namespace TaskCollector.Db.Model
         [ColumnName("login")]
         public string Login { get; set; }
         [ColumnName("password")]
-        public byte[] Password { get; set; }        
+        public byte[] Password { get; set; }
+        [ColumnName("email")]
+        public string Email { get; set; }
     }
 
     [TableName("h_user")]

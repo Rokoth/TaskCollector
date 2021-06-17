@@ -71,6 +71,22 @@ namespace TaskCollector.Db.Repository
             }, "GetAsync");            
         }
 
+        public async Task<Contract.Model.PagedResult<T>> GetDeletedAsync(Filter<T> filter, CancellationToken token)
+        {
+            return await ExecuteAsync(async (context) => {
+                var all = context.Set<T>().Where(filter.Selector);
+                if (!string.IsNullOrEmpty(filter.Sort))
+                {
+                    all = all.OrderBy(filter.Sort);
+                }
+                var result = await all
+                    .Skip(filter.Size * filter.Page)
+                    .Take(filter.Size)
+                    .ToListAsync();
+                return new Contract.Model.PagedResult<T>(result, await all.CountAsync());
+            }, "GetAsync");
+        }
+
         /// <summary>
         /// Метод получения модели по id
         /// </summary>

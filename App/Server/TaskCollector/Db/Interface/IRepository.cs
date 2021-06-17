@@ -22,6 +22,7 @@ namespace TaskCollector.Db.Interface
         /// <param name="token">token</param>
         /// <returns>PagedResult<T></returns>
         Task<Contract.Model.PagedResult<T>> GetAsync(Filter<T> filter, CancellationToken token);
+        Task<Contract.Model.PagedResult<T>> GetDeletedAsync(Filter<T> filter, CancellationToken token);
         /// <summary>
         /// Get item of model by id
         /// </summary>
