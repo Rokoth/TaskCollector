@@ -1,0 +1,35 @@
+﻿@model IEnumerable<TaskCollector.Contract.Model.MessageStatus>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(s => s.Id)</th>
+            <th>@Html.DisplayNameFor(s => s.Description)</th>
+            <th>@Html.DisplayNameFor(s => s.MessageId)</th>
+            <th>@Html.DisplayNameFor(s => s.NextNotifyDate)</th>
+            <th>@Html.DisplayNameFor(s => s.Status)</th>
+            <th>@Html.DisplayNameFor(s => s.StatusDate)</th>
+            <th>@Html.DisplayNameFor(s => s.UserId)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Description</td>
+            <td>@item.MessageId</td>
+            <td>@item.NextNotifyDate</td>
+            <td>@item.Status</td>
+            <td>@item.StatusDate</td>
+            <td>@item.UserId</td>
+
+            <td>
+                @Html.ActionLink("Редактировать", "Details", "MessageStatus", new { id = item.Id }, new { @class = "btn btn-dark" })
+                @Html.ActionLink("Удалить", "Delete", "MessageStatus", new { id = item.Id }, new { @class = "btn btn-dark" })
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
