@@ -29,7 +29,10 @@ namespace TaskCollector.Service
 
         protected override Db.Model.Message UpdateFillFields(MessageUpdater entity, Db.Model.Message entry)
         {
-            throw new NotImplementedException();
+            entry.Description = entity.Description;
+            entry.Level = entity.Level;
+            entry.Title = entity.Title;
+            return entry;
         }
 
         protected override string defaultSort => "Title";

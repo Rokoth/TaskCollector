@@ -49,13 +49,14 @@ namespace TaskCollector.IntegrationTests
             serviceCollection.AddDbContext<DbPgContext>(opt => opt.UseNpgsql(ConnectionString));
             serviceCollection.AddScoped<IRepository<User>, Repository<User>>();
             serviceCollection.AddScoped<IRepository<Client>, Repository<Client>>();
+            serviceCollection.AddScoped<IRepository<Message>, Repository<Message>>();
             //serviceCollection.AddScoped<IRepositoryHistory<UserHistory>, RepositoryHistory<UserHistory>>();
             //serviceCollection.AddScoped<IRepositoryHistory<ClientHistory>, RepositoryHistory<ClientHistory>>();
-          
+
             serviceCollection.ConfigureAutoMapper();
             ServiceProvider = serviceCollection.BuildServiceProvider();
 
-            ServiceProvider.GetRequiredService<IOptions<CommonOptions>>().Value.ConnectionString = ConnectionString;
+            ServiceProvider.GetRequiredService<IOptions<CommonOptions>>().Value.ConnectionStrings["MainConnection"] = ConnectionString;
             ServiceProvider.GetRequiredService<IDeployService>().Deploy().GetAwaiter().GetResult();
 
         }

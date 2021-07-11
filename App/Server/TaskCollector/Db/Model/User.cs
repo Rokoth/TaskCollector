@@ -54,7 +54,7 @@ namespace TaskCollector.Db.Model
         public byte[] Password { get; set; }
         [ColumnType("json")]
         [ColumnName("map_rules")]
-        public string MappingRules { get; set; }
+        public string MapRules { get; set; }
         [ColumnName("userid")]
         public Guid UserId { get; set; }
     }
@@ -72,7 +72,7 @@ namespace TaskCollector.Db.Model
         public byte[] Password { get; set; }
         [ColumnType("json")]
         [ColumnName("map_rules")]
-        public string MappingRules { get; set; }
+        public string MapRules { get; set; }
         [ColumnName("userid")]
         public Guid UserId { get; set; }
     }

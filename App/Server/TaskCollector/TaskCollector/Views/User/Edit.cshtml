@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" class="form-control" />
             <input type="hidden" asp-for="PasswordChanged" class="form-control" />
@@ -34,16 +34,21 @@
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" id="SaveButton" />
+                <input type="submit" value="Сохранить" class="btn btn-primary" id="SaveButton" />
+                @Html.ActionLink("Вернуться", "Details", new { Id = Model.Id }, new { @class = "btn btn-dark", @id = "BackButton" })
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Details">Вернуться</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+                $(function () {
+                    $('#Password').change(function () {
+                        $("#PasswordChanged").val(true);
+                    });
+                })
+    </script>
 }

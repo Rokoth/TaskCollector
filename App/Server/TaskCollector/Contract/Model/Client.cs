@@ -48,7 +48,7 @@ namespace TaskCollector.Contract.Model
         /// Пользователь
         /// </summary>
         [Display(Name = "Пользователь")]
-        public User User { get; set; }
+        public string User { get; set; }
     }
 
     public class ClientHistory : EntityHistory

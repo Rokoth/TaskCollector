@@ -8,17 +8,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TaskCollector.Contract.Model
 {
-    /// <summary>
-    /// Class for creating client
-    /// </summary>
-    public class ClientCreator
+    public class ClientUpdater: IEntity
     {
+        public Guid Id { get; set; }
         /// <summary>
         /// Наименование
         /// </summary>
         [Display(Name = "Имя")]
         [Required(ErrorMessage = "Поле должно быть установлено")]
-        [Remote("CheckName", "Client", ErrorMessage = "Имя уже используется")]
+        [Remote("CheckNameEdit", "Client", ErrorMessage = "Имя уже используется", AdditionalFields = "Id")]
         public string Name { get; set; }
         /// <summary>
         /// Описание
@@ -30,7 +28,7 @@ namespace TaskCollector.Contract.Model
         /// </summary>
         [Display(Name = "Логин")]
         [Required(ErrorMessage = "Поле должно быть установлено")]
-        [Remote("CheckLogin", "Client", ErrorMessage = "Логин уже используется")]
+        [Remote("CheckLoginEdit", "Client", ErrorMessage = "Логин уже используется", AdditionalFields = "Id")]
         public string Login { get; set; }
 
         /// <summary>
@@ -47,8 +45,9 @@ namespace TaskCollector.Contract.Model
         /// Пароль
         /// </summary>
         [Display(Name = "Пароль")]
-        [Required(ErrorMessage = "Поле должно быть установлено")]
         [DataType(DataType.Password)]
-        public string Password { get; set; }        
+        public string Password { get; set; }
+        public bool PasswordChanged { get; set; }
     }
+
 }

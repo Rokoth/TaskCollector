@@ -5,6 +5,7 @@
 
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace TaskCollector.Common
@@ -15,9 +16,9 @@ namespace TaskCollector.Common
     public class CommonOptions
     {        
         /// <summary>
-        /// Строка полключения к базе данных
+        /// Строка подключения к базе данных
         /// </summary>
-        public string ConnectionString { get; set; }        
+        public Dictionary<string, string> ConnectionStrings { get; set; }        
     }
 
     public class NotifyOptions
@@ -56,6 +57,14 @@ namespace TaskCollector.Common
         public static SymmetricSecurityKey GetSymmetricSecurityKey()
         {
             return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(KEY));
+        }
+    }
+
+    public static class HelperExtension
+    {
+        public static byte[] EncryptPassword(string password)
+        {
+            return SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
         }
     }
 }

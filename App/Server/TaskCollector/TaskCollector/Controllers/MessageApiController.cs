@@ -2,12 +2,15 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Contract.Model;
@@ -20,9 +23,12 @@ namespace TaskCollector.Controllers
     public class MessageApiController : ControllerBase
     {
         private IServiceProvider _serviceProvider;
+        private ILogger _logger;
+
         public MessageApiController(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+            _logger = _serviceProvider.GetRequiredService<ILogger<MessageApiController>>();
         }
 
         [HttpPost("send")]
@@ -40,7 +46,8 @@ namespace TaskCollector.Controllers
                     return Unauthorized($"{Request.Scheme}://{Request.Host.Value}/api/v1/client/auth");
                 }
 
-                string userClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                string userClaim = User.Identity.Name;
+                    //User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 var clientId = Guid.Parse(userClaim);
 
                 var client = await clientDataService.GetAsync(clientId, source.Token);
@@ -53,23 +60,49 @@ namespace TaskCollector.Controllers
                 var creatorFields = typeof(MessageCreator).GetProperties();
                 foreach (var item in message)
                 {
-                    if (item.Key.Equals("ClientId", StringComparison.InvariantCultureIgnoreCase)) continue;
-                    var creatorField = creatorFields.FirstOrDefault(s => s.Name.Equals(item.Key, StringComparison.InvariantCultureIgnoreCase));
-                    if (creatorField != null)
+                    _logger.LogDebug($"Установка поля {item.Key} : {item.Value}");
+                    try
                     {
-                        typeof(MessageCreator).GetProperty(creatorField.Name, System.Reflection.BindingFlags.IgnoreCase).SetValue(creator, item.Value);
-                        continue;
+                        if (item.Key.Equals("ClientId", StringComparison.InvariantCultureIgnoreCase)) continue;
+                        var creatorField = creatorFields.FirstOrDefault(s => s.Name.Equals(item.Key, StringComparison.InvariantCultureIgnoreCase));
+                        if (creatorField != null)
+                        {
+                            var propType = ReflectionHelper.IsNullableType(creatorField.PropertyType)
+                               ? Nullable.GetUnderlyingType(creatorField.PropertyType)
+                               : creatorField.PropertyType;
+
+                            var itemValue = ((JToken)item.Value).ToObject(propType);
+                            creatorField.SetValue(creator, itemValue);                            
+                            
+                            continue;
+                        }
+                        addFields.Add(item.Key, item.Value);
                     }
-                    addFields.Add(item.Key, item.Value);
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Ошибка при установке поля {item.Key} : {item.Value} : {ex.Message} {ex.StackTrace}");
+                        throw;
+                    }
                 }
                 creator.AddFields = JObject.FromObject(addFields).ToString();
+                if (string.IsNullOrEmpty(creator.FeedbackContact))
+                    creator.FeedbackContact = "None";
                 var result = await messageDataService.AddAsync(creator, source.Token);                
                 return Ok(result);
             }            
             catch (Exception ex)
             {
+                _logger.LogError($"Ошибка при обработке сообщения: {ex.Message} {ex.StackTrace}");
                 return BadRequest($"Ошибка при обработке сообщения: {ex.Message}");
             }
+        }
+    }
+
+    public static class ReflectionHelper
+    {
+        public static bool IsNullableType(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
     }
 }

@@ -63,7 +63,7 @@ namespace TaskCollector.IntegrationTests
                     Login = $"client_login_{clientId}",
                     Name = $"client_name_select_{clientId}",
                     Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{clientId}")),
-                    MappingRules = "{}",
+                    MapRules = "{}",
                     UserId = userId,
                     VersionDate = DateTimeOffset.Now
                 };
@@ -161,7 +161,7 @@ namespace TaskCollector.IntegrationTests
                     Login = $"client_login_{clientId}",
                     Name = $"client_name_select_{clientId}",
                     Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{clientId}")),
-                    MappingRules = "{}",
+                    MapRules = "{}",
                     UserId = userId,
                     VersionDate = DateTimeOffset.Now
                 };
@@ -241,7 +241,7 @@ namespace TaskCollector.IntegrationTests
                     Login = $"client_login_{clientId}",
                     Name = $"client_name_select_{clientId}",
                     Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{clientId}")),
-                    MappingRules = "{}",
+                    MapRules = "{}",
                     UserId = userId,
                     VersionDate = DateTimeOffset.Now
                 };
@@ -276,9 +276,21 @@ namespace TaskCollector.IntegrationTests
                     { "Description", "TestDescription"}
                 };
 
-                var content = message.SerializeRequest();
-                content.Headers.Add("Authorization", identity.Token);
-                var sendResult = await htppClient.PostAsync("https://localhost:5721/api/v1/message/send", content);
+                var content = message.SerializeRequest();                
+
+                var request = new HttpRequestMessage()
+                {
+                    Content = content,
+                    Headers = {
+                        { HttpRequestHeader.Authorization.ToString(), $"Bearer {identity.Token}" },
+                        { HttpRequestHeader.ContentType.ToString(), "application/json" },
+                    },
+                    RequestUri = new Uri("https://localhost:5721/api/v1/message/send"),
+                    Method = HttpMethod.Post
+                };
+
+                var sendResult = await htppClient.SendAsync(request);
+                                               
                 Assert.True(sendResult.StatusCode == System.Net.HttpStatusCode.OK);
 
                 var messageRepo = _fixture.ServiceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Message>>();
@@ -295,9 +307,7 @@ namespace TaskCollector.IntegrationTests
                 Assert.True(addFields.ContainsKey("Field2"));
 
                 Assert.Equal("Value1", addFields["Field1"]);
-                Assert.Equal("Value2", addFields["Field2"]);
-
-                await Task.Delay(10000);
+                Assert.Equal("Value2", addFields["Field2"]);                
             }
             catch (Exception ex)
             {

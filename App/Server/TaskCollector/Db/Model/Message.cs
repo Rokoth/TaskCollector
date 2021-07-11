@@ -19,6 +19,7 @@ namespace TaskCollector.Db.Model
         [ColumnName("created_date")]
         public DateTimeOffset CreatedDate { get; set; }
         [ColumnName("add_fields")]
+        [ColumnType("json")]
         public string AddFields { get; set; }
 
     }

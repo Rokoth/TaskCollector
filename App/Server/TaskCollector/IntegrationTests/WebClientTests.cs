@@ -70,7 +70,7 @@ namespace TaskCollector.IntegrationTests
                         Name = $"client_name_select_{id}",
                         Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
                         VersionDate = DateTimeOffset.Now,
-                        MappingRules = "{}",
+                        MapRules = "{}",
                         UserId = userId
                     }, true, CancellationToken.None);
                 }
@@ -88,7 +88,7 @@ namespace TaskCollector.IntegrationTests
                         Name = $"client_name_not_select_{id}",
                         Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
                         VersionDate = DateTimeOffset.Now,
-                        MappingRules = "{}",
+                        MapRules = "{}",
                         UserId = userId
                     }, true, CancellationToken.None);
                 }
@@ -320,7 +320,7 @@ namespace TaskCollector.IntegrationTests
                         Name = $"client_name_select_{id}",
                         Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
                         VersionDate = DateTimeOffset.Now,
-                        MappingRules = "{}",
+                        MapRules = "{}",
                         UserId = userId
                     }, true, CancellationToken.None);
                 }
@@ -338,7 +338,7 @@ namespace TaskCollector.IntegrationTests
                         Name = $"client_name_not_select_{id}",
                         Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
                         VersionDate = DateTimeOffset.Now,
-                        MappingRules = "{}",
+                        MapRules = "{}",
                         UserId = userId
                     }, true, CancellationToken.None);
                 }
@@ -357,7 +357,7 @@ namespace TaskCollector.IntegrationTests
                         Name = $"client_name_select_{id}",
                         Password = SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes($"client_password_{id}")),
                         VersionDate = DateTimeOffset.Now,
-                        MappingRules = "{}",
+                        MapRules = "{}",
                         UserId = userId2
                     }, true, CancellationToken.None);
                 }
@@ -699,6 +699,7 @@ namespace TaskCollector.IntegrationTests
 
                 var row = (await GetRows(driver, "userTable")).First();
                 var testId = row.GetProperty("id");
+                userRepo = _serviceProvider.GetRequiredService<IRepository<User>>();
                 var testUser = await userRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
 
                 row.FindElement(By.ClassName("btn-edit")).Click();
@@ -731,7 +732,9 @@ namespace TaskCollector.IntegrationTests
 
                 row = (await GetRows(driver, "userTable")).First();
                 testId = row.GetProperty("id");
-                testUser = await userRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
+                var testUserRepo = new Db.Repository.Repository<User>(_serviceProvider);
+                testUserRepo.ClearChangeTracker();
+                testUser = await testUserRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
                 row.FindElement(By.ClassName("btn-details")).Click();
                 await Task.Delay(500);
                 Assert.True(driver.Url.Contains("Details"), "Страница детализации не открылась");
@@ -772,12 +775,13 @@ namespace TaskCollector.IntegrationTests
 
                 row = (await GetRows(driver, "userTable")).First();
                 testId = row.GetProperty("id");
-                testUser = await userRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
+                testUserRepo = new Db.Repository.Repository<User>(_serviceProvider);
+                testUserRepo.ClearChangeTracker();
+                testUser = await testUserRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
                 row.FindElement(By.ClassName("btn-delete")).Click();
                 await Task.Delay(500);
                 Assert.True(driver.Url.Contains("Delete"), "Страница удаления не открылась");
-
-                row.FindElement(By.ClassName("SaveButton")).Click();
+                driver.FindElement(By.Id("DeleteButton")).Click();
                 await Task.Delay(500);
 
                 filterName = driver.FindElement(By.Id("filter_name"));
@@ -789,7 +793,9 @@ namespace TaskCollector.IntegrationTests
                 var testRowsCount = testRows.Count;
                 Assert.Equal(0, testRowsCount);
 
-                testUser = await userRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
+                testUserRepo = new Db.Repository.Repository<User>(_serviceProvider);
+                testUserRepo.ClearChangeTracker();
+                testUser = await testUserRepo.GetAsync(Guid.Parse(testId), CancellationToken.None);
                 Assert.Null(testUser);
             }
             catch (Exception ex)

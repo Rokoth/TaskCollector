@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System;
@@ -24,12 +26,13 @@ namespace TaskCollector.Controllers
     public class ClientApiController : ControllerBase
     {
         private IServiceProvider _serviceProvider;
-        
+        private ILogger _logger;
+
 
         public ClientApiController(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-           
+            _logger = _serviceProvider.GetRequiredService<ILogger<ClientApiController>>();
         }
 
         [HttpPost("auth")]
@@ -45,7 +48,7 @@ namespace TaskCollector.Controllers
                 {
                     return BadRequest(new { errorText = "Invalid username or password." });
                 }
-
+                
                 var now = DateTime.UtcNow;
                 // создаем JWT-токен
                 var jwt = new JwtSecurityToken(
@@ -67,6 +70,7 @@ namespace TaskCollector.Controllers
             }            
             catch (Exception ex)
             {
+                _logger.LogError($"Ошибка при обработке запроса: {ex.Message} {ex.StackTrace}");
                 return BadRequest($"Ошибка при обработке запроса: {ex.Message}");
             }
         }        

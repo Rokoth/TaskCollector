@@ -1,4 +1,8 @@
-﻿create extension if not exists "uuid-ossp";
+﻿--Copyright 2021 Dmitriy Rokoth
+--Licensed under the Apache License, Version 2.0
+--
+--ref2
+create extension if not exists "uuid-ossp";
 
 create table if not exists "user"(
       id            uuid          not null default uuid_generate_v4() primary key

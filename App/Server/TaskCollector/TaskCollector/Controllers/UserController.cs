@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,11 +18,13 @@ namespace TaskCollector.Controllers
 {
     public class UserController : Controller
     {
-        private IServiceProvider _serviceProvider;        
+        private IServiceProvider _serviceProvider;
+        private ILogger _logger;
 
         public UserController(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;            
+            _serviceProvider = serviceProvider;
+            _logger = _serviceProvider.GetRequiredService<ILogger<UserController>>();
         }
 
         // GET: UserController
@@ -117,6 +120,7 @@ namespace TaskCollector.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Ошибка в методе UserController::Create :{ex.Message} {ex.StackTrace}");
                 return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }

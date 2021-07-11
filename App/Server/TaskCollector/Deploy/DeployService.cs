@@ -32,7 +32,7 @@ namespace TaskCollector.Deploy
         {
             _logger = serviceProvider.GetRequiredService<ILogger<DeployService>>();
             var _options = serviceProvider.GetRequiredService<IOptions<CommonOptions>>();
-            _connectionString = _options.Value.ConnectionString;
+            _connectionString = _options.Value.ConnectionStrings["MainConnection"];
         }
 
         /// <summary>
