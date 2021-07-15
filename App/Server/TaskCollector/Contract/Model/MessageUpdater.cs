@@ -5,14 +5,23 @@ namespace TaskCollector.Contract.Model
 {
     public class MessageUpdater : IEntity
     {
+        [Display(Name = "ИД")]
         public Guid Id { get; set; }
 		[Display(Name = "Уровень ID")]
 		public int Level { get; set; }
 		[Display(Name = "Заголовок")]
 		public string Title { get; set; }
 		[Display(Name = "Описание")]
-		public string Description { get; set; }			
-	}
+		public string Description { get; set; }
+        [Display(Name = "Обратная связь")]
+        public string FeedbackContact { get; set; }
+        [Display(Name = "ИД клиента")]
+        public Guid ClientId { get; set; }
+        [Display(Name = "Дата создания")]
+        public DateTimeOffset CreatedDate { get; set; }
+        [Display(Name = "Дпополнительно")]
+        public string AddFields { get; set; }
+    }
 
     public class MessageStatusUpdater : IEntity
     {

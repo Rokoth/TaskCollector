@@ -16,7 +16,7 @@ namespace TaskCollector.Contract.Model
 		[Display(Name = "Обратная связь")]
 		public string FeedbackContact { get; set; }
 		[Display(Name = "Дополнительные поля")]
-		public string AddFileds { get; set; }
+		public string AddFields { get; set; }
 		[Display(Name = "ИД клиента")]
 		public Guid ClientId { get; set; }
 		[Display(Name = "Дата создания")]

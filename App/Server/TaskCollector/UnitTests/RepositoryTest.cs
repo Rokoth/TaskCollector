@@ -94,6 +94,32 @@ namespace TaskCollector.UnitTests
             Assert.Equal(user.Name, actual.Name);
         }
 
+        /// <summary>
+        /// Тест удаления сущности
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task DeleteTest()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+            var repo = _serviceProvider.GetRequiredService<IRepository<User>>();
+            var user = CreateUser("user_{0}", "user_description_{0}", "user_login_{0}", "user_password_{0}");
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+                        
+            var data = await repo.DeleteAsync(user, true, CancellationToken.None);
+
+            Assert.NotNull(data);
+            Assert.Equal(user.Id, data.Id);
+            Assert.True(data.IsDeleted);
+
+            var test = context.Users.FirstOrDefault(s => s.Id == user.Id);
+            Assert.NotNull(test);
+            Assert.Equal(user.Id, test.Id);
+            Assert.True(test.IsDeleted);
+        }
+
         private void AddUsers(DbPgContext context, string nameMask, string descriptionMask, string loginMask, string passwordMask, int count)
         {
             for (int i = 0; i < count; i++)

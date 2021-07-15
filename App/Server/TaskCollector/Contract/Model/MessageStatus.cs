@@ -31,7 +31,7 @@ namespace TaskCollector.Contract.Model
         [Display(Name = "Дата следующего уведомления")]
         public DateTimeOffset? NextNotifyDate { get; set; }
         [Display(Name = "Сообщение")]
-        public Message Message { get; set; }
+        public string Message { get; set; }
         [Display(Name = "Пользователь")]
         public User User { get; set; }
     }
