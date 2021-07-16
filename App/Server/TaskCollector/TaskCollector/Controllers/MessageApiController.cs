@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+
 using Newtonsoft.Json.Linq;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
@@ -58,6 +59,7 @@ namespace TaskCollector.Controllers
                 var mapRules = JObject.Parse(client.MapRules);
                 var addFields = new Dictionary<string, object>();
                 var creatorFields = typeof(MessageCreator).GetProperties();
+               
                 foreach (var item in message)
                 {
                     _logger.LogDebug($"Установка поля {item.Key} : {item.Value}");
@@ -71,12 +73,12 @@ namespace TaskCollector.Controllers
                                ? Nullable.GetUnderlyingType(creatorField.PropertyType)
                                : creatorField.PropertyType;
 
-                            var itemValue = ((JToken)item.Value).ToObject(propType);
+                            var itemValue = ((JsonElement)(item.Value)).ToObject(propType);
                             creatorField.SetValue(creator, itemValue);                            
                             
                             continue;
                         }
-                        addFields.Add(item.Key, item.Value);
+                        addFields.Add(item.Key, ((JsonElement)(item.Value)).GetString());
                     }
                     catch (Exception ex)
                     {
@@ -103,6 +105,18 @@ namespace TaskCollector.Controllers
         public static bool IsNullableType(Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+    }
+
+    public static partial class JsonExtensions
+    {
+        public static object ToObject(this JsonElement element, Type type, JsonSerializerOptions options = null)
+        {
+            var bufferWriter = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(bufferWriter))
+                element.WriteTo(writer);
+            
+            return JsonSerializer.Deserialize(bufferWriter.WrittenSpan, type, options);
         }
     }
 }

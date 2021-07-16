@@ -306,8 +306,8 @@ namespace TaskCollector.IntegrationTests
                 Assert.True(addFields.ContainsKey("Field1"));
                 Assert.True(addFields.ContainsKey("Field2"));
 
-                Assert.Equal("Value1", addFields["Field1"]);
-                Assert.Equal("Value2", addFields["Field2"]);                
+                Assert.Equal("Value1", addFields["Field1"].ToString());
+                Assert.Equal("Value2", addFields["Field2"].ToString());                
             }
             catch (Exception ex)
             {
