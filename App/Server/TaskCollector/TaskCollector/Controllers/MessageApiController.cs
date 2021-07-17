@@ -54,7 +54,8 @@ namespace TaskCollector.Controllers
                 var client = await clientDataService.GetAsync(clientId, source.Token);
                 var creator = new MessageCreator
                 {
-                    ClientId = clientId
+                    ClientId = clientId,
+                    CreatedDate = DateTimeOffset.Now
                 };
                 var mapRules = JObject.Parse(client.MapRules);
                 var addFields = new Dictionary<string, object>();

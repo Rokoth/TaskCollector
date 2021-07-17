@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="ServerInstaller" Language="1033" Version="1.0.0.0" Manufacturer="" UpgradeCode="c87df520-54cb-4370-9766-20fa1e5a2a76">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of TaskCollector is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="TaskCollectorInstaller" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="TaskCollector" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">			
+			 <Component Id="ProductComponent"> 
+				
+			 </Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

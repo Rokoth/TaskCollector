@@ -8,7 +8,7 @@ namespace TaskCollector.Contract.Model
 		[Display(Name="Уровень ID")]
 		public int Level { get; set; }
 		[Display(Name = "Уровень")]
-		public int LevelTitle { get; set; }
+		public string LevelTitle { get; set; }
 		[Display(Name = "Заголовок")]
 		public string Title { get; set; }
 		[Display(Name = "Описание")]
@@ -22,7 +22,7 @@ namespace TaskCollector.Contract.Model
 		[Display(Name = "Дата создания")]
 		public DateTimeOffset CreatedDate { get; set; }
 		[Display(Name = "Клиент")]
-		public Client Client { get; set; }
+		public string Client { get; set; }
 	}
 
 	public class MessageHistory : EntityHistory

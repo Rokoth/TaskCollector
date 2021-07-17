@@ -141,5 +141,11 @@ namespace TaskCollector.Db.Repository
             var context = _serviceProvider.GetRequiredService<DbPgContext>();
             context.ChangeTracker.Clear();
         }
+
+        public async Task SaveChangesAsync()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+            await context.SaveChangesAsync();
+        }
     }
 }

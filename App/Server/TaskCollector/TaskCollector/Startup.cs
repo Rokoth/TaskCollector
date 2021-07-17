@@ -43,6 +43,7 @@ namespace TaskCollector.TaskCollectorHost
         public void ConfigureServices(IServiceCollection services)
         {            
             services.Configure<CommonOptions>(Configuration);
+            services.Configure<NotifyOptions>(Configuration.GetSection("NotifyOptions"));
             services.AddControllersWithViews();
             services.AddDbContextPool<DbPgContext>((opt) =>
             {
@@ -111,12 +112,37 @@ namespace TaskCollector.TaskCollectorHost
             //services.AddScoped<IRepositoryHistory<Db.Model.MessageStatusHistory>, RepositoryHistory<Db.Model.MessageStatusHistory>>();
             services.AddDataServices();
             services.AddScoped<IDeployService, DeployService>();
-            //services.AddScoped<INotifyService, NotifyService>();
+            services.AddScoped<INotifyService, NotifyService>();
             services.ConfigureAutoMapper();
-            services.AddSwaggerGen(s=>
+            services.AddSwaggerGen(swagger =>
             {
-                s.OperationFilter<AddRequiredHeaderParameter>();
+                //s.OperationFilter<AddRequiredHeaderParameter>();
+
+                swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"",
+                });
+                swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                          new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+                    }
+                });
             });
+            services.AddHostedService<NotificationCheckTaskHostedService>();
         }
                 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

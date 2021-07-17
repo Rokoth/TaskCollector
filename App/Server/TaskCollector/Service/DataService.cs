@@ -178,7 +178,7 @@ namespace TaskCollector.Service
         /// <param name="entity"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<Tdto> AddAsync(TCreator creator, CancellationToken token)
+        public virtual async Task<Tdto> AddAsync(TCreator creator, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
             {

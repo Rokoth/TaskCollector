@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq.Expressions;
-using TaskCollector.Contract.Model;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TaskCollector.Service
 {
@@ -17,7 +19,7 @@ namespace TaskCollector.Service
 
         }
 
-        protected override Expression<Func<Db.Model.Message, bool>> GetFilter(MessageFilter filter)
+        protected override Expression<Func<Db.Model.Message, bool>> GetFilter(Contract.Model.MessageFilter filter)
         {
 
             return s => (string.IsNullOrEmpty(filter.Title) || s.Title.ToLower().Contains(filter.Title.ToLower())) &&
@@ -27,7 +29,35 @@ namespace TaskCollector.Service
             (filter.DateTo == null || s.CreatedDate <= filter.DateTo);
         }
 
-        protected override Db.Model.Message UpdateFillFields(MessageUpdater entity, Db.Model.Message entry)
+        public override async Task<Contract.Model.Message> AddAsync(Contract.Model.MessageCreator creator, CancellationToken token)
+        {
+            return await ExecuteAsync(async (repo) =>
+            {
+                var statusRepo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.MessageStatus>>();
+                var clientRepo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Client>>();
+                var client = await clientRepo.GetAsync(creator.ClientId, token);
+                var entity = MapToEntityAdd(creator);
+                var result = await repo.AddAsync(entity, false, token);
+                var status = await statusRepo.AddAsync(new Db.Model.MessageStatus()
+                { 
+                  Description = "Добавление сообщения",
+                  Id = Guid.NewGuid(),
+                  IsDeleted = false,
+                  IsLast = true,
+                  MessageId = result.Id,                  
+                  StatusDate = DateTimeOffset.Now,
+                  StatusId = Contract.Model.MessageStatusEnum.New,
+                  UserId = client.UserId,
+                  VersionDate = DateTimeOffset.Now
+                }, false, token);
+                await repo.SaveChangesAsync();
+                var prepare = _mapper.Map<Contract.Model.Message>(result);
+                prepare = await Enrich(prepare, token);
+                return prepare;
+            });
+        }
+
+        protected override Db.Model.Message UpdateFillFields(Contract.Model.MessageUpdater entity, Db.Model.Message entry)
         {
             entry.Description = entity.Description;
             entry.Level = entity.Level;

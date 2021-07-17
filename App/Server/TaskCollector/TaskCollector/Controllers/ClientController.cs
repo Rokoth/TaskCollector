@@ -165,7 +165,7 @@ namespace TaskCollector.Controllers
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
                 var check = await _dataService.GetAsync(new ClientFilter(10, 0, null, name, null, null), cancellationTokenSource.Token);
-                result = !check.Data.Where(s=>s.Id!=id).Any();
+                result = !check.Data.Where(s=>s.Name == name && s.Id!=id).Any();
             }
             return Json(result);
         }
@@ -179,7 +179,7 @@ namespace TaskCollector.Controllers
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
                 var check = await _dataService.GetAsync(new ClientFilter(10, 0, null, null, login, null), cancellationTokenSource.Token);
-                result = !check.Data.Where(s => s.Id != id).Any();
+                result = !check.Data.Where(s => s.Login == login && s.Id != id).Any();
             }
             return Json(result);
         }

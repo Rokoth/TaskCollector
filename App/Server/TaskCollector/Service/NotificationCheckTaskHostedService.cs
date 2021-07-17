@@ -18,84 +18,90 @@ namespace TaskCollector.Service
     {
         private IServiceProvider _serviceProvider;
         private IOptions<NotifyOptions> _options;
-        private INotifyService _notifyService;
+        
         private ILogger _logger;
         private CancellationTokenSource _tokenSource;
 
         public NotificationCheckTaskHostedService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _options = _serviceProvider.GetRequiredService<IOptions<NotifyOptions>>();
-            _notifyService = _serviceProvider.GetRequiredService<INotifyService>();
+            _logger = _serviceProvider.GetRequiredService<ILogger<NotificationCheckTaskHostedService>>();
+            _options = _serviceProvider.GetRequiredService<IOptions<NotifyOptions>>();            
             _tokenSource = new CancellationTokenSource();
         }
 
         private async Task Run(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
-            {
-                var _messageRepo = _serviceProvider.GetRequiredService<IRepository<Message>>();
-                var _clientRepo = _serviceProvider.GetRequiredService<IRepository<Client>>();
-                var _userRepo = _serviceProvider.GetRequiredService<IRepository<User>>();
-                var _messageStatusRepo = _serviceProvider.GetRequiredService<IRepository<MessageStatus>>();
-
+            {                               
                 try
                 {
-                    foreach (var notifyRule in _options.Value.NotifyRules)
+                    using (var scope = _serviceProvider.CreateScope())
                     {
-                        if (Enum.TryParse(notifyRule.Name, true, out Contract.Model.MessageStatusEnum statusEnum))
+                        var scopeProvider = scope.ServiceProvider;
+                        var _messageRepo = scopeProvider.GetRequiredService<IRepository<Message>>();
+                        var _clientRepo = scopeProvider.GetRequiredService<IRepository<Client>>();
+                        var _userRepo = scopeProvider.GetRequiredService<IRepository<User>>();
+                        var _messageStatusRepo = scopeProvider.GetRequiredService<IRepository<MessageStatus>>();
+                        foreach (var notifyRule in _options.Value.NotifyRules)
                         {
-                            var cancelTokenSrc = new CancellationTokenSource(60000);
-                            var statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
+                            if (Enum.TryParse(notifyRule.Name, true, out Contract.Model.MessageStatusEnum statusEnum))
                             {
-                                Page = 0,
-                                Size = 100,
-                                Sort = "StatusDate",
-                                Selector = s => s.IsLast && s.StatusId == statusEnum && s.NextNotifyDate == null
-                            }, cancelTokenSrc.Token);
-
-                            var level = notifyRule.Levels.First(s => s.Order == 1);
-
-                            foreach (var status in statuses.Data)
-                            {
-
-                                var nextNotify = status.StatusDate.AddHours(level.FirstTimeNotify);
-                                if (nextNotify > DateTimeOffset.Now)
+                                var cancelTokenSrc = new CancellationTokenSource(60000);
+                                var statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
                                 {
-                                    status.NextNotifyDate = nextNotify;
+                                    Page = 0,
+                                    Size = 100,
+                                    Sort = "StatusDate",
+                                    Selector = s => s.IsLast && s.StatusId == statusEnum && s.NextNotifyDate == null
+                                }, cancelTokenSrc.Token);
+
+                                var level = notifyRule.Levels.First(s => s.Order == 1);
+
+                                foreach (var status in statuses.Data)
+                                {
+
+                                    var nextNotify = status.StatusDate.AddHours(level.FirstTimeNotify);
+                                    if (nextNotify > DateTimeOffset.Now)
+                                    {
+                                        status.NextNotifyDate = nextNotify;
+                                        await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
+                                        continue;
+                                    }
+
+                                    await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
+
+                                    status.NextNotifyDate = nextNotify.AddHours(level.RepeatInterval);
                                     await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
-                                    continue;
                                 }
 
-                                await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
-
-                                status.NextNotifyDate = nextNotify.AddHours(level.RepeatInterval);
-                                await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
-                            }
-
-                            statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
-                            {
-                                Page = 0,
-                                Size = 100,
-                                Sort = "StatusDate",
-                                Selector = s => s.IsLast && s.StatusId == statusEnum && s.NextNotifyDate < DateTimeOffset.Now
-                            }, cancelTokenSrc.Token);
-
-                            foreach (var status in statuses.Data)
-                            {
-                                level = null;
-                                foreach (var lev in notifyRule.Levels.OrderByDescending(s => s.Order))
+                                statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
                                 {
-                                    if (status.StatusDate.AddHours(lev.FirstTimeNotify) < DateTimeOffset.Now)
+                                    Page = 0,
+                                    Size = 100,
+                                    Sort = "StatusDate",
+                                    Selector = s => s.IsLast && s.StatusId == statusEnum 
+                                    && s.NextNotifyDate != null                                    
+                                }, cancelTokenSrc.Token);
+
+                                foreach (var status in statuses.Data.Where(s=>s.NextNotifyDate < DateTimeOffset.Now))
+                                {
+                                    level = null;
+                                    foreach (var lev in notifyRule.Levels.OrderByDescending(s => s.Order))
                                     {
-                                        level = lev;
-                                        break;
+                                        if (status.StatusDate.AddHours(lev.FirstTimeNotify) < DateTimeOffset.Now)
+                                        {
+                                            level = lev;
+                                            break;
+                                        }
+                                    }
+                                    if (level != null)
+                                    {
+                                        await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
+                                        status.NextNotifyDate = status.NextNotifyDate.Value.AddHours(level.RepeatInterval);
+                                        await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
                                     }
                                 }
-                                await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
-
-                                status.NextNotifyDate = status.NextNotifyDate.Value.AddHours(level.RepeatInterval);
-                                await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
                             }
                         }
                     }
@@ -104,25 +110,31 @@ namespace TaskCollector.Service
                 {
                     _logger.LogError($"Error in NotificationCheckTaskHostedService: {ex.Message} {ex.StackTrace}");                    
                 }
+                await Task.Delay(60000);
             }
         }
 
         private async Task Notify(IRepository<Message> _messageRepo, IRepository<Client> _clientRepo, 
             CancellationTokenSource cancelTokenSrc, NotifyLevel level, MessageStatus status)
         {
-            var message = await _messageRepo.GetAsync(status.MessageId, cancelTokenSrc.Token);
-            var client = await _clientRepo.GetAsync(message.ClientId, cancelTokenSrc.Token);
-            await _notifyService.Notify(client.UserId, new Contract.Model.Notification()
+            using (var scope = _serviceProvider.CreateScope())
             {
-                AddFields = message.AddFields,
-                Client = client.Name,
-                CreatedDate = message.CreatedDate,
-                Description = message.Description,
-                FeedbackContact = message.FeedbackContact,
-                Level = ((Contract.Model.MessageLevelEnum)message.Level).ToString(),
-                NotificationTypeEnum = (Contract.Model.NotificationTypeEnum)level.NotificationTypeEnum,
-                Title = "Автоматическое уведомление"
-            }, cancelTokenSrc.Token);
+                var scopeProvider = scope.ServiceProvider;
+                var message = await _messageRepo.GetAsync(status.MessageId, cancelTokenSrc.Token);
+                var client = await _clientRepo.GetAsync(message.ClientId, cancelTokenSrc.Token);
+                var _notifyService = scopeProvider.GetRequiredService<INotifyService>(); ;
+                await _notifyService.Notify(client.UserId, new Contract.Model.Notification()
+                {
+                    AddFields = message.AddFields,
+                    Client = client.Name,
+                    CreatedDate = message.CreatedDate,
+                    Description = message.Description,
+                    FeedbackContact = message.FeedbackContact,
+                    Level = ((Contract.Model.MessageLevelEnum)message.Level).ToString(),
+                    NotificationTypeEnum = (Contract.Model.NotificationTypeEnum)level.NotificationTypeEnum,
+                    Title = "Автоматическое уведомление"
+                }, cancelTokenSrc.Token);
+            }
         }
 
 
@@ -134,6 +146,7 @@ namespace TaskCollector.Service
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             _tokenSource.Cancel();
         }
     }
