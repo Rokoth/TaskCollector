@@ -3,8 +3,8 @@ using TaskCollector.Db.Attributes;
 
 namespace TaskCollector.Db.Model
 {
-    [TableName("message")]
-    public class Message : Entity
+    [TableName("h_message")]
+    public class MessageHistory : EntityHistory
     {
         [ColumnName("level")]
         public int Level { get; set; }
@@ -19,7 +19,6 @@ namespace TaskCollector.Db.Model
         [ColumnName("created_date")]
         public DateTimeOffset CreatedDate { get; set; }
         [ColumnName("add_fields")]
-        [ColumnType("json")]
         public string AddFields { get; set; }
 
     }
