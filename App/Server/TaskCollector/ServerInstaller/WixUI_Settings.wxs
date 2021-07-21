@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <UI>
+      <Dialog Id="SettingsDlg" Width="405" Height="301" Title="!(loc.WelcomeDlg_Title)">
+
+        <Control Id="lblLOG_PATH" Type="Text" Height="18" Width="130" X="6" Y="58" Text="Каталог логов"/>
+        <Control Id="TEXT_LOG_PATH" Type="Edit" Height="18" Width="250" X="150" Y="58" Property="LOG_PATH" />
+        <Control Id="lblHTTPS_PORT" Type="Text" Height="18" Width="130" X="6" Y="79" Text="Порт сервиса"/>
+        <Control Id="TEXT_HTTPS_PORT" Type="Edit" Height="18" Width="250" X="150" Y="79" Property="HTTPS_PORT" />
+        <Control Id="lblSSL_CERT" Type="Text" Height="18" Width="130" X="6" Y="100" Text="Сертификат SLL"/>
+        <Control Id="TEXT_SSL_CERT" Type="Edit" Height="18" Width="250" X="150" Y="100" Property="SSL_CERT" />
+        <Control Id="lblSSL_CERT_PASS" Type="Text" Height="18" Width="130" X="6" Y="121" Text="Пароль сертификата"/>
+        <Control Id="TEXT_SSL_CERT_PASS" Type="Edit" Height="18" Width="250" X="150" Y="121" Property="SSL_CERT_PASS" />
+
+        <Control Id="lblFROM_EMAIL" Type="Text" Height="18" Width="130" X="6" Y="142" Text="E-mail для отправки уведомлений"/>
+        <Control Id="TEXT_FROM_EMAIL" Type="Edit" Height="18" Width="250" X="150" Y="142" Property="FROM_EMAIL" />
+
+        <Control Id="lblFROM_NAME" Type="Text" Height="18" Width="130" X="6" Y="163" Text="E-mail: от кого"/>
+        <Control Id="TEXT_FROM_NAME" Type="Edit" Height="18" Width="250" X="150" Y="163" Property="FROM_NAME" />
+
+        <Control Id="lblFROM_PASSWORDS" Type="Text" Height="18" Width="130" X="6" Y="184" Text="Пароль E-mail для отправки уведомлений"/>
+        <Control Id="TEXT_FROM_PASSWORD" Type="Edit" Height="18" Width="250" X="150" Y="184" Property="FROM_PASSWORD" />
+
+        <Control Id="lblDB_CONN_STRING" Type="Text" Height="18" Width="130" X="6" Y="205" Text="Строка подключения к БД"/>
+        <Control Id="TEXT_CONN_STRING" Type="Edit" Height="18" Width="250" X="150" Y="205" Property="CONN_STRING" />
+
+        <Control Id="CHB_INSTALL" Type="CheckBox" Height="18" Width="295" X="6" Y="226" Text="Установить службу" Property="INSTALL_SERVICE" CheckBoxValue="1" />
+        <Control Id="CHB_START" Type="CheckBox" Height="18" Width="295" X="6" Y="247" Text="Запустить службу" Property="START_SERVICE" CheckBoxValue="1" />
+                
+        <Control Id="Next" Type="PushButton" X="278" Y="278" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+        <Control Id="Back" Type="PushButton" X="222" Y="278" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+        <Control Id="Cancel" Type="PushButton" X="334" Y="278" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="405" Height="44" TabSkip="no" Text="!(loc.CustomizeDlgBannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="405" Height="2" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="268" Width="405" Height="2" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="210" Height="15" Transparent="yes" NoPrefix="yes" Text="Настройки сервиса" />
+      </Dialog>
+    </UI>
+  </Fragment>
+</Wix>

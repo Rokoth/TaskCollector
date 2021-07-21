@@ -22,6 +22,9 @@
   <ItemGroup>
     <Compile Include="Product.wxs" />
     <Compile Include="TaskCollector.wxs" />
+    <Compile Include="WixUI_InvalidDB.wxs" />
+    <Compile Include="WixUI_Settings.wxs" />
+    <Compile Include="WixUI_Wizard.wxs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.rtf">
@@ -30,6 +33,14 @@
     <Content Include="ServerInstaller.wax" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CustomAction\CustomAction.csproj">
+      <Name>CustomAction</Name>
+      <Project>{d0206906-9f6f-4dc3-9a97-407b7f5ea3cf}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\TaskCollector\TaskCollector.csproj">
       <Name>TaskCollector</Name>
       <Project>{24e50d77-4e82-4542-b167-7800e234f730}</Project>

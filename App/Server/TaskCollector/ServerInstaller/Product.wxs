@@ -3,11 +3,31 @@
   <?define ProductName="TaskCollector" ?>
   <?define ProductVersion="0.0.0.1" ?>
   <?define ProductCode="b7bc7c6f-9a4e-4973-be84-eca8e3427c90"?>
-  <?define UpgradeCode="06a81104-1e30-463d-87e1-e8a79b4c6820"?>
+  <?define UpgradeCode="06a81104-1e30-463d-87e1-e8a79b4c6821"?>
   <?define Manufacturer="DmitriyRokoth"?>
-	<Product Id="$(var.ProductCode)" Name="$(var.ProductName)" Language="1049" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
+	<Product Id="$(var.ProductCode)" 
+           Name="$(var.ProductName)" 
+           Language="1049" 
+           Version="$(var.ProductVersion)" 
+           Manufacturer="$(var.Manufacturer)" 
+           UpgradeCode="$(var.UpgradeCode)">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
+    <Property Id="LOG_PATH">logs</Property>
+    <Property Id="HTTPS_PORT">5721</Property>
+    <Property Id="SSL_CERT">localhost.pfx</Property>
+    <Property Id="SSL_CERT_PASS">1234</Property>  
+    <Property Id="INSTALL_SERVICE">1</Property>
+    <Property Id="START_SERVICE">1</Property>
+    <Property Id="CONN_STRING">Server=localhost;Database=task_collector;Username=postgres;Password=postgres</Property>
+    <Property Id="CST_INSTALLED">1</Property>
+    <Property Id="INSTALL_MESSAGE">TaskCollector установлен успешно</Property>
+    <Property Id="INSTALL_STEP"> </Property>
+
+    <Property Id="FROM_EMAIL">example@mail.ru</Property>
+    <Property Id="FROM_NAME">TaskCollector</Property>
+    <Property Id="FROM_PASSWORD">password</Property>
+    
 		<MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed." />
 		<MediaTemplate />
 
@@ -18,16 +38,40 @@
 			<ComponentRef Id="ApplicationShortcutDesktop" />
 		</Feature>
 
+    <Binary Id="CustomAction.CA.dll" SourceFile="..\CustomAction\bin\$(var.Configuration)\CustomAction.CA.dll" />
+
+    <CustomAction Id="InstallService"
+              Return="check"
+              Execute="immediate"
+              BinaryKey="CustomAction.CA.dll"
+              DllEntry="CustomActionInstall" />
+
+    <CustomAction Id="PreInstallService"
+              Return="check"
+              Execute="deferred"
+              BinaryKey="CustomAction.CA.dll"
+              DllEntry="CustomActionPreInstall" />
+
+    <CustomAction Id="PreUninstallService"
+              Return="check"
+              Execute="deferred"
+              BinaryKey="CustomAction.CA.dll"
+              DllEntry="CustomActionPreUninstall" />
+
+    <CustomAction Id="InstallDB"
+              BinaryKey="CustomAction.CA.dll"
+              DllEntry="CustomActionDB" />
+
+    <InstallExecuteSequence>
+      <Custom Action="InstallService" After='InstallFinalize' ><![CDATA[REMOVE<>"ALL"]]></Custom>
+      <Custom Action="PreInstallService" After="InstallInitialize"><![CDATA[Installed<>"" AND REMOVE<>"ALL"]]></Custom>
+      <Custom Action="PreUninstallService" After="InstallInitialize">REMOVE="ALL"</Custom>
+    </InstallExecuteSequence>
+
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" ></Property>
     <WixVariable Id="WixUILicenseRtf" Overridable="yes" Value="License.rtf"/>
-    <UIRef Id="WixUI_InstallDir"/>
+    <UIRef Id="WixUI_Wizard"/>
 	</Product>
-
-  <Fragment>
-		
-	</Fragment>
-    
-  
     
 	<Fragment>
 		<Directory Id="TARGETDIR" Name="SourceDir">

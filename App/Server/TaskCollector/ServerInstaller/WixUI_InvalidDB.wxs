@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <UI>
+      <Dialog Id="InvalidDBDlg" Width="405" Height="200" Title="!(loc.WelcomeDlg_Title)">
+
+        <Control Id="lblDB_ERR_STRING" Type="Text" Height="18" Width="130" X="6" Y="58" Text="Ошибка при установке БД: "/>
+        <Control Id="TEXT_ERR_STRING" Type="Text" Height="100" Width="250" X="150" Y="58" Text="[ERROR_MESSAGE]" />
+
+        <Control Id="Back" Type="PushButton" X="222" Y="174" Width="56" Height="17" Text="Повторить" />        
+        <Control Id="Next" Type="PushButton" X="278" Y="174" Width="56" Height="17" Default="yes" Text="Пропустить" />
+        <Control Id="Cancel" Type="PushButton" X="334" Y="174" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+        </Control>
+
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="405" Height="44" TabSkip="no" Text="!(loc.CustomizeDlgBannerBitmap)" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="405" Height="2" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="164" Width="405" Height="2" />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="210" Height="15" Transparent="yes" NoPrefix="yes" Text="Ошибка установки БД" />
+      </Dialog>
+    </UI>
+  </Fragment>
+</Wix>
