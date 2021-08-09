@@ -34,7 +34,7 @@
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Сохранить" class="btn btn-primary" id="SaveButton" />
+                <input type="submit" value="Сохранить" class="btn btn-dark" id="SaveButton" />
                 @Html.ActionLink("Вернуться", "Details", new { Id = Model.Id }, new { @class = "btn btn-dark", @id = "BackButton" })
             </div>
         </form>

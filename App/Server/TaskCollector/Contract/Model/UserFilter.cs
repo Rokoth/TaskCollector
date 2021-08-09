@@ -4,11 +4,13 @@ namespace TaskCollector.Contract.Model
 {
     public class UserFilter : Filter<User>
     {
-        public UserFilter(int size, int page, string sort, string name) : base(size, page, sort)
+        public UserFilter(int size, int page, string sort, string name, string login) : base(size, page, sort)
         {
             Name = name;
+            Login = login;
         }
         public string Name { get; }
+        public string Login { get; }
     }
 
     public class UserHistoryFilter : Filter<UserHistory>

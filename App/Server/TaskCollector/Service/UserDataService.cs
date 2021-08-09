@@ -15,7 +15,7 @@ namespace TaskCollector.Service
     {
         protected override Expression<Func<Db.Model.User, bool>> GetFilter(Contract.Model.UserFilter filter)
         {
-            return s => filter.Name == null || s.Name.Contains(filter.Name);
+            return s => (filter.Name == null || s.Name.Contains(filter.Name)) && (filter.Login == null || s.Login.Contains(filter.Login));
         }
 
         protected override Db.Model.User MapToEntityAdd(Contract.Model.UserCreator creator)

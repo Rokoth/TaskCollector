@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Contract.Model;
@@ -35,13 +36,13 @@ namespace TaskCollector.Controllers
         }
 
         [Authorize]
-        public async Task<ActionResult> ListPaged(int page = 0, int size = 10, string sort = null, string name = null)
+        public async Task<ActionResult> ListPaged(int page = 0, int size = 10, string sort = null, string name = null, string login = null)
         {
             try
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetAsync(new UserFilter(size, page, sort, name), source.Token);
+                var result = await _dataService.GetAsync(new UserFilter(size, page, sort, name, login), source.Token);
                 var pages = (result.AllCount % size == 0) ? (result.AllCount / size) : ((result.AllCount / size) + 1);
                 Response.Headers.Add("x-pages", pages.ToString());
                 return PartialView(result.Data);
@@ -148,6 +149,62 @@ namespace TaskCollector.Controllers
             {
                 return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckName(string name)
+        {
+            bool result = false;
+            if (!string.IsNullOrEmpty(name))
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, name, null), cancellationTokenSource.Token);
+                result = !check.Data.Any();
+            }
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckLogin(string login)
+        {
+            bool result = false;
+            if (!string.IsNullOrEmpty(login))
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, null, login), cancellationTokenSource.Token);
+                result = !check.Data.Any();
+            }
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckNameEdit(string name, Guid id)
+        {
+            bool result = false;
+            if (!string.IsNullOrEmpty(name))
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, name, null), cancellationTokenSource.Token);
+                result = !check.Data.Where(s => s.Name == name && s.Id != id).Any();
+            }
+            return Json(result);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckLoginEdit(string login, Guid id)
+        {
+            bool result = false;
+            if (!string.IsNullOrEmpty(login))
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
+                var cancellationTokenSource = new CancellationTokenSource(30000);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, null, login), cancellationTokenSource.Token);
+                result = !check.Data.Where(s => s.Login == login && s.Id != id).Any();
+            }
+            return Json(result);
         }
 
         // POST: UserController/Edit/5
