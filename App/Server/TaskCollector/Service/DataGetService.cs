@@ -1,7 +1,7 @@
 ﻿//Copyright 2021 Dmitriy Rokoth
 //Licensed under the Apache License, Version 2.0
 
-//ref 1
+//ref 2
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -71,10 +71,7 @@ namespace TaskCollector.Service
         public async Task<Contract.Model.PagedResult<Tdto>> GetAsync(TFilter filter, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
-            {
-                //Expression<Func<TEntity, bool>> expr = s => GetFilter(s, filter);
-                //var func = expr.Compile(true);
-
+            {               
                 string sort = filter.Sort;
                 if (string.IsNullOrEmpty(sort))
                 {
