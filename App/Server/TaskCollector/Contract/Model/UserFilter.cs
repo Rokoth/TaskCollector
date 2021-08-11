@@ -51,4 +51,20 @@ namespace TaskCollector.Contract.Model
         public DateTimeOffset? From { get; }
         public DateTimeOffset? To { get; }
     }
+
+    public class MessageStatusHistoryFilter : Filter<MessageStatusHistory>
+    {
+        public MessageStatusHistoryFilter(int size, int page, string sort, Guid? id, Guid? messageId, DateTimeOffset? from, DateTimeOffset? to) : base(size, page, sort)
+        {            
+            Id = id;
+            MessageId = messageId;
+            From = from;
+            To = to;
+        }
+        
+        public Guid? Id { get; }
+        public Guid? MessageId { get; }
+        public DateTimeOffset? From { get; }
+        public DateTimeOffset? To { get; }
+    }
 }

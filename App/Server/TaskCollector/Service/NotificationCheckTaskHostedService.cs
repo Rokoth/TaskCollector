@@ -16,8 +16,8 @@ namespace TaskCollector.Service
 {
     public class NotificationCheckTaskHostedService : IHostedService
     {
-        private IServiceProvider _serviceProvider;
-        private IOptions<NotifyOptions> _options;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IOptions<NotifyOptions> _options;
         
         private ILogger _logger;
         private CancellationTokenSource _tokenSource;
@@ -99,6 +99,8 @@ namespace TaskCollector.Service
                                     {
                                         await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
                                         status.NextNotifyDate = status.NextNotifyDate.Value.AddHours(level.RepeatInterval);
+                                        if(status.NextNotifyDate < DateTimeOffset.Now)
+                                            status.NextNotifyDate = DateTimeOffset.Now.AddHours(level.RepeatInterval);
                                         await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
                                     }
                                 }

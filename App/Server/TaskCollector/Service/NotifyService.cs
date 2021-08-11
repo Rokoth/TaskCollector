@@ -41,7 +41,7 @@ namespace TaskCollector.Service
                         $"Заголовок: {notification.Title}\r\n" +
                         $"Описание: {notification.Description}\r\n" +
                         $"Уровень: {notification.Level}\r\n" +
-                        $"Обратная связь: {notification.FeedbackContact}" +
+                        $"Обратная связь: {notification.FeedbackContact}\r\n" +
                         $"Дополнительно: {notification.AddFields}\r\n" +
                         $"Создано: {notification.CreatedDate}\r\n";
                     await SendEmailAsync(email, text);

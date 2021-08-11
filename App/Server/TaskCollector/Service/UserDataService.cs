@@ -2,6 +2,8 @@
 using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using TaskCollector.Contract.Model;
 
 namespace TaskCollector.Service
@@ -54,11 +56,83 @@ namespace TaskCollector.Service
 
         }
 
-        protected override string defaultSort => "Name";
-               
+        protected override string defaultSort => "HId desc";
+
+        protected override Func<Db.Interface.IRepository<Db.Model.UserHistory>, Db.Model.Filter<Db.Model.UserHistory>,
+            CancellationToken, Task<Contract.Model.PagedResult<Db.Model.UserHistory>>> GetListFunc => (repo, filter, token) => repo.GetDeletedAsync(filter, token);
+
         protected override Expression<Func<Db.Model.UserHistory, bool>> GetFilter(UserHistoryFilter filter)
         {
-            throw new NotImplementedException();
+            return s => (filter.Name == null || s.Name.Contains(filter.Name))
+                && (filter.Id == null || s.Id == filter.Id);
+        }
+    }
+
+    public class ClientHistoryDataService : DataGetService<Db.Model.ClientHistory,
+        Contract.Model.ClientHistory,
+        Contract.Model.ClientHistoryFilter>
+    {
+        public ClientHistoryDataService(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+
+        }
+
+        protected override string defaultSort => "HId desc";
+
+        protected override Func<Db.Interface.IRepository<Db.Model.ClientHistory>, Db.Model.Filter<Db.Model.ClientHistory>,
+            CancellationToken, Task<Contract.Model.PagedResult<Db.Model.ClientHistory>>> GetListFunc => (repo, filter, token) => repo.GetDeletedAsync(filter, token);
+
+        protected override Expression<Func<Db.Model.ClientHistory, bool>> GetFilter(ClientHistoryFilter filter)
+        {
+            return s => (filter.Name == null || s.Name.Contains(filter.Name))
+                && (filter.Id == null || s.Id == filter.Id);
+        }
+    }
+
+    public class MessageHistoryDataService : DataGetService<Db.Model.MessageHistory,
+        Contract.Model.MessageHistory,
+        Contract.Model.MessageHistoryFilter>
+    {
+        public MessageHistoryDataService(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+
+        }
+
+        protected override string defaultSort => "HId desc";
+
+        protected override Func<Db.Interface.IRepository<Db.Model.MessageHistory>, Db.Model.Filter<Db.Model.MessageHistory>,
+            CancellationToken, Task<Contract.Model.PagedResult<Db.Model.MessageHistory>>> GetListFunc => (repo, filter, token) => repo.GetDeletedAsync(filter, token);
+
+        protected override Expression<Func<Db.Model.MessageHistory, bool>> GetFilter(MessageHistoryFilter filter)
+        {
+            return s => (filter.Title == null || s.Title.Contains(filter.Title))
+                && (filter.Id == null || s.Id == filter.Id)
+                && (filter.ClientId == null || s.ClientId == filter.ClientId)
+                 && (filter.From == null || s.ChangeDate >= filter.From)
+                 && (filter.To == null || s.ChangeDate <= filter.To);
+        }
+    }
+
+    public class MessageStatusHistoryDataService : DataGetService<Db.Model.MessageStatusHistory,
+        Contract.Model.MessageStatusHistory,
+        Contract.Model.MessageStatusHistoryFilter>
+    {
+        public MessageStatusHistoryDataService(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+
+        }
+
+        protected override string defaultSort => "HId desc";
+
+        protected override Func<Db.Interface.IRepository<Db.Model.MessageStatusHistory>, Db.Model.Filter<Db.Model.MessageStatusHistory>,
+            CancellationToken, Task<Contract.Model.PagedResult<Db.Model.MessageStatusHistory>>> GetListFunc => (repo, filter, token) => repo.GetDeletedAsync(filter, token);
+
+        protected override Expression<Func<Db.Model.MessageStatusHistory, bool>> GetFilter(MessageStatusHistoryFilter filter)
+        {
+            return s => (filter.Id == null || s.Id == filter.Id)
+               && (filter.MessageId == null || s.MessageId == filter.MessageId)
+                && (filter.From == null || s.ChangeDate >= filter.From)
+                && (filter.To == null || s.ChangeDate <= filter.To);
         }
     }
 }

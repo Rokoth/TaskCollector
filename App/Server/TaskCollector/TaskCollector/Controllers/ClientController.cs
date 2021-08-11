@@ -203,7 +203,8 @@ namespace TaskCollector.Controllers
                         Login = result.Login,
                         Name = result.Name,
                         PasswordChanged = false,
-                        UserId = result.UserId
+                        UserId = result.UserId,
+                        MapRules = result.MapRules
                     };
                     return View(updater);
                 }

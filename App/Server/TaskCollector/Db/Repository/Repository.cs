@@ -21,7 +21,7 @@ namespace TaskCollector.Db.Repository
     /// Репозиторий
     /// </summary>
     /// <typeparam name="T">Entity</typeparam>
-    public class Repository<T> : IRepository<T> where T : Entity
+    public class Repository<T> : IRepository<T> where T : class, IEntity
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;

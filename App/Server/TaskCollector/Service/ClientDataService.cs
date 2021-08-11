@@ -94,6 +94,7 @@ namespace TaskCollector.Service
             entry.Login = entity.Login;
             entry.Name = entity.Name;
             entry.UserId = entity.UserId;
+            entry.MapRules = entity.MapRules;
             if (entity.PasswordChanged)
             {
                 entry.Password = HelperExtension.EncryptPassword(entity.Password);

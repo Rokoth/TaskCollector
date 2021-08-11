@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.0.37</Version>
+    <Version>0.0.38</Version>
     <Copyright>Dmitriy Rokoth 2021</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Rokoth/TaskCollector</RepositoryUrl>

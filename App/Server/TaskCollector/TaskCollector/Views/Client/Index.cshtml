@@ -5,7 +5,8 @@
 }
 
 <div class="container">
-    @Html.ActionLink("Добавить", "Create", "Client", null, new { @class = "btn btn-dark", @id="AddButton" })
+    @Html.ActionLink("Добавить", "Create", "Client", null, new { @class = "btn btn-dark", @id = "AddButton" })
+    @Html.ActionLink("История изменений", "History", "Client", null, new { @class = "btn btn-dark", @id = "HistoryButton" })
     <hr>
     Фильтры:
     <div id="filter">

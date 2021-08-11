@@ -43,7 +43,7 @@ namespace TaskCollector.UnitTests
 
             var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.User, Contract.Model.UserFilter>>();
             var data = await dataService.GetAsync(
-                new Contract.Model.UserFilter(10, 0, null, "user_select"), CancellationToken.None);
+                new Contract.Model.UserFilter(10, 0, null, "user_select", null), CancellationToken.None);
 
             Assert.Equal(10, data.Data.Count());
             foreach (var item in data.Data)

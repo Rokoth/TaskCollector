@@ -16,7 +16,10 @@ namespace TaskCollector.Service
                 Contract.Model.MessageStatusFilter, Contract.Model.MessageStatusCreator, Contract.Model.MessageStatusUpdater>();
 
             services.AddScoped<IGetDataService<Contract.Model.UserHistory, Contract.Model.UserHistoryFilter>, UserHistoryDataService>();
-
+            services.AddScoped<IGetDataService<Contract.Model.ClientHistory, Contract.Model.ClientHistoryFilter>, ClientHistoryDataService>();
+            services.AddScoped<IGetDataService<Contract.Model.MessageHistory, Contract.Model.MessageHistoryFilter>, MessageHistoryDataService>();
+            services.AddScoped<IGetDataService<Contract.Model.MessageStatusHistory, Contract.Model.MessageStatusHistoryFilter>, MessageStatusHistoryDataService>();
+            
             services.AddScoped<IAuthService, AuthService>();
 
 

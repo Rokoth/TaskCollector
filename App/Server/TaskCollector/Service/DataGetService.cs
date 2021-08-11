@@ -52,6 +52,9 @@ namespace TaskCollector.Service
             return entities;
         }
 
+        protected virtual Func<Db.Interface.IRepository<TEntity>, Db.Model.Filter<TEntity>,
+            CancellationToken, Task<Contract.Model.PagedResult<TEntity>>> GetListFunc => (repo, filter, token) => repo.GetAsync(filter, token); 
+
         /// <summary>
         /// ctor
         /// </summary>
@@ -77,7 +80,7 @@ namespace TaskCollector.Service
                 {
                     sort = defaultSort;
                 }
-                var result = await repo.GetAsync(new Db.Model.Filter<TEntity>
+                var result = await GetListFunc(repo, new Db.Model.Filter<TEntity>
                 {
                     Size = filter.Size,
                     Page = filter.Page,
