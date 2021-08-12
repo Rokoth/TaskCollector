@@ -62,6 +62,8 @@ namespace TaskCollector.Service
             entry.Description = entity.Description;
             entry.Level = entity.Level;
             entry.Title = entity.Title;
+            entry.AddFields = entity.AddFields;
+            entry.FeedbackContact = entity.FeedbackContact;
             return entry;
         }
 
