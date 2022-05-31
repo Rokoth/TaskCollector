@@ -143,24 +143,37 @@ namespace TaskCollector.Controllers
 
         // GET: MessageController/Delete/5
         [Authorize]
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            return View();
+            try
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                var item = await _dataService.GetAsync(id, source.Token);
+                return View(item);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
         }
 
         // POST: MessageController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> Delete(Guid id, MessageStatus messageStatus)
         {
             try
             {
+                var _dataService = _serviceProvider.GetRequiredService<IDeleteDataService<MessageStatus>>();
+                CancellationTokenSource source = new CancellationTokenSource(30000);
+                MessageStatus result = await _dataService.DeleteAsync(id, source.Token);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
     }

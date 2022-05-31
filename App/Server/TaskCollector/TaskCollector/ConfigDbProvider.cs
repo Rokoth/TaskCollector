@@ -11,11 +11,19 @@ using TaskCollector.Deploy;
 
 namespace TaskCollector.TaskCollectorHost
 {
+    /// <summary>
+    /// Получение конфигурации из БД
+    /// </summary>
     public class ConfigDbProvider : ConfigurationProvider
     {
         private readonly Action<DbContextOptionsBuilder> _options;
         private readonly IDeployService _deployService;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="deployService"></param>
         public ConfigDbProvider(Action<DbContextOptionsBuilder> options, 
             IDeployService deployService)
         {
@@ -23,6 +31,9 @@ namespace TaskCollector.TaskCollectorHost
             _deployService = deployService;
         }
 
+        /// <summary>
+        /// Загрузка конфигурации
+        /// </summary>
         public override void Load()
         {
             try

@@ -1,0 +1,64 @@
+﻿@model TaskCollector.Contract.Model.MessageUpdater
+
+@{
+    ViewData["Title"] = "Редактировать сообщение";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" class="form-control" />
+            <input type="hidden" asp-for="ClientId" class="form-control" />
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Level" class="control-label"></label>
+                <input asp-for="Level" class="form-control" />
+                <span asp-validation-for="Level" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedDate" class="control-label"></label>
+                <input asp-for="CreatedDate" class="form-control" />
+                <span asp-validation-for="CreatedDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FeedbackContact" class="control-label"></label>
+                <input asp-for="FeedbackContact" class="form-control" />
+                <span asp-validation-for="FeedbackContact" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AddFields" class="control-label"></label>
+                <input asp-for="AddFields" class="form-control" />
+                <span asp-validation-for="AddFields" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-dark" id="SaveButton" />
+                @Html.ActionLink("Вернуться", "Details", new { Id = Model.Id }, new { @class = "btn btn-dark", @id = "BackButton" })
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script type="text/javascript">
+            $(function () {
+                $('#Password').change(function () {
+                    $("#PasswordChanged").val(true);
+                });
+            })
+    </script>
+}
