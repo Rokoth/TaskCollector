@@ -103,6 +103,35 @@ namespace TaskCollector.UnitTests
         }
 
         /// <summary>
+        /// AddUser positive test
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task DeleteUserTest()
+        {
+            var context = _serviceProvider.GetRequiredService<DbPgContext>();
+
+            List<Db.Model.User> users = new List<Db.Model.User>();
+            AddUsers(users, 10, "user_{0}");
+
+            foreach (var user in users) context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            var actuser = users.First();
+            var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.User, Contract.Model.UserFilter>>();
+            var data = await dataService.GetAsync(actuser.Id, CancellationToken.None);
+
+            Assert.NotNull(data);
+            Assert.Equal($"user_{actuser.Id}", data.Name);
+
+            var deleteService = _serviceProvider.GetRequiredService<IDeleteDataService<Contract.Model.User>>();
+            await deleteService.DeleteAsync(actuser.Id, CancellationToken.None);
+
+            var data2 = await dataService.GetAsync(actuser.Id, CancellationToken.None);
+            Assert.Null(data2);
+        }
+
+        /// <summary>
         /// GetClients positive test
         /// </summary>
         /// <returns></returns>

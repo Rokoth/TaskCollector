@@ -34,7 +34,7 @@ namespace TaskCollector.Contract.Model
         public string Message { get; set; }
         [Display(Name = "Пользователь")]
         public User User { get; set; }
-    }
+    }       
 
     public class MessageStatusHistory : EntityHistory
     {
