@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.0.36</Version>
+    <Version>0.0.37</Version>
     <Copyright>2021 Dmitriy Rokoth</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/Rokoth/TaskCollector</PackageProjectUrl>
@@ -12,6 +12,8 @@
     <Company>Dmitriy Rokoth</Company>
     <Authors>Dmitriy Rokoth</Authors>
     <Product>TaskCollector</Product>
+    <PackageId>TaskCollector.Service</PackageId>
+    <Title>Сбор требований. Библиотека бизнес-логики</Title>
   </PropertyGroup>
 
   <ItemGroup>

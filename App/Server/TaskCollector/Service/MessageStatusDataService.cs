@@ -24,10 +24,13 @@ namespace TaskCollector.Service
         }
 
         protected override Db.Model.MessageStatus UpdateFillFields(MessageStatusUpdater entity, Db.Model.MessageStatus entry)
-        {          
+        {
+            entry.Description = entity.Description;
+            entry.StatusDate = entity.StatusDate;
+            entry.NextNotifyDate = entity.NextNotifyDate;            
             return entry;
         }
 
-        protected override string defaultSort => "Name";
+        protected override string defaultSort => "StatusDate";
     }
 }
