@@ -235,10 +235,14 @@ namespace TaskCollector.Controllers
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
                 User result = await _dataService.GetAsync(id, source.Token);
+                if(result == null)
+                    return RedirectToAction("Index", "Error", new { Message = "Пользователь не найден" });
+
                 return View(result);
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Ошибка в методе Delete : {ex.Message} {ex.StackTrace}");
                 return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }

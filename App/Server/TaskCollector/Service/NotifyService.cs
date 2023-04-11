@@ -67,12 +67,18 @@ namespace TaskCollector.Service
         {
             MailAddress from = new MailAddress(_notifyOptions.FromEmail, _notifyOptions.FromName);
             MailAddress to = new MailAddress(toEmail);
-            MailMessage m = new MailMessage(from, to);
-            m.Subject = $"Уведомление системы {_notifyOptions.FromName}";
-            m.Body = text;
-            SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-            smtp.Credentials = new NetworkCredential(_notifyOptions.FromEmail, _notifyOptions.FromPassword);
-            smtp.EnableSsl = true;
+            MailMessage m = new MailMessage(from, to)
+            {
+                Subject = $"Уведомление системы {_notifyOptions.FromName}",
+                Body = text
+            };
+
+            //SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587)
+            SmtpClient smtp = new SmtpClient(_notifyOptions.MailServer, _notifyOptions.Port)
+            {
+                Credentials = new NetworkCredential(_notifyOptions.FromEmail, _notifyOptions.FromPassword),
+                EnableSsl = true                
+            };
             await smtp.SendMailAsync(m);
         }
     }

@@ -57,7 +57,7 @@ namespace TaskCollector.Controllers
                     ClientId = clientId,
                     CreatedDate = DateTimeOffset.Now
                 };
-                var mapRules = JObject.Parse(client.MapRules);
+                var mapRules = client.MapRules != null ? JObject.Parse(client.MapRules) : null;
                 var addFields = new Dictionary<string, object>();
                 var creatorFields = typeof(MessageCreator).GetProperties();
                

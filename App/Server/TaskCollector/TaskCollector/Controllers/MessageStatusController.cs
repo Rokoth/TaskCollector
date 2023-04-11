@@ -41,7 +41,7 @@ namespace TaskCollector.Controllers
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
                 var result = await _dataService.GetAsync(
-                    new MessageStatusFilter(messageId, size, page, sort, name, statuses.ToArray()) , source.Token);
+                    new MessageStatusFilter(messageId, size, page, sort, statuses.ToArray()) , source.Token);
                 var pages = result.AllCount % size == 0 ? result.AllCount / 10 : result.AllCount / 10 + 1;
                 Response.Headers.Add("x-pages", pages.ToString());
                 return PartialView(result.Data);

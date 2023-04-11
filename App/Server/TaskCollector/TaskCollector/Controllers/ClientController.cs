@@ -255,6 +255,10 @@ namespace TaskCollector.Controllers
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
                 Client result = await _dataService.GetAsync(id, source.Token);
+
+                if (result == null)
+                    return RedirectToAction("Index", "Error", new { Message = "Клиент не найден" });
+
                 if (result.UserId == userId)
                 {
                     return View(result);

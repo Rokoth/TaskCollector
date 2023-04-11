@@ -31,12 +31,22 @@
         var allPages = 1;
 
         function refresh() {
-            $('#page').html(page);
-            $.get("User/ListPaged/?page=" + (page - 1) + "&size=" + $('#count_items').val() + "&name=" + $('#filter_name').val(), function (data, textStatus, request) {
+            let offset = page - 1;
+            if (offset < 0) {
+                offset = 0;
+            }
+            $.get("User/ListPaged/?page=" + offset + "&size=" + $('#count_items').val() + "&name=" + $('#filter_name').val(), function (data, textStatus, request) {
                 $('#content').html(data);
                 allPages = request.getResponseHeader('x-pages');
                 $('#all_pages').html(allPages);
-            });
+                if (page == 0) {
+                    page = 1;
+                }
+                if (page > allPages) {
+                    page = allPages;
+                }
+                $('#page').html(page);
+            });            
         }
 
         $(function () {

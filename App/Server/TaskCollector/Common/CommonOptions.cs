@@ -32,6 +32,8 @@ namespace TaskCollector.Common
         public string FromEmail { get; set; }
         public string FromName { get; set; }
         public string FromPassword { get; set; }
+        public string MailServer { get; set; }
+        public int Port { get; set; }
     }
 
     public class NotifyRule
