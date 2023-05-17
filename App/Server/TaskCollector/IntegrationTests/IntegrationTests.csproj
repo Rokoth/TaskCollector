@@ -5,7 +5,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <Version>0.0.8</Version>
+    <Version>0.0.9</Version>
 
     <Description>Интеграционные тесты</Description>
 
@@ -20,6 +20,8 @@
     <PackageId>TaskCollector.IntegrationTests</PackageId>
 
     <Title>Интеграционные тесты TaskCollector</Title>
+
+    <Authors>Dmitriy Rokoth</Authors>
   </PropertyGroup>
 
   <ItemGroup>

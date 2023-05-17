@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.0.40</Version>
+    <Version>0.0.41</Version>
     <Copyright>Dmitriy Rokoth 2021</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Rokoth/TaskCollector</RepositoryUrl>
@@ -13,6 +13,7 @@
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <PackageId>TaskCollector.App</PackageId>
     <Title>Сбор требований. Приложение</Title>
+    <Authors>Dmitriy Rokoth</Authors>
   </PropertyGroup>
 
   <ItemGroup>

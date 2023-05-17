@@ -13,11 +13,13 @@
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
 
-    <Version>0.0.18</Version>
+    <Version>0.0.19</Version>
 
     <Copyright>2021 Dmitriy Rokoth</Copyright>
 
     <Description>Юнит-тесты</Description>
+
+    <PackageId>TaskCollector.UnitTests</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,88 @@
+﻿@model TaskCollector.Contract.Model.Message
+
+@{
+    ViewData["Title"] = "Сообщение";
+}
+
+<h1>ViewData["Title"]</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class="col-sm-10" id="Id">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ClientId)
+        </dt>
+        <dd class="col-sm-10" id="ClientId">
+            @Html.DisplayFor(model => model.ClientId)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10" id="Title">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Client)
+        </dt>
+        <dd class="col-sm-10" id="Client">
+            @Html.DisplayFor(model => model.Client)
+        </dd>
+    </dl>
+    
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LevelTitle)
+        </dt>
+        <dd class="col-sm-10" id="LevelTitle">
+            @Html.DisplayFor(model => model.LevelTitle)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Level)
+        </dt>
+        <dd class="col-sm-10" id="Level">
+            @Html.DisplayFor(model => model.Level)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10" id="Description">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AddFields)
+        </dt>
+        <dd class="col-sm-10" id="AddFields">
+            @Html.DisplayFor(model => model.AddFields)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FeedbackContact)
+        </dt>
+        <dd class="col-sm-10" id="FeedbackContact">
+            @Html.DisplayFor(model => model.FeedbackContact)
+        </dd>
+    </dl>    
+</div>
+<div>
+    @Html.ActionLink("Редактировать", "Edit", new { Id = Model.Id }, new { @class = "btn btn-dark", @id = "EditButton" }) |
+    <a asp-action="Index" class="btn btn-dark" id="BackButton">Вернуться</a>
+</div>

@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<TaskCollector.Contract.Model.Message>
 
-<table class="table">
+<table class="table" id="messageTable">
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(s => s.Id)</th>
@@ -16,7 +16,6 @@
                 
                 <td>
                     @Html.ActionLink("Редактировать", "Details", "Message", new { id = item.Id }, new { @class = "btn btn-dark" })
-                    @Html.ActionLink("Удалить", "Delete", "Message", new { id = item.Id }, new { @class = "btn btn-dark" })
                 </td>
             </tr>
         }
