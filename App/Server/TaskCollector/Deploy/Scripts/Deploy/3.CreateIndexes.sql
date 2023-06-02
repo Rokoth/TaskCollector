@@ -1,4 +1,9 @@
-﻿--user
+﻿--Copyright 2021 Dmitriy Rokoth
+--Licensed under the Apache License, Version 2.0
+--
+--ref2
+
+--user
 create unique index uidx_user_login 
 	on "user"("login") where not is_deleted;
 
