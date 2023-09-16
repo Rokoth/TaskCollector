@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.0.21</Version>
+    <Version>0.0.22</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>Dmitriy Rokoth</Copyright>
     <Description>Библиотека раскатки БД</Description>
     <PackageProjectUrl>https://github.com/Rokoth/TaskCollector</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Rokoth/TaskCollector</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <AssemblyName />
+    <AssemblyName>TaskCollector.Deploy</AssemblyName>
     <PackageId>TaskCollector.Deploy</PackageId>
   </PropertyGroup>
 
@@ -33,8 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Deployer" Version="0.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Rokoth.Modules.Deployer" Version="0.0.1" />
   </ItemGroup>
 
   <ItemGroup>

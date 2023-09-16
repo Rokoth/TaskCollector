@@ -23,6 +23,7 @@ namespace TaskCollector.Common
 
     public class NotifyOptions
     { 
+        public bool RunEmailNotify { get; set; }
         public NotifyCredentials Credentials { get; set; }
         public List<NotifyRule> NotifyRules { get; set; }
     }

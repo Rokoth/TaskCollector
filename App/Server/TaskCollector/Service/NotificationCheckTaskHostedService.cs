@@ -32,85 +32,88 @@ namespace TaskCollector.Service
 
         private async Task Run(CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
-            {                               
-                try
+            if (_options.Value.RunEmailNotify)
+            {
+                while (!token.IsCancellationRequested)
                 {
-                    using var scope = _serviceProvider.CreateScope();
-                    var scopeProvider = scope.ServiceProvider;
-                    var _messageRepo = scopeProvider.GetRequiredService<IRepository<Message>>();
-                    var _clientRepo = scopeProvider.GetRequiredService<IRepository<Client>>();
-                    var _userRepo = scopeProvider.GetRequiredService<IRepository<User>>();
-                    var _messageStatusRepo = scopeProvider.GetRequiredService<IRepository<MessageStatus>>();
-                    foreach (var notifyRule in _options.Value.NotifyRules)
+                    try
                     {
-                        if (Enum.TryParse(notifyRule.Name, true, out Contract.Model.MessageStatusEnum statusEnum))
+                        using var scope = _serviceProvider.CreateScope();
+                        var scopeProvider = scope.ServiceProvider;
+                        var _messageRepo = scopeProvider.GetRequiredService<IRepository<Message>>();
+                        var _clientRepo = scopeProvider.GetRequiredService<IRepository<Client>>();
+                        var _userRepo = scopeProvider.GetRequiredService<IRepository<User>>();
+                        var _messageStatusRepo = scopeProvider.GetRequiredService<IRepository<MessageStatus>>();
+                        foreach (var notifyRule in _options.Value.NotifyRules)
                         {
-                            var cancelTokenSrc = new CancellationTokenSource(60000);
-                            var statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
+                            if (Enum.TryParse(notifyRule.Name, true, out Contract.Model.MessageStatusEnum statusEnum))
                             {
-                                Page = 0,
-                                Size = 100,
-                                Sort = "StatusDate",
-                                Selector = s => s.IsLast && s.StatusId == statusEnum && s.NextNotifyDate == null
-                            }, cancelTokenSrc.Token);
-
-                            var level = notifyRule.Levels.First(s => s.Order == 1);
-
-                            foreach (var status in statuses.Data)
-                            {
-
-                                var nextNotify = status.StatusDate.AddHours(level.FirstTimeNotify);
-                                if (nextNotify > DateTimeOffset.Now)
+                                var cancelTokenSrc = new CancellationTokenSource(60000);
+                                var statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
                                 {
-                                    status.NextNotifyDate = nextNotify;
-                                    await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
-                                    continue;
-                                }
+                                    Page = 0,
+                                    Size = 100,
+                                    Sort = "StatusDate",
+                                    Selector = s => s.IsLast && s.StatusId == statusEnum && s.NextNotifyDate == null
+                                }, cancelTokenSrc.Token);
 
-                                await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
+                                var level = notifyRule.Levels.First(s => s.Order == 1);
 
-                                status.NextNotifyDate = nextNotify.AddHours(level.RepeatInterval);
-                                await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
-                            }
-
-                            statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
-                            {
-                                Page = 0,
-                                Size = 100,
-                                Sort = "StatusDate",
-                                Selector = s => s.IsLast && s.StatusId == statusEnum
-                                && s.NextNotifyDate != null
-                            }, cancelTokenSrc.Token);
-
-                            foreach (var status in statuses.Data.Where(s => s.NextNotifyDate < DateTimeOffset.Now))
-                            {
-                                level = null;
-                                foreach (var lev in notifyRule.Levels.OrderByDescending(s => s.Order))
+                                foreach (var status in statuses.Data)
                                 {
-                                    if (status.StatusDate.AddHours(lev.FirstTimeNotify) < DateTimeOffset.Now)
+
+                                    var nextNotify = status.StatusDate.AddHours(level.FirstTimeNotify);
+                                    if (nextNotify > DateTimeOffset.Now)
                                     {
-                                        level = lev;
-                                        break;
+                                        status.NextNotifyDate = nextNotify;
+                                        await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
+                                        continue;
                                     }
-                                }
-                                if (level != null)
-                                {
+
                                     await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
-                                    status.NextNotifyDate = status.NextNotifyDate.Value.AddHours(level.RepeatInterval);
-                                    if (status.NextNotifyDate < DateTimeOffset.Now)
-                                        status.NextNotifyDate = DateTimeOffset.Now.AddHours(level.RepeatInterval);
+
+                                    status.NextNotifyDate = nextNotify.AddHours(level.RepeatInterval);
                                     await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
+                                }
+
+                                statuses = await _messageStatusRepo.GetAsync(new Filter<MessageStatus>()
+                                {
+                                    Page = 0,
+                                    Size = 100,
+                                    Sort = "StatusDate",
+                                    Selector = s => s.IsLast && s.StatusId == statusEnum
+                                    && s.NextNotifyDate != null
+                                }, cancelTokenSrc.Token);
+
+                                foreach (var status in statuses.Data.Where(s => s.NextNotifyDate < DateTimeOffset.Now))
+                                {
+                                    level = null;
+                                    foreach (var lev in notifyRule.Levels.OrderByDescending(s => s.Order))
+                                    {
+                                        if (status.StatusDate.AddHours(lev.FirstTimeNotify) < DateTimeOffset.Now)
+                                        {
+                                            level = lev;
+                                            break;
+                                        }
+                                    }
+                                    if (level != null)
+                                    {
+                                        await Notify(_messageRepo, _clientRepo, cancelTokenSrc, level, status);
+                                        status.NextNotifyDate = status.NextNotifyDate.Value.AddHours(level.RepeatInterval);
+                                        if (status.NextNotifyDate < DateTimeOffset.Now)
+                                            status.NextNotifyDate = DateTimeOffset.Now.AddHours(level.RepeatInterval);
+                                        await _messageStatusRepo.UpdateAsync(status, true, cancelTokenSrc.Token);
+                                    }
                                 }
                             }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error in NotificationCheckTaskHostedService: {ex.Message} {ex.StackTrace}");
+                    }
+                    await Task.Delay(60000);
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Error in NotificationCheckTaskHostedService: {ex.Message} {ex.StackTrace}");                    
-                }
-                await Task.Delay(60000);
             }
         }
 
