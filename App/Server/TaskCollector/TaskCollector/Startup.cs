@@ -157,7 +157,8 @@ namespace TaskCollector.TaskCollectorHost
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            var useOnlySSL = Configuration.GetValue<bool>("UseOnlySSL");
+            if(useOnlySSL) app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();

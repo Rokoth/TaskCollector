@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 using System.IO;
+using TaskCollector.Deploy;
 
 namespace TaskCollector.TaskCollectorHost
 {
@@ -61,15 +62,12 @@ namespace TaskCollector.TaskCollectorHost
 
         protected IWebHostBuilder GetWebHostBuilder(string[] args)
         {
+            var baseConfigBuilder = GetBaseConfigurationBuilder();
+
             var builder = WebHost.CreateDefaultBuilder(args)
                 .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseConfiguration(
-                    new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                    .AddEnvironmentVariables()
-                    .AddDbConfiguration()
-                    .Build())
+                .DeployDataBase(baseConfigBuilder, _logger)
+                .UseConfiguration(baseConfigBuilder.AddDbConfiguration(_logger).Build())
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     if (args != null)
@@ -83,10 +81,18 @@ namespace TaskCollector.TaskCollectorHost
                         .ReadFrom.Configuration(hostingContext.Configuration)
                         .CreateLogger();
                     logging.AddSerilog(Log.Logger);
-                })                
+                })
                 .UseKestrel();
 
             return builder;
+        }
+
+        private static IConfigurationBuilder GetBaseConfigurationBuilder()
+        {
+            return new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
         }
     }
 }

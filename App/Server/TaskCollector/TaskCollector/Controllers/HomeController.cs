@@ -15,14 +15,13 @@ using TaskCollector.Models;
 
 namespace TaskCollector.Controllers
 {
-    public class HomeController : CommonControllerBase
+    public class HomeController : CommonBaseController
     {        
         private readonly IDeployService _deployService;
 
-        public HomeController(IServiceProvider provider, IDeployService deployService): base(provider)
+        public HomeController(ILogger logger, IDeployService deployService): base(logger, nameof(HomeController))
         {            
-            _deployService = deployService;
-            _logger = provider.GetRequiredService<ILogger<HomeController>>();
+            _deployService = deployService;            
         }
 
         public IActionResult Index()

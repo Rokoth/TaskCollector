@@ -7,6 +7,6 @@ namespace TaskCollector.Service
 {
     public interface IDeleteDataService<Tdto> where Tdto : Entity
     {
-        Task<Tdto> DeleteAsync(Guid id, CancellationToken token);
+        Task<Tdto> DeleteAsync(Guid id, Guid userId, CancellationToken token);
     }
 }

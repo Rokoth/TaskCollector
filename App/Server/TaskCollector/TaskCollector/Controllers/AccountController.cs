@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading;
@@ -19,15 +20,17 @@ namespace TaskCollector.Controllers
     /// <summary>
     /// Controller for user login
     /// </summary>
-    public class AccountController : CommonControllerBase
+    public class AccountController : CommonBaseController
     {
+        private IAuthService _authService;
+
         /// <summary>
         /// ctor
         /// </summary>
         /// <param name="serviceProvider"></param>
-        public AccountController(IServiceProvider serviceProvider): base(serviceProvider)
+        public AccountController(ILogger logger, IAuthService authService) : base(logger, nameof(AccountController))
         {
-            _serviceProvider = serviceProvider;
+            _authService = authService;
         }
 
         // GET: AccountController/Create
@@ -51,9 +54,8 @@ namespace TaskCollector.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var source = new CancellationTokenSource(30000);
-                    var dataService = _serviceProvider.GetRequiredService<IAuthService>();
-                    var identity = await dataService.Auth(userIdentity, source.Token);
+                    var source = new CancellationTokenSource(30000);                    
+                    var identity = await _authService.Auth(userIdentity, source.Token);
                     if (identity == null)
                     {
                         return ErrorRedirect("Неверный логин или пароль", null);                            

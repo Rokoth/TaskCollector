@@ -6,6 +6,6 @@ namespace TaskCollector.Service
 {
     public interface IAddDataService<Tdto, TCreator> where Tdto : Entity
     {
-        Task<Tdto> AddAsync(TCreator entity, CancellationToken token);
+        Task<Tdto> AddAsync(TCreator entity, System.Guid userId, CancellationToken token);
     }
 }

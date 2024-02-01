@@ -37,12 +37,8 @@ namespace TaskCollector.Contract.Model
         /// Правила маппинга сообщения
         /// </summary>
         [Display(Name = "Правила маппинга сообщений")]
-        public string MapRules { get; set; }
-        /// <summary>
-        /// Идентификатор пользователя
-        /// </summary>
-        [Display(Name = "Идентификатор пользователя")]
-        public Guid UserId { get; set; }
+        public string MapRules { get; set; }        
+
         /// <summary>
         /// Пароль
         /// </summary>

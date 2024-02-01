@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TaskCollector.Common;
+using TaskCollector.Contract.Model;
 
 namespace TaskCollector.Service
 {
@@ -63,11 +64,11 @@ namespace TaskCollector.Service
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        protected override Expression<Func<Db.Model.Client, bool>> GetFilter(Contract.Model.ClientFilter filter)
+        protected override Expression<Func<Db.Model.Client, bool>> GetFilter(Contract.Model.ClientFilter filter, Guid userId)
         {
             return s => (string.IsNullOrEmpty(filter.Name) || s.Name.ToLower().Contains(filter.Name.ToLower()))
                 && (string.IsNullOrEmpty(filter.Login) || s.Login.ToLower().Contains(filter.Login.ToLower()))
-                && (filter.UserId == null || filter.UserId == s.UserId);
+                && (userId == null || userId == s.UserId);
         }
 
         /// <summary>
@@ -75,10 +76,11 @@ namespace TaskCollector.Service
         /// </summary>
         /// <param name="creator"></param>
         /// <returns></returns>
-        protected override Db.Model.Client MapToEntityAdd(Contract.Model.ClientCreator creator)
+        protected override Db.Model.Client MapToEntityAdd(Contract.Model.ClientCreator creator, Guid userId)
         {
-            var entity = base.MapToEntityAdd(creator);
+            var entity = base.MapToEntityAdd(creator, userId);
             entity.Password = HelperExtension.EncryptPassword(creator.Password);
+            entity.UserId = userId;
             return entity;
         }
 
@@ -100,6 +102,21 @@ namespace TaskCollector.Service
                 entry.Password = HelperExtension.EncryptPassword(entity.Password);
             }
             return entry;
+        }
+
+        protected override async Task<bool> CheckDeleteRights(Db.Model.Client entry, Guid userId)
+        {
+            return entry.UserId == userId;
+        }
+
+        protected override async Task<bool> CheckUpdateRights(ClientUpdater entry, Guid userId)
+        {
+            return entry.UserId == userId;
+        }
+
+        protected override async Task<bool> CheckAddRights(ClientCreator entry, Guid userId)
+        {
+            return true;
         }
 
         /// <summary>

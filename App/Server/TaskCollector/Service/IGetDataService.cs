@@ -8,7 +8,7 @@ namespace TaskCollector.Service
         where Tdto : Contract.Model.Entity
         where TFilter : Contract.Model.Filter<Tdto>
     {
-        Task<Tdto> GetAsync(Guid id, CancellationToken token);
-        Task<Contract.Model.PagedResult<Tdto>> GetAsync(TFilter filter, CancellationToken token);
+        Task<Tdto> GetAsync(Guid id, Guid userId, CancellationToken token);
+        Task<Contract.Model.PagedResult<Tdto>> GetAsync(TFilter filter, Guid userId, CancellationToken token);
     }
 }

@@ -40,6 +40,7 @@ namespace TaskCollector.Controllers
             {
                 var source = new CancellationTokenSource(30000);
                 var clientDataService = _serviceProvider.GetRequiredService<IGetDataService<Client, ClientFilter>>();
+                
                 var messageDataService = _serviceProvider.GetRequiredService<IAddDataService<Message, MessageCreator>>();
 
                 if (!User.Identity.IsAuthenticated)
@@ -51,7 +52,7 @@ namespace TaskCollector.Controllers
                     //User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 var clientId = Guid.Parse(userClaim);
 
-                var client = await clientDataService.GetAsync(clientId, source.Token);
+                var client = await clientDataService.GetAsync(clientId, clientId, source.Token);
                 var creator = new MessageCreator
                 {
                     ClientId = clientId,
@@ -90,7 +91,7 @@ namespace TaskCollector.Controllers
                 creator.AddFields = JObject.FromObject(addFields).ToString();
                 if (string.IsNullOrEmpty(creator.FeedbackContact))
                     creator.FeedbackContact = "None";
-                var result = await messageDataService.AddAsync(creator, source.Token);                
+                var result = await messageDataService.AddAsync(creator, client.UserId, source.Token);                
                 return Ok(result);
             }            
             catch (Exception ex)

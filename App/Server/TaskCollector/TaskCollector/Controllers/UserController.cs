@@ -42,7 +42,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetAsync(new UserFilter(size, page, sort, name, login), source.Token);
+                var result = await _dataService.GetAsync(new UserFilter(size, page, sort, name, login), GetUserId(), source.Token);
                 var pages = (result.AllCount % size == 0) ? (result.AllCount / size) : ((result.AllCount / size) + 1);
                 Response.Headers.Add("x-pages", pages.ToString());
                 return PartialView(result.Data);
@@ -67,7 +67,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<UserHistory, UserHistoryFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetAsync(new UserHistoryFilter(size, page, sort, name, id), source.Token);
+                var result = await _dataService.GetAsync(new UserHistoryFilter(size, page, sort, name, id), GetUserId(), source.Token);
                 Response.Headers.Add("x-pages", result.AllCount.ToString());
                 return PartialView(result.Data);
             }
@@ -85,7 +85,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                User result = await _dataService.GetAsync(id, cancellationTokenSource.Token);
+                User result = await _dataService.GetAsync(id, GetUserId(), cancellationTokenSource.Token);
                 return View(result);
             }
             catch (Exception ex)
@@ -116,7 +116,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IAddDataService<User, UserCreator>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                User result = await _dataService.AddAsync(creator, source.Token);
+                User result = await _dataService.AddAsync(creator, GetUserId(), source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)
@@ -134,7 +134,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                User result = await _dataService.GetAsync(id, source.Token);
+                User result = await _dataService.GetAsync(id, GetUserId(), source.Token);
                 var updater = new UserUpdater()
                 {
                     Description = result.Description,
@@ -159,7 +159,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, name, null), cancellationTokenSource.Token);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, name, null), GetUserId(), cancellationTokenSource.Token);
                 result = !check.Data.Any();
             }
             return Json(result);
@@ -173,7 +173,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, null, login), cancellationTokenSource.Token);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, null, login), GetUserId(), cancellationTokenSource.Token);
                 result = !check.Data.Any();
             }
             return Json(result);
@@ -187,7 +187,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, name, null), cancellationTokenSource.Token);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, name, null), GetUserId(), cancellationTokenSource.Token);
                 result = !check.Data.Where(s => s.Name == name && s.Id != id).Any();
             }
             return Json(result);
@@ -201,7 +201,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, null, login), cancellationTokenSource.Token);
+                var check = await _dataService.GetAsync(new UserFilter(10, 0, null, null, login), GetUserId(), cancellationTokenSource.Token);
                 result = !check.Data.Where(s => s.Login == login && s.Id != id).Any();
             }
             return Json(result);
@@ -217,7 +217,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IUpdateDataService<User, UserUpdater>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                User result = await _dataService.UpdateAsync(updater, source.Token);
+                User result = await _dataService.UpdateAsync(updater, GetUserId(), source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)
@@ -234,7 +234,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                User result = await _dataService.GetAsync(id, source.Token);
+                User result = await _dataService.GetAsync(id, GetUserId(), source.Token);
                 if(result == null)
                     return RedirectToAction("Index", "Error", new { Message = "Пользователь не найден" });
 
@@ -257,7 +257,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IDeleteDataService<User>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                User result = await _dataService.DeleteAsync(id, source.Token);
+                User result = await _dataService.DeleteAsync(id, GetUserId(), source.Token);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -265,5 +265,7 @@ namespace TaskCollector.Controllers
                 return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
+
+        protected Guid GetUserId() => Guid.Parse(User.Identity.Name);
     }
 }

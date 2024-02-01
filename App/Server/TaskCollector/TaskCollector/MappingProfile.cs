@@ -27,6 +27,8 @@ namespace TaskCollector.TaskCollectorHost
             CreateMap<Db.Model.MessageHistory, Contract.Model.MessageHistory>();
             CreateMap<Db.Model.MessageStatusHistory, Contract.Model.MessageStatusHistory>();
 
+            CreateMap<Contract.Model.Client, Contract.Model.ClientUpdater>()
+                .ForMember(s => s.PasswordChanged, s => s.MapFrom(c => false));
         }
     }
 }

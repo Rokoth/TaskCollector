@@ -36,14 +36,16 @@ namespace TaskCollector.UnitTests
             var context = _serviceProvider.GetRequiredService<DbPgContext>();
 
             List<Db.Model.User> users = new List<Db.Model.User>();
+            AddUsers(users, 1, "admin");
             AddUsers(users, 10, "user_select_{0}");
             AddUsers(users, 10, "user_not_select_{0}");
             foreach (var user in users) context.Users.Add(user);
             await context.SaveChangesAsync();
+            var admin = users.First(s => s.Login == "admin");
 
             var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.User, Contract.Model.UserFilter>>();
             var data = await dataService.GetAsync(
-                new Contract.Model.UserFilter(10, 0, null, "user_select", null), CancellationToken.None);
+                new Contract.Model.UserFilter(10, 0, null, "user_select", null), admin.Id, CancellationToken.None);
 
             Assert.Equal(10, data.Data.Count());
             foreach (var item in data.Data)
@@ -63,13 +65,15 @@ namespace TaskCollector.UnitTests
 
             List<Db.Model.User> users = new List<Db.Model.User>();
             AddUsers(users, 10, "user_{0}");
-            
+            AddUsers(users, 1, "admin");
+
             foreach (var user in users) context.Users.Add(user);
             await context.SaveChangesAsync();
 
             var actuser = users.First();
+            var admin = users.First(s => s.Login == "admin");
             var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.User, Contract.Model.UserFilter>>();
-            var data = await dataService.GetAsync(actuser.Id, CancellationToken.None);
+            var data = await dataService.GetAsync(actuser.Id, admin.Id, CancellationToken.None);
 
             Assert.NotNull(data);
             Assert.Equal($"user_{actuser.Id}", data.Name);
@@ -83,6 +87,10 @@ namespace TaskCollector.UnitTests
         public async Task AddUserTest()
         {
             var context = _serviceProvider.GetRequiredService<DbPgContext>();
+            List<Db.Model.User> users = new List<Db.Model.User>();
+            AddUsers(users, 1, "admin");
+            foreach (var us in users) context.Users.Add(us);
+            await context.SaveChangesAsync();
 
             var id = Guid.NewGuid();
             var user = new Contract.Model.UserCreator()
@@ -94,8 +102,8 @@ namespace TaskCollector.UnitTests
             };            
                                     
             var dataService = _serviceProvider.GetRequiredService<IAddDataService<Contract.Model.User, Contract.Model.UserCreator>>();
-            await dataService.AddAsync(user, CancellationToken.None);
-            var checkUser = context.Users.FirstOrDefault();
+            await dataService.AddAsync(user, users.FirstOrDefault(s => s.Login == "admin").Id, CancellationToken.None);
+            var checkUser = context.Users.FirstOrDefault(s => s.Login != "admin");
             Assert.NotNull(checkUser);
             Assert.Equal($"user_{id}", checkUser.Name);
             Assert.Equal($"user_description_{id}", checkUser.Description);
@@ -113,21 +121,23 @@ namespace TaskCollector.UnitTests
 
             List<Db.Model.User> users = new List<Db.Model.User>();
             AddUsers(users, 10, "user_{0}");
+            AddUsers(users, 1, "admin");
 
             foreach (var user in users) context.Users.Add(user);
             await context.SaveChangesAsync();
 
-            var actuser = users.First();
+            var actuser = users.First(s => s.Login != "admin");
+            var admin = users.First(s => s.Login == "admin");
             var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.User, Contract.Model.UserFilter>>();
-            var data = await dataService.GetAsync(actuser.Id, CancellationToken.None);
+            var data = await dataService.GetAsync(actuser.Id, admin.Id, CancellationToken.None);
 
             Assert.NotNull(data);
             Assert.Equal($"user_{actuser.Id}", data.Name);
 
             var deleteService = _serviceProvider.GetRequiredService<IDeleteDataService<Contract.Model.User>>();
-            await deleteService.DeleteAsync(actuser.Id, CancellationToken.None);
+            await deleteService.DeleteAsync(actuser.Id, admin.Id, CancellationToken.None);
 
-            var data2 = await dataService.GetAsync(actuser.Id, CancellationToken.None);
+            var data2 = await dataService.GetAsync(actuser.Id, admin.Id, CancellationToken.None);
             Assert.Null(data2);
         }
 
@@ -161,7 +171,7 @@ namespace TaskCollector.UnitTests
 
             var dataService = _serviceProvider.GetRequiredService<IGetDataService<Contract.Model.Client, Contract.Model.ClientFilter>>();
             var data = await dataService.GetAsync(
-                new Contract.Model.ClientFilter(10, 0, null, "client_select", null, userId), CancellationToken.None);
+                new Contract.Model.ClientFilter() { Name = "client_select" }, userId, CancellationToken.None);
 
             Assert.Equal(10, data.Data.Count());
             foreach (var item in data.Data)

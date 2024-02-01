@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace TaskCollector.Contract.Model
 {
     public class ClientUpdater: IEntity
-    {
+    {        
         public Guid Id { get; set; }
         /// <summary>
         /// Наименование
@@ -48,6 +48,8 @@ namespace TaskCollector.Contract.Model
         [DataType(DataType.Password)]
         public string Password { get; set; }
         public bool PasswordChanged { get; set; }
+
+        
     }
 
 }

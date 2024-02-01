@@ -1,13 +1,12 @@
 ﻿///Copyright 2021 Dmitriy Rokoth
 ///Licensed under the Apache License, Version 2.0
 ///
-///ref 1
+///ref 2
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using TaskCollector.Db.Context;
-using TaskCollector.Deploy;
 
 namespace TaskCollector.TaskCollectorHost
 {
@@ -16,19 +15,17 @@ namespace TaskCollector.TaskCollectorHost
     /// </summary>
     public class ConfigDbProvider : ConfigurationProvider
     {
-        private readonly Action<DbContextOptionsBuilder> _options;
-        private readonly IDeployService _deployService;
+        private readonly DbContextOptions<DbPgContext> _options;
 
         /// <summary>
         /// ctor
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="deployService"></param>
-        public ConfigDbProvider(Action<DbContextOptionsBuilder> options, 
-            IDeployService deployService)
+        /// <param name="optionsAction"></param>
+        public ConfigDbProvider(Action<DbContextOptionsBuilder> optionsAction)
         {
-            _options = options;
-            _deployService = deployService;
+            var builder = new DbContextOptionsBuilder<DbPgContext>();
+            optionsAction(builder);
+            _options = builder.Options;
         }
 
         /// <summary>
@@ -36,40 +33,10 @@ namespace TaskCollector.TaskCollectorHost
         /// </summary>
         public override void Load()
         {
-            try
-            {
-                LoadInternal();
-            }
-            catch
-            {
-                try
-                {
-                    _deployService.Deploy().Wait();
-                    LoadInternal();
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-            }
-        }
-
-        private void LoadInternal()
-        {
-            var builder = new DbContextOptionsBuilder<DbPgContext>();
-            _options(builder);
-
-            using (var context = new DbPgContext(builder.Options))
-            {
-                var items = context.Settings
-                    .AsNoTracking()
-                    .ToList();
-
-                foreach (var item in items)
-                {
-                    Data.Add(item.ParamName, item.ParamValue);
-                }
-            }
+            using var context = new DbPgContext(_options);
+            var items = context.Settings.AsNoTracking().ToList();
+            foreach (var item in items.Where(s => !Data.ContainsKey(s.ParamName)))
+                Data.Add(item.ParamName, item.ParamValue);
         }
     }
 }

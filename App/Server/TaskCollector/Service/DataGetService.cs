@@ -33,7 +33,7 @@ namespace TaskCollector.Service
         /// <summary>
         /// function for modify client filter to db filter
         /// </summary>
-        protected abstract Expression<Func<TEntity, bool>> GetFilter(TFilter filter);
+        protected abstract Expression<Func<TEntity, bool>> GetFilter(TFilter filter, Guid userId);
 
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace TaskCollector.Service
         /// <param name="filter"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<Contract.Model.PagedResult<Tdto>> GetAsync(TFilter filter, CancellationToken token)
+        public async Task<Contract.Model.PagedResult<Tdto>> GetAsync(TFilter filter, Guid userId, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
             {               
@@ -85,7 +85,7 @@ namespace TaskCollector.Service
                     Size = filter.Size,
                     Page = filter.Page,
                     Sort = sort,
-                    Selector = GetFilter(filter)
+                    Selector = GetFilter(filter, userId)
                 }, token);
                 var prepare = result.Data.Select(s => _mapper.Map<Tdto>(s));
                 prepare = await Enrich(prepare, token);
@@ -99,8 +99,9 @@ namespace TaskCollector.Service
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<Tdto> GetAsync(Guid id, CancellationToken token)
+        public async Task<Tdto> GetAsync(Guid id, Guid userId, CancellationToken token)
         {
+            //todo: check for userId
             return await ExecuteAsync(async (repo) =>
             {
                 var result = await repo.GetAsync(id, token);

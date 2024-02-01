@@ -41,7 +41,7 @@ namespace TaskCollector.Controllers
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
                 var result = await _dataService.GetAsync(
-                    new MessageStatusFilter(messageId, size, page, sort, statuses.ToArray()) , source.Token);
+                    new MessageStatusFilter(messageId, size, page, sort, statuses.ToArray()), GetUserId(), source.Token);
                 var pages = result.AllCount % size == 0 ? result.AllCount / 10 : result.AllCount / 10 + 1;
                 Response.Headers.Add("x-pages", pages.ToString());
                 return PartialView(result.Data);
@@ -60,7 +60,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 var cancellationTokenSource = new CancellationTokenSource(30000);
-                var result = await _dataService.GetAsync(id, cancellationTokenSource.Token);
+                var result = await _dataService.GetAsync(id, GetUserId(), cancellationTokenSource.Token);
                 return View(result);
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IAddDataService<MessageStatus, MessageStatusCreator>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.AddAsync(message, source.Token);
+                var result = await _dataService.AddAsync(message, GetUserId(), source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)
@@ -108,7 +108,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var item = await _dataService.GetAsync(id, source.Token);
+                var item = await _dataService.GetAsync(id, GetUserId(), source.Token);
                 //Fill fields from item
                 var message = new MessageStatusUpdater()
                 {
@@ -132,7 +132,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IUpdateDataService<MessageStatus, MessageStatusUpdater>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                MessageStatus result = await _dataService.UpdateAsync(messageStatus, source.Token);
+                MessageStatus result = await _dataService.UpdateAsync(messageStatus, GetUserId(), source.Token);
                 return RedirectToAction(nameof(Details), new { id = result.Id });
             }
             catch (Exception ex)
@@ -149,7 +149,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatus, MessageStatusFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var item = await _dataService.GetAsync(id, source.Token);
+                var item = await _dataService.GetAsync(id, GetUserId(), source.Token);
                 return View(item);
             }
             catch (Exception ex)
@@ -168,7 +168,7 @@ namespace TaskCollector.Controllers
             {
                 var _dataService = _serviceProvider.GetRequiredService<IDeleteDataService<MessageStatus>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                MessageStatus result = await _dataService.DeleteAsync(id, source.Token);
+                MessageStatus result = await _dataService.DeleteAsync(id, GetUserId(), source.Token);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -176,5 +176,7 @@ namespace TaskCollector.Controllers
                 return RedirectToAction("Index", "Error", new { Message = ex.Message });
             }
         }
+
+        protected Guid GetUserId() => Guid.Parse(User.Identity.Name);
     }
 }

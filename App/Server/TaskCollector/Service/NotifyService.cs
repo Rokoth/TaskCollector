@@ -32,7 +32,7 @@ namespace TaskCollector.Service
             try
             {
                 var userDataService = _serviceProvider.GetRequiredService<IGetDataService<User, UserFilter>>();
-                var user = await userDataService.GetAsync(userId, token);
+                var user = await userDataService.GetAsync(userId, userId, token);
                 if (user != null)
                 {
                     var email = user.Email;

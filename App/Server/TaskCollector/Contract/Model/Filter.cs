@@ -11,28 +11,16 @@ namespace TaskCollector.Contract.Model
     public abstract class Filter<T> : IFilter<T> where T : Entity
     {
         /// <summary>
-        /// ctor
-        /// </summary>
-        /// <param name="size">Page size</param>
-        /// <param name="page">Page number</param>
-        /// <param name="sort">Sort field</param>
-        public Filter(int size, int page, string sort)
-        {
-            Size = size;
-            Page = page;
-            Sort = sort;
-        }
-        /// <summary>
         /// Page size
         /// </summary>
-        public int Size { get; }
+        public int Size { get; set; } = 10;
         /// <summary>
         /// Page number
         /// </summary>
-        public int Page { get; }
+        public int Page { get; set; } = 0;
         /// <summary>
         /// Sort field
         /// </summary>
-        public string Sort { get; }
+        public string Sort { get; set; }
     }
 }

@@ -37,7 +37,7 @@ namespace TaskCollector.Service
           
         }
 
-        protected virtual TEntity MapToEntityAdd(TCreator creator)
+        protected virtual TEntity MapToEntityAdd(TCreator creator, Guid userId)
         {
             var result = _mapper.Map<TEntity>(creator);
             result.Id = Guid.NewGuid();
@@ -52,17 +52,21 @@ namespace TaskCollector.Service
         /// <param name="entity"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public virtual async Task<Tdto> AddAsync(TCreator creator, CancellationToken token)
+        public virtual async Task<Tdto> AddAsync(TCreator creator, Guid userId, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
             {
-                var entity = MapToEntityAdd(creator);
-                var result = await repo.AddAsync(entity, true, token);
-                var prepare = _mapper.Map<Tdto>(result);
-                prepare = await Enrich(prepare, token);
-                return prepare;
+                if (await CheckAddRights(creator, userId))
+                {
+                    var entity = MapToEntityAdd(creator, userId);
+                    var result = await repo.AddAsync(entity, true, token);
+                    var prepare = _mapper.Map<Tdto>(result);
+                    prepare = await Enrich(prepare, token);
+                    return prepare;
+                }
+                throw new Exception("Ошибка доступа к записи: нет прав на добавление");
             });
-        }
+        }               
 
         /// <summary>
         /// update item method
@@ -70,16 +74,20 @@ namespace TaskCollector.Service
         /// <param name="entity"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<Tdto> UpdateAsync(TUpdater entity, CancellationToken token)
+        public async Task<Tdto> UpdateAsync(TUpdater entity, Guid userId, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
             {
-                var entry = await repo.GetAsync(entity.Id, token);
-                entry = UpdateFillFields(entity, entry);
-                TEntity result = await repo.UpdateAsync(entry, true, token);
-                var prepare = _mapper.Map<Tdto>(result);
-                prepare = await Enrich(prepare, token);
-                return prepare;
+                if (await CheckUpdateRights(entity, userId))
+                {
+                    var entry = await repo.GetAsync(entity.Id, token);
+                    entry = UpdateFillFields(entity, entry);
+                    TEntity result = await repo.UpdateAsync(entry, true, token);
+                    var prepare = _mapper.Map<Tdto>(result);
+                    prepare = await Enrich(prepare, token);
+                    return prepare;
+                }
+                throw new Exception("Ошибка доступа к записи: нет прав на изменение");
             });
         }
 
@@ -91,16 +99,26 @@ namespace TaskCollector.Service
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<Tdto> DeleteAsync(Guid id, CancellationToken token)
+        public async Task<Tdto> DeleteAsync(Guid id, Guid userId, CancellationToken token)
         {
             return await ExecuteAsync(async (repo) =>
             {
-                var entry = await repo.GetAsync(id, token);                
-                TEntity result = await repo.DeleteAsync(entry, true, token);
-                var prepare = _mapper.Map<Tdto>(result);
-                prepare = await Enrich(prepare, token);
-                return prepare;
+                var entry = await repo.GetAsync(id, token);
+                if (await CheckDeleteRights(entry, userId))
+                {
+                    TEntity result = await repo.DeleteAsync(entry, true, token);
+                    var prepare = _mapper.Map<Tdto>(result);
+                    prepare = await Enrich(prepare, token);
+                    return prepare;
+                }
+                throw new Exception("Ошибка доступа к записи: нет прав на удаление");
             });
-        }       
+        }
+
+        protected abstract Task<bool> CheckDeleteRights(TEntity entry, Guid userId);
+
+        protected abstract Task<bool> CheckUpdateRights(TUpdater entry, Guid userId);
+
+        protected abstract Task<bool> CheckAddRights(TCreator entry, Guid userId);
     }
 }

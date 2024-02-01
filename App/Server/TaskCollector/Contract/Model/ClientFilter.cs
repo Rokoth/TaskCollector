@@ -10,24 +10,20 @@ namespace TaskCollector.Contract.Model
     /// Filter class for Client model
     /// </summary>
     public class ClientFilter : Filter<Client>
-    {
-        /// <summary>
-        /// ctor
-        /// </summary>
-        /// <param name="size">page size</param>
-        /// <param name="page">page number</param>
-        /// <param name="sort">order by</param>
-        /// <param name="name">client name</param>
-        /// <param name="login">client login</param>
-        /// <param name="userId">Id of user (required)</param>
-        public ClientFilter(int size, int page, string sort, string name, string login, Guid? userId) : base(size, page, sort)
+    {        
+        public string Name { get; set; }
+        public string Login { get; set; }
+
+        public static ClientFilter NameClientFilter(string name)
         {
-            Name = name;
-            Login = login;
-            UserId = userId;
+            return new ClientFilter() { Name = name };
         }
-        public string Name { get; }
-        public string Login { get; }
-        public Guid? UserId { get; }
+
+        public static ClientFilter LoginClientFilter(string login)
+        {
+            return new ClientFilter() { Login = login };
+        }
     }
+
+    
 }

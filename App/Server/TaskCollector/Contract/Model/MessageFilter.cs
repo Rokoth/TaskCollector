@@ -24,13 +24,16 @@ namespace TaskCollector.Contract.Model
         /// <param name="dateFrom"></param>
         /// <param name="dateTo"></param>
         public MessageFilter(int size, int page, string sort, string title, Guid? clientId,
-            List<int> levels, DateTimeOffset? dateFrom, DateTimeOffset? dateTo) : base(size, page, sort)
+            List<int> levels, DateTimeOffset? dateFrom, DateTimeOffset? dateTo) : base()
         {
             Title = title;
             ClientId = clientId;
             Levels = levels;
             DateFrom = dateFrom;
             DateTo = dateTo;
+            Sort = sort;
+            Size = size;
+            Page = page;
         }
         /// <summary>
         /// message title
