@@ -11,6 +11,13 @@ namespace TaskCollector.Contract.Model
     public abstract class Filter<T> : IFilter<T> where T : Entity
     {
         /// <summary>
+        /// Проверка валидности фильтра
+        /// </summary>
+        public bool IsValid()
+        {
+            return InternalValid();
+        }
+        /// <summary>
         /// Page size
         /// </summary>
         public int Size { get; set; } = 10;
@@ -22,5 +29,10 @@ namespace TaskCollector.Contract.Model
         /// Sort field
         /// </summary>
         public string Sort { get; set; }
+
+        protected virtual bool InternalValid()
+        {
+            return Size > 0;
+        }
     }
 }

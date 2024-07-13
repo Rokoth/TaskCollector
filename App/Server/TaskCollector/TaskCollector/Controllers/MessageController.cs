@@ -33,15 +33,14 @@ namespace TaskCollector.Controllers
         }
 
         [Authorize]
-        public async Task<ActionResult> ListPaged(int page = 0, int size = 10, 
-            string sort = null, string title = null, Guid? clientId = null, List<int> levels  = null, DateTimeOffset? from = null, DateTimeOffset? to = null)
+        public async Task<ActionResult> ListPaged([FromQuery] MessageFilter messageFilter)
         {
             try
             {
                 var _dataService = _serviceProvider.GetRequiredService<IGetDataService<Message, MessageFilter>>();
                 CancellationTokenSource source = new CancellationTokenSource(30000);
-                var result = await _dataService.GetAsync(new MessageFilter(size, page, sort, title, clientId, levels, from, to), GetUserId(), source.Token);
-                var pages = result.AllCount % size == 0 ? result.AllCount / 10 : result.AllCount / 10 + 1;
+                var result = await _dataService.GetAsync(messageFilter, GetUserId(), source.Token);
+                var pages = result.AllCount % messageFilter.Size == 0 ? result.AllCount / 10 : result.AllCount / 10 + 1;
                 Response.Headers.Add("x-pages", pages.ToString());
                 return PartialView(result.Data);
             }
