@@ -28,5 +28,23 @@ namespace TaskCollector.Service
                  && (filter.From == null || s.ChangeDate >= filter.From)
                  && (filter.To == null || s.ChangeDate <= filter.To);
         }
+
+        protected override Contract.Model.MessageHistory Map(Db.Model.MessageHistory s)
+        {
+            return new MessageHistory()
+            {
+                Id = s.Id,
+                Level = s.Level,
+                Title = s.Title,
+                FeedbackContact = s.FeedbackContact,
+                CreatedDate = s.CreatedDate,
+                ClientId = s.ClientId,
+                Description = s.Description,
+                AddFileds = s.AddFields,
+                ChangeDate = s.ChangeDate,
+                HId = s.HId,
+                IsDeleted = s.IsDeleted
+            };
+        }
     }
 }

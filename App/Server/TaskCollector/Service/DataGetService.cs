@@ -2,7 +2,6 @@
 //Licensed under the Apache License, Version 2.0
 
 //ref 2
-using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -25,8 +24,7 @@ namespace TaskCollector.Service
         where Tdto : Contract.Model.Entity
         where TFilter : Contract.Model.Filter<Tdto>
     {
-        protected IServiceProvider _serviceProvider;
-        protected IMapper _mapper;
+        protected IServiceProvider _serviceProvider;        
 
         protected abstract string defaultSort { get; }
 
@@ -62,7 +60,6 @@ namespace TaskCollector.Service
         public DataGetService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _mapper = _serviceProvider.GetRequiredService<IMapper>();
         }
 
         /// <summary>
@@ -87,11 +84,13 @@ namespace TaskCollector.Service
                     Sort = sort,
                     Selector = GetFilter(filter, userId)
                 }, token);
-                var prepare = result.Data.Select(s => _mapper.Map<Tdto>(s));
+                var prepare = result.Data.Select(s => Map(s));
                 prepare = await Enrich(prepare, token);
                 return new Contract.Model.PagedResult<Tdto>(prepare, result.AllCount);
             });
         }
+
+        protected abstract Tdto Map(TEntity s);
 
         /// <summary>
         /// get item method
@@ -105,7 +104,7 @@ namespace TaskCollector.Service
             return await ExecuteAsync(async (repo) =>
             {
                 var result = await repo.GetAsync(id, token);
-                var prepare = _mapper.Map<Tdto>(result);
+                var prepare = Map(result);
                 prepare = await Enrich(prepare, token);
                 return prepare;
             });

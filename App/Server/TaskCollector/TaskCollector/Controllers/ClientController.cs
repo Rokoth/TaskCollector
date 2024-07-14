@@ -2,7 +2,6 @@
 ///Licensed under the Apache License, Version 2.0
 ///
 ///ref 2
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -26,23 +25,20 @@ namespace TaskCollector.Controllers
         /// <param name="addDataService"></param>
         /// <param name="updateDataService"></param>
         /// <param name="deleteDataService"></param>
-        /// <param name="mapper"></param>
         public ClientController(
             ILogger<ClientController> logger,
             IGetDataService<Client, ClientFilter> getDataService,
             IGetDataService<ClientHistory, ClientHistoryFilter> getHistoryDataService,
             IAddDataService<Client, ClientCreator> addDataService,
             IUpdateDataService<Client, ClientUpdater> updateDataService,
-            IDeleteDataService<Client> deleteDataService,
-            IMapper mapper) 
+            IDeleteDataService<Client> deleteDataService) 
             : base(
                   logger,
                   getDataService,
                   getHistoryDataService,
                   addDataService,
                   updateDataService,
-                  deleteDataService, 
-                  mapper, 
+                  deleteDataService,
                   nameof(ClientController))
         {                        
             

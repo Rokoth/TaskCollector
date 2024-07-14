@@ -8,7 +8,6 @@ using TaskCollector.Contract.Model;
 using TaskCollector.Service;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using AutoMapper;
 
 namespace TaskCollector.Controllers
 {
@@ -27,7 +26,6 @@ namespace TaskCollector.Controllers
         protected readonly IAddDataService<Tdto, TCreator> _addDataService;
         protected readonly IUpdateDataService<Tdto, TUpdater> _updateDataService;
         protected readonly IDeleteDataService<Tdto> _deleteDataService;
-        protected readonly IMapper _mapper;
 
         public BaseController(
             ILogger<BaseController<Tdto, TFilter, THdto, THFilter, TCreator, TUpdater>> logger, 
@@ -35,8 +33,7 @@ namespace TaskCollector.Controllers
             IGetDataService<THdto, THFilter> getHistoryDataService,
             IAddDataService<Tdto, TCreator> addDataService,
             IUpdateDataService<Tdto, TUpdater> updateDataService,
-            IDeleteDataService<Tdto> deleteDataService,
-            IMapper mapper,
+            IDeleteDataService<Tdto> deleteDataService,           
             string controllerName) : base(logger, controllerName)
         {                       
             _getDataService = getDataService;
@@ -44,7 +41,6 @@ namespace TaskCollector.Controllers
             _addDataService = addDataService;
             _updateDataService = updateDataService;
             _deleteDataService = deleteDataService;
-            _mapper = mapper;
         }
 
         [Authorize]
@@ -107,10 +103,12 @@ namespace TaskCollector.Controllers
             return await ExecuteWithTry(async (userId, token) =>
             {
                 var result = await _getDataService.GetAsync(id, userId, token);
-                return View(_mapper.Map<TUpdater>(result));
+                return View(Map(result));
             },
             nameof(Edit));
         }
+
+        protected abstract TUpdater Map(Tdto result);
 
         [HttpPost]
         [ValidateAntiForgeryToken]

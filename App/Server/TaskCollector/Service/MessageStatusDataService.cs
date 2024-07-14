@@ -61,6 +61,34 @@ namespace TaskCollector.Service
             return client.UserId == userId;
         }
 
+        protected override Contract.Model.MessageStatus Map(Db.Model.MessageStatus model)
+        {
+            return new MessageStatus()
+            {
+                Id = model.Id,
+                Description = model.Description,
+                MessageId = model.MessageId,
+                NextNotifyDate = model.NextNotifyDate,
+                StatusDate = model.StatusDate,
+                StatusId = model.StatusId,
+                UserId = model.UserId,
+                IsLast = model.IsLast               
+            };
+        }
+
+        protected override Db.Model.MessageStatus Map(MessageStatusCreator model)
+        {
+            return new Db.Model.MessageStatus()
+            {                
+                Description = model.Description,
+                MessageId = model.MessageId,
+                NextNotifyDate = model.NextNotifyDate,
+                StatusDate = model.StatusDate,
+                StatusId = model.StatusId,
+                UserId = model.UserId
+            };
+        }
+
         protected override string defaultSort => "StatusDate";
     }
 }

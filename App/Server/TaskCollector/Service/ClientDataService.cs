@@ -119,6 +119,30 @@ namespace TaskCollector.Service
             return true;
         }
 
+        protected override Contract.Model.Client Map(Db.Model.Client s)
+        {
+            return new Client()
+            {
+                Description = s.Description,
+                Login = s.Login,
+                Name = s.Name,
+                Id = s.Id,
+                MapRules = s.MapRules,
+                UserId = s.UserId
+            };
+        }
+
+        protected override Db.Model.Client Map(ClientCreator creator)
+        {
+            return new Db.Model.Client()
+            {
+                Description = creator.Description,
+                Login = creator.Login,
+                Name = creator.Name,                
+                MapRules = creator.MapRules
+            };
+        }
+
         /// <summary>
         /// default field for sort
         /// </summary>

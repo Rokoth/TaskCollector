@@ -68,5 +68,27 @@ namespace TaskCollector.Service
             var user = await userRepo.GetAsync(userId, CancellationToken.None);
             return user.Login.ToLower() == "admin";
         }
+
+        protected override Contract.Model.User Map(Db.Model.User model)
+        {
+            return new Contract.Model.User()
+            {
+                Id = model.Id,  
+                Name = model.Name,
+                Description = model.Description,
+                Email = model.Email,
+                Login = model.Login,
+            };
+        }
+
+        protected override Db.Model.User Map(UserCreator model)
+        {
+            return new Db.Model.User()
+            {               
+                Name = model.Name,
+                Description = model.Description,                
+                Login = model.Login,
+            };
+        }
     }
 }

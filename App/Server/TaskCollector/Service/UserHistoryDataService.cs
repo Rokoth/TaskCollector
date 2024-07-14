@@ -25,5 +25,19 @@ namespace TaskCollector.Service
             return s => (filter.Name == null || s.Name.Contains(filter.Name))
                 && (filter.Id == null || s.Id == filter.Id);
         }
+
+        protected override Contract.Model.UserHistory Map(Db.Model.UserHistory s)
+        {
+            return new UserHistory()
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Login = s.Login,
+                Description = s.Description,
+                ChangeDate = s.ChangeDate,
+                HId = s.HId,
+                IsDeleted = s.IsDeleted,
+            };
+        }
     }
 }

@@ -53,7 +53,7 @@ namespace TaskCollector.Service
                   VersionDate = DateTimeOffset.Now
                 }, false, token);
                 await repo.SaveChangesAsync();
-                var prepare = _mapper.Map<Contract.Model.Message>(result);
+                var prepare = Map(result);
                 prepare = await Enrich(prepare, token);
                 return prepare;
             });
@@ -88,6 +88,35 @@ namespace TaskCollector.Service
             var clientRepo = _serviceProvider.GetRequiredService<Db.Interface.IRepository<Db.Model.Client>>();
             var client = await clientRepo.GetAsync(entry.ClientId, CancellationToken.None);
             return client.UserId == userId;
+        }
+
+        protected override Contract.Model.Message Map(Db.Model.Message model)
+        {
+            return new Message()
+            {
+                Id = model.Id,
+                Description = model.Description,
+                AddFields = model.AddFields,
+                ClientId = model.ClientId,
+                CreatedDate = model.CreatedDate,
+                FeedbackContact = model.FeedbackContact,
+                Level = model.Level,
+                Title = model.Title
+            };
+        }
+
+        protected override Db.Model.Message Map(MessageCreator model)
+        {
+            return new Db.Model.Message()
+            {               
+                Description = model.Description,
+                AddFields = model.AddFields,
+                ClientId = model.ClientId,
+                CreatedDate = model.CreatedDate,
+                FeedbackContact = model.FeedbackContact,
+                Level = model.Level,
+                Title = model.Title
+            };
         }
 
         protected override string defaultSort => "Title";

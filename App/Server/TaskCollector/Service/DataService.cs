@@ -39,12 +39,14 @@ namespace TaskCollector.Service
 
         protected virtual TEntity MapToEntityAdd(TCreator creator, Guid userId)
         {
-            var result = _mapper.Map<TEntity>(creator);
+            var result = Map(creator);
             result.Id = Guid.NewGuid();
             result.IsDeleted = false;
             result.VersionDate = DateTimeOffset.Now;
             return result;
         }
+
+        protected abstract TEntity Map(TCreator creator);
 
         /// <summary>
         /// add item method
@@ -60,7 +62,7 @@ namespace TaskCollector.Service
                 {
                     var entity = MapToEntityAdd(creator, userId);
                     var result = await repo.AddAsync(entity, true, token);
-                    var prepare = _mapper.Map<Tdto>(result);
+                    var prepare = Map(result);
                     prepare = await Enrich(prepare, token);
                     return prepare;
                 }
@@ -83,7 +85,7 @@ namespace TaskCollector.Service
                     var entry = await repo.GetAsync(entity.Id, token);
                     entry = UpdateFillFields(entity, entry);
                     TEntity result = await repo.UpdateAsync(entry, true, token);
-                    var prepare = _mapper.Map<Tdto>(result);
+                    var prepare = Map(result);
                     prepare = await Enrich(prepare, token);
                     return prepare;
                 }
@@ -107,7 +109,7 @@ namespace TaskCollector.Service
                 if (await CheckDeleteRights(entry, userId))
                 {
                     TEntity result = await repo.DeleteAsync(entry, true, token);
-                    var prepare = _mapper.Map<Tdto>(result);
+                    var prepare = Map(result);
                     prepare = await Enrich(prepare, token);
                     return prepare;
                 }
