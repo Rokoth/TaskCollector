@@ -1,0 +1,35 @@
+﻿@model IEnumerable<TaskCollector.Contract.Model.MessageHistory>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(s => s.Id)</th>
+            <th>@Html.DisplayNameFor(s => s.Title)</th>
+            <th>@Html.DisplayNameFor(s => s.Description)</th>
+            <th>@Html.DisplayNameFor(s => s.AddFileds)</th>
+            <th>@Html.DisplayNameFor(s => s.ClientId)</th>
+            <th>@Html.DisplayNameFor(s => s.CreatedDate)</th>
+            <th>@Html.DisplayNameFor(s => s.FeedbackContact)</th>
+            <th>@Html.DisplayNameFor(s => s.IsDeleted)</th>
+            <th>@Html.DisplayNameFor(s => s.ChangeDate)</th>
+            <th>@Html.DisplayNameFor(s => s.Level)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+                <td>@item.Id</td>
+                <td>@item.Title</td>
+                <td>@item.Description</td>
+                <td>@item.AddFileds</td>
+                <td>@item.ClientId</td>
+                <td>@item.CreatedDate</td>
+                <td>@item.FeedbackContact</td>
+                <td>@item.IsDeleted</td>
+                <td>@item.ChangeDate</td>
+                <td>@item.Level</td>
+        </tr>
+        }
+    </tbody>
+</table>

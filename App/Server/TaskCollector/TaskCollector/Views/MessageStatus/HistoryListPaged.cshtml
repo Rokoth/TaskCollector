@@ -1,0 +1,37 @@
+﻿@model IEnumerable<TaskCollector.Contract.Model.MessageStatusHistory>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(s => s.Id)</th>
+            <th>@Html.DisplayNameFor(s => s.IsLast)</th>
+            <th>@Html.DisplayNameFor(s => s.Description)</th>
+            <th>@Html.DisplayNameFor(s => s.MessageId)</th>
+            <th>@Html.DisplayNameFor(s => s.NextNotifyDate)</th>
+            <th>@Html.DisplayNameFor(s => s.UserId)</th>
+            <th>@Html.DisplayNameFor(s => s.IsDeleted)</th>
+            <th>@Html.DisplayNameFor(s => s.ChangeDate)</th>
+            <th>@Html.DisplayNameFor(s => s.Status)</th>
+            <th>@Html.DisplayNameFor(s => s.StatusDate)</th>
+            <th>@Html.DisplayNameFor(s => s.StatusId)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>@item.Id</td>
+                <td>@item.IsLast</td>
+            <td>@item.Description</td>
+                <td>@item.MessageId </td>
+                <td>@item.NextNotifyDate</td>
+            <td>@item.UserId</td>            
+            <td>@item.IsDeleted</td>
+            <td>@item.ChangeDate</td>
+                <td>@item.Status</td>
+                <td>@item.StatusDate</td>
+                <td>@item.StatusId</td>
+        </tr>
+        }
+    </tbody>
+</table>
