@@ -37,13 +37,9 @@ namespace TaskCollector.Contract.Model
         [Display(Name = "ID пользователя")]
         public Guid UserId { get; set; }
         [Display(Name = "Описание")]
-        public string Description { get; set; }
-        [Display(Name = "Текущий статус")]
-        public bool IsLast { get; set; }
+        public string Description { get; set; }        
         [Display(Name = "Дата статуса")]
-        public DateTimeOffset StatusDate { get; set; }
-        [Display(Name = "Дата следующего уведомления")]
-        public DateTimeOffset? NextNotifyDate { get; set; }
+        public DateTimeOffset StatusDate { get; set; }        
         [Display(Name = "Сообщение")]
         public Message Message { get; set; }
         [Display(Name = "Пользователь")]

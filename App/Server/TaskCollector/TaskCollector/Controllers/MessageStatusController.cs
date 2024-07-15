@@ -52,6 +52,32 @@ namespace TaskCollector.Controllers
             }
         }
 
+        // GET: MessageController
+        [Authorize]
+        public ActionResult History()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public async Task<ActionResult> HistoryListPaged(Guid messageId, Guid id, int page = 0, int size = 10, DateTimeOffset? from = null, DateTimeOffset? to = null, string sort = null, string name = null)
+        {
+            try
+            {
+                var _dataService = _serviceProvider.GetRequiredService<IGetDataService<MessageStatusHistory, MessageStatusHistoryFilter>>();
+                CancellationTokenSource source = new(30000);
+                var result = await _dataService.GetAsync(
+                    new MessageStatusHistoryFilter(size, page, sort, id, messageId, from, to), GetUserId(), source.Token);
+                var pages = result.AllCount % size == 0 ? result.AllCount / 10 : result.AllCount / 10 + 1;
+                Response.Headers.Append("x-pages", pages.ToString());
+                return PartialView(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Index", "Error", new { Message = ex.Message });
+            }
+        }
+
         ///GET: MessageController/Details/5
         [Authorize]
         public async Task<ActionResult> Details(Guid id)
